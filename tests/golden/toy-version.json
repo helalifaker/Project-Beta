@@ -1,0 +1,114 @@
+{
+  "version": {
+    "id": "toy-version-001",
+    "name": "Toy Version - Simple Test Case",
+    "status": "DRAFT",
+    "rentModelType": "FIXED_ESC"
+  },
+  "assumptions": {
+    "leaseTerms": {
+      "rentModelType": "FIXED_ESC",
+      "baseAmount": 5000000,
+      "escalationRate": 0.03,
+      "indexationRate": 0.02,
+      "indexationFrequency": "ANNUAL",
+      "startYear": 2028
+    },
+    "curriculum": {
+      "capacity": 2000,
+      "enrollmentPlan": {
+        "2023": 1500,
+        "2024": 1550,
+        "2025": 1600,
+        "2026": 1650,
+        "2027": 1700,
+        "2028": 1800,
+        "2029": 1850,
+        "2030": 1900,
+        "2031": 1950,
+        "2032": 2000
+      },
+      "curricula": [
+        {
+          "name": "National",
+          "percentage": 0.6,
+          "tuitionBase": 50000,
+          "cpiRate": 0.025,
+          "cpiPeriodicity": 1
+        },
+        {
+          "name": "International",
+          "percentage": 0.4,
+          "tuitionBase": 80000,
+          "cpiRate": 0.03,
+          "cpiPeriodicity": 1
+        }
+      ]
+    },
+    "staffing": {
+      "teacherRatio": 20,
+      "teacherAvgCost": 120000,
+      "supportRatio": 50,
+      "supportAvgCost": 80000,
+      "escalationRate": 0.04
+    },
+    "opex": {
+      "utilities": 0.025,
+      "maintenance": 0.015,
+      "supplies": 0.02,
+      "insurance": 0.01,
+      "marketing": 0.03,
+      "admin": 0.05
+    },
+    "capex": {
+      "categories": [
+        {
+          "name": "Technology",
+          "type": "CYCLE",
+          "cycleYears": 3,
+          "baseCost": 1000000,
+          "costPerStudent": 500,
+          "escalationRate": 0.05
+        },
+        {
+          "name": "Facilities",
+          "type": "UTILIZATION",
+          "threshold": 0.85,
+          "baseCost": 5000000,
+          "costPerCapacity": 2500,
+          "escalationRate": 0.03
+        }
+      ]
+    }
+  },
+  "expectedResults": {
+    "npv": {
+      "discountRate": 0.08,
+      "rentNpv": 82500000,
+      "tolerance": 100000
+    },
+    "financials": {
+      "2028": {
+        "revenue": 115200000,
+        "cogs": 25000000,
+        "ebitda": 90200000,
+        "ebitdaMargin": 0.78,
+        "netIncome": 85000000
+      },
+      "2032": {
+        "revenue": 130000000,
+        "cogs": 28000000,
+        "ebitda": 102000000,
+        "ebitdaMargin": 0.78,
+        "netIncome": 95000000
+      }
+    },
+    "validation": {
+      "criticalCount": 0,
+      "warningCount": 0,
+      "balanceSheetBalances": true
+    }
+  },
+  "notes": "This is a simplified test case with known-good inputs and expected outputs. Used for smoke testing the financial engine."
+}
+

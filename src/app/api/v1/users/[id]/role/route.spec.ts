@@ -4,11 +4,13 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { PUT } from './route';
-
 import { requireRole } from '@/lib/auth/session';
 import { updateUserRole } from '@/lib/auth/utils';
 import { prisma } from '@/lib/db/prisma';
+import type { Session } from '@/types/auth';
+
+import { PUT } from './route';
+
 type PrismaProfileMock = {
   findMany: ReturnType<typeof vi.fn>;
   count: ReturnType<typeof vi.fn>;
@@ -38,7 +40,6 @@ const resetPrismaMock = (): void => {
   prismaMock.profile.update.mockReset();
   prismaMock.profile.delete.mockReset();
 };
-import type { Session } from '@/types/auth';
 
 vi.mock('@/lib/auth/session');
 vi.mock('@/lib/auth/utils');

@@ -10,7 +10,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -63,7 +62,7 @@ async function fetchAuditLog(params: {
 }
 
 export function AuditLogViewer(): JSX.Element {
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [entityTypeFilter, setEntityTypeFilter] = useState<string>('all');
   const [actionFilter, setActionFilter] = useState<string>('all');
   const entityTypeLabelId = 'audit-log-entity-type-label';
@@ -85,7 +84,6 @@ export function AuditLogViewer(): JSX.Element {
   }
 
   const entries = data?.data || [];
-  const pagination = data?.pagination || { page: 1, limit: 50, total: 0, totalPages: 1 };
 
   return (
     <div className="space-y-6">

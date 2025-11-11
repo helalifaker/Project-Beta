@@ -7,7 +7,6 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
-import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse, paginatedResponse } from '@/lib/api/response';
 import { paginationSchema, filterSchema } from '@/lib/api/schemas';
@@ -20,7 +19,7 @@ const createVersionSchema = z.object({
 });
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { session, query } = await applyApiMiddleware(request, {
+  const { query } = await applyApiMiddleware(request, {
     requireAuth: true,
     validateQuery: paginationSchema.merge(filterSchema),
   });

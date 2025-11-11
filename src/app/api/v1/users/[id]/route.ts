@@ -10,7 +10,6 @@ import { z } from 'zod';
 import { requireRole } from '@/lib/auth/session';
 import { updateUserRole } from '@/lib/auth/utils';
 import { prisma } from '@/lib/db/prisma';
-import type { UserRole } from '@/types/auth';
 
 const UpdateUserSchema = z.object({
   role: z.enum(['ADMIN', 'ANALYST', 'VIEWER']).optional(),

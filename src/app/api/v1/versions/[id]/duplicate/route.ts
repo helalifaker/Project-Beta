@@ -19,7 +19,7 @@ const duplicateVersionSchema = z.object({
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
     const { session, body } = await applyApiMiddleware(request, {
       requireAuth: true,

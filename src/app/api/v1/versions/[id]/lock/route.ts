@@ -6,7 +6,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
-import { NotFoundError, ForbiddenError } from '@/lib/api/errors';
+import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse } from '@/lib/api/response';
 import { idParamSchema } from '@/lib/api/schemas';
@@ -19,7 +19,7 @@ const lockVersionSchema = z.object({
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
     const { session, body } = await applyApiMiddleware(request, {
       requireAuth: true,

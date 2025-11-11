@@ -4,12 +4,11 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { AuditLogViewer } from '../audit-log-viewer';
 
-const createTestQueryClient = () =>
+const createTestQueryClient = (): QueryClient =>
   new QueryClient({
     defaultOptions: {
       queries: { retry: false },

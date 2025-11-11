@@ -5,12 +5,15 @@ import { describe, it, expect, vi } from 'vitest';
 import { AdminDashboard } from '../admin-dashboard';
 
 vi.mock('next/link', () => ({
-  default: React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'>>(
-    ({ href, children, ...props }, ref) => (
-      <a ref={ref} href={href} {...props}>
-        {children}
-      </a>
+  default: Object.assign(
+    React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'>>(
+      ({ href, children, ...props }, ref) => (
+        <a ref={ref} href={href} {...props}>
+          {children}
+        </a>
+      ),
     ),
+    { displayName: 'Link' }
   ),
 }));
 

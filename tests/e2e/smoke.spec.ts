@@ -24,8 +24,11 @@ test.describe('Smoke Tests', () => {
   test('should display the relocation program badge', async ({ page }) => {
     await page.goto('/');
 
-    // Check for the 2028 Relocation Program badge
-    const badge = page.getByText('2028 Relocation Program');
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+
+    // Check for the 2028 Relocation Program badge (use first() to avoid strict mode violation)
+    const badge = page.getByText('2028 Relocation Program').first();
     await expect(badge).toBeVisible();
   });
 

@@ -4,6 +4,10 @@ test.describe('Admin flows', () => {
   test('admin dashboard renders navigation cards', async ({ page }) => {
     await page.goto('/admin');
 
+    // Wait for page to load and Suspense to resolve
+    await page.waitForLoadState('networkidle');
+    await page.waitForSelector('h1:has-text("Admin Dashboard")', { timeout: 10000 });
+
     await expect(
       page.getByRole('heading', { name: 'Admin Dashboard' }),
     ).toBeVisible();
@@ -71,6 +75,10 @@ test.describe('Admin flows', () => {
 
     await page.goto('/admin/workspace');
 
+    // Wait for Suspense boundary to resolve and form to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForSelector('label:has-text("Workspace Name")', { timeout: 10000 });
+
     const nameInput = page.getByLabel('Workspace Name');
     await expect(nameInput).toHaveValue('Default Workspace');
 
@@ -129,6 +137,10 @@ test.describe('Admin flows', () => {
     });
 
     await page.goto('/admin/audit-log');
+
+    // Wait for Suspense boundary to resolve and page to load
+    await page.waitForLoadState('networkidle');
+    await page.waitForSelector('h1:has-text("Audit Log")', { timeout: 10000 });
 
     await expect(page.getByRole('heading', { name: 'Audit Log' })).toBeVisible();
     await expect(page.getByText('CREATE template')).toBeVisible();

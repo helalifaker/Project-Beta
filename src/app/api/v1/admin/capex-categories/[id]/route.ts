@@ -56,10 +56,20 @@ export async function PUT(
 
     const { id } = await params;
     const validated = idParamSchema.parse({ id });
+    const updateData = body as z.infer<typeof updateCapexCategorySchema>;
+
+    // Filter out undefined values for exactOptionalPropertyTypes
+    const updateInput: { name?: string; description?: string } = {};
+    if (updateData.name !== undefined) {
+      updateInput.name = updateData.name;
+    }
+    if (updateData.description !== undefined) {
+      updateInput.description = updateData.description;
+    }
 
     const category = await capexCategoryRepository.update(
       { id: validated.id },
-      body as z.infer<typeof updateCapexCategorySchema>
+      updateInput
     );
 
     return successResponse(category);

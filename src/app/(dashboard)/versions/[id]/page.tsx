@@ -3,6 +3,7 @@
  * Displays version details with tabs for assumptions and statements
  */
 
+import type { JSX } from 'react';
 import { Suspense } from 'react';
 
 import { VersionDetail } from '@/components/features/versions/version-detail';

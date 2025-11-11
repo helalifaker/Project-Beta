@@ -23,6 +23,11 @@ export default function AuthCallbackPage(): JSX.Element {
         const supabase = getSupabaseClient();
         const redirect = searchParams.get('redirect') || '/';
 
+        // Debug: Log the full URL to see what we're receiving
+        console.log('Callback URL:', window.location.href);
+        console.log('Hash:', window.location.hash);
+        console.log('Search params:', window.location.search);
+
         // Check for hash fragment (magic link format: #access_token=...&type=magiclink)
         const hash = window.location.hash.substring(1); // Remove the #
         const hashParams = new URLSearchParams(hash);
@@ -30,16 +35,48 @@ export default function AuthCallbackPage(): JSX.Element {
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
         const type = hashParams.get('type');
+        const errorParam = hashParams.get('error');
+        const errorDescription = hashParams.get('error_description');
+
+        console.log('Parsed tokens:', {
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          type,
+          errorParam,
+          errorDescription,
+        });
+
+        // Check for errors in hash fragment
+        if (errorParam) {
+          console.error('Auth error in hash:', errorParam, errorDescription);
+          setError(errorDescription || errorParam || 'Authentication failed');
+          setIsLoading(false);
+          setTimeout(() => {
+            router.push(`/login?error=${encodeURIComponent(errorParam)}&redirect=${encodeURIComponent(redirect)}`);
+          }, 2000);
+          return;
+        }
 
         // If we have tokens in hash, set the session
         if (accessToken && refreshToken) {
-          const { error: sessionError } = await supabase.auth.setSession({
+          console.log('Setting session with tokens from hash fragment');
+          const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
 
           if (sessionError) {
             console.error('Session error:', sessionError);
+            setError(sessionError.message || 'Failed to create session. Please try again.');
+            setIsLoading(false);
+            setTimeout(() => {
+              router.push(`/login?error=session&redirect=${encodeURIComponent(redirect)}`);
+            }, 2000);
+            return;
+          }
+
+          if (!sessionData.session) {
+            console.error('No session returned after setSession');
             setError('Failed to create session. Please try again.');
             setIsLoading(false);
             setTimeout(() => {

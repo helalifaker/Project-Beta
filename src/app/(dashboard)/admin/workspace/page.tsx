@@ -3,6 +3,7 @@
  * Configure workspace-level settings
  */
 
+import type { JSX } from 'react';
 import { Suspense } from 'react';
 
 import { WorkspaceSettings } from '@/components/features/admin/workspace-settings';

@@ -3,6 +3,7 @@
  * Displays all versions with filtering and sorting
  */
 
+import type { JSX } from 'react';
 import { Suspense } from 'react';
 
 import { VersionList } from '@/components/features/versions/version-list';

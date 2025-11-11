@@ -50,7 +50,7 @@ export async function GET(
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
     const { session, body } = await applyApiMiddleware(request, {
       requireAuth: true,
@@ -73,9 +73,9 @@ export async function PUT(
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session } = await applyApiMiddleware(request, {
+    await applyApiMiddleware(request, {
       requireAuth: true,
       requireRole: 'ADMIN',
     });

@@ -3,6 +3,7 @@
  * Manage rent model templates
  */
 
+import type { JSX } from 'react';
 import { Suspense } from 'react';
 
 import { RentTemplatesList } from '@/components/features/admin/rent-templates-list';

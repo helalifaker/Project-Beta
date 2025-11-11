@@ -3,6 +3,7 @@
  * Compare multiple versions side-by-side
  */
 
+import type { JSX } from 'react';
 import { Suspense } from 'react';
 
 import { ComparisonView } from '@/components/features/compare/comparison-view';

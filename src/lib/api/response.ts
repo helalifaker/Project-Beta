@@ -11,7 +11,7 @@ export interface ApiResponse<T = unknown> {
   message?: string;
   fields?: Record<string, string[]>;
   meta?: {
-    timestamp: string;
+    timestamp?: string;
     requestId?: string;
     resource?: string;
     id?: string;

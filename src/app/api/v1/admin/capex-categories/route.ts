@@ -33,9 +33,17 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     validateBody: createCapexCategorySchema,
   });
 
-  const category = await capexCategoryRepository.create(
-    body as z.infer<typeof createCapexCategorySchema>
-  );
+  const createData = body as z.infer<typeof createCapexCategorySchema>;
+
+  // Filter out undefined values for exactOptionalPropertyTypes
+  const createInput: { name: string; description?: string } = {
+    name: createData.name,
+  };
+  if (createData.description !== undefined) {
+    createInput.description = createData.description;
+  }
+
+  const category = await capexCategoryRepository.create(createInput);
 
   return successResponse(category, 201);
 });

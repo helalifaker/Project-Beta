@@ -2,11 +2,13 @@
  * Integration tests for capex rule detail API routes
  */
 
+import { NextRequest } from 'next/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { capexRuleRepository } from '@/lib/db/repositories/capex-rule-repository';
+import type { Session } from '@/types/auth';
 
 import { GET, PUT, DELETE } from './route';
 
@@ -38,8 +40,16 @@ vi.mock('@/lib/db/repositories/capex-rule-repository', () => ({
   },
 }));
 
-const mockSession = {
-  user: { id: 'user-1', email: 'admin@example.com', role: 'ADMIN' },
+const mockSession: Session = {
+  user: {
+    id: 'user-1',
+    email: 'admin@example.com',
+    role: 'ADMIN',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  accessToken: 'mock-access-token',
+  expiresAt: new Date(Date.now() + 3600000),
 };
 
 const mockRule = {
@@ -47,12 +57,23 @@ const mockRule = {
   name: 'Technology Refresh',
   triggerType: 'CYCLE' as const,
   triggerParams: { cycleYears: 3 },
-  baseCost: 100000,
-  costPerStudent: 500,
-  escalationRate: 0.03,
+  baseCost: null,
+  costPerStudent: null,
+  escalationRate: null,
   categoryId: 'cat-1',
   createdAt: new Date('2024-01-01T00:00:00.000Z'),
   updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+} as unknown as {
+  id: string;
+  name: string;
+  triggerType: 'CYCLE';
+  triggerParams: Record<string, unknown>;
+  baseCost: null;
+  costPerStudent: null;
+  escalationRate: null;
+  categoryId: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 describe('GET /api/v1/admin/capex-rules/[id]', () => {
@@ -60,10 +81,10 @@ describe('GET /api/v1/admin/capex-rules/[id]', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
     });
-    vi.mocked(capexRuleRepository.findUnique).mockResolvedValue(mockRule);
+    vi.mocked(capexRuleRepository.findUnique).mockResolvedValue(mockRule as unknown as Awaited<ReturnType<typeof capexRuleRepository.findUnique>>);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002'),
+      new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002'),
       { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
     );
 
@@ -83,7 +104,7 @@ describe('GET /api/v1/admin/capex-rules/[id]', () => {
     vi.mocked(capexRuleRepository.findUnique).mockResolvedValue(null);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440003'),
+      new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440003'),
       { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440003' }) },
     );
 
@@ -95,7 +116,7 @@ describe('GET /api/v1/admin/capex-rules/[id]', () => {
 
     await expect(
       GET(
-        new Request('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002'),
+        new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002'),
         { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
       ),
     ).rejects.toThrow('Unauthorized');
@@ -115,7 +136,7 @@ describe('PUT /api/v1/admin/capex-rules/[id]', () => {
     });
 
     const response = await PUT(
-      new Request('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
+      new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
         method: 'PUT',
         body: JSON.stringify(updateData),
       }),
@@ -133,7 +154,7 @@ describe('PUT /api/v1/admin/capex-rules/[id]', () => {
 
     await expect(
       PUT(
-        new Request('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
+        new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
           method: 'PUT',
           body: JSON.stringify({ name: 'Updated' }),
         }),
@@ -148,10 +169,10 @@ describe('DELETE /api/v1/admin/capex-rules/[id]', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
     });
-    vi.mocked(capexRuleRepository.delete).mockResolvedValue(undefined);
+    vi.mocked(capexRuleRepository.delete).mockResolvedValue(mockRule as unknown as Awaited<ReturnType<typeof capexRuleRepository.delete>>);
 
     const response = await DELETE(
-      new Request('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
+      new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
         method: 'DELETE',
       }),
       { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
@@ -167,7 +188,7 @@ describe('DELETE /api/v1/admin/capex-rules/[id]', () => {
 
     await expect(
       DELETE(
-        new Request('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
+        new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
           method: 'DELETE',
         }),
         { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },

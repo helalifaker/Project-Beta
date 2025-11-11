@@ -18,17 +18,17 @@ const createRentTemplateSchema = z.object({
 });
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { session } = await applyApiMiddleware(request, {
+  await applyApiMiddleware(request, {
     requireAuth: true,
   });
 
-  const templates = await rentTemplateRepository.findAll();
+  const templates = await rentTemplateRepository.findMany();
 
   return successResponse(templates);
 });
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { session, body } = await applyApiMiddleware(request, {
+  const { body } = await applyApiMiddleware(request, {
     requireAuth: true,
     requireRole: 'ADMIN',
     validateBody: createRentTemplateSchema,

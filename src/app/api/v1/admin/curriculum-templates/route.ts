@@ -23,7 +23,7 @@ const createCurriculumTemplateSchema = z.object({
 });
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { session } = await applyApiMiddleware(request, {
+  await applyApiMiddleware(request, {
     requireAuth: true,
   });
 
@@ -34,17 +34,18 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 });
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { session, body } = await applyApiMiddleware(request, {
+  const { body } = await applyApiMiddleware(request, {
     requireAuth: true,
     requireRole: 'ADMIN',
     validateBody: createCurriculumTemplateSchema,
   });
 
   const workspace = await workspaceRepository.getOrCreateDefault();
+  const createData = body as z.infer<typeof createCurriculumTemplateSchema>;
   const template = await curriculumTemplateRepository.create({
-    ...(body as z.infer<typeof createCurriculumTemplateSchema>),
+    ...createData,
     workspaceId: workspace.id,
-    launchYear: body.launchYear || 2028,
+    launchYear: createData.launchYear || 2028,
   });
 
   return successResponse(template, 201);

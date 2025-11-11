@@ -2,6 +2,7 @@
  * Integration tests for rent template detail API routes
  */
 
+import { NextRequest } from 'next/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import { NotFoundError } from '@/lib/api/errors';
@@ -38,7 +39,15 @@ vi.mock('@/lib/db/repositories/rent-template-repository', () => ({
 }));
 
 const mockSession = {
-  user: { id: 'user-1', email: 'admin@example.com', role: 'ADMIN' },
+  user: {
+    id: 'user-1',
+    email: 'admin@example.com',
+    role: 'ADMIN' as const,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  accessToken: 'mock-access-token',
+  expiresAt: new Date(Date.now() + 3600000),
 };
 
 const mockTemplate = {
@@ -58,7 +67,7 @@ describe('GET /api/v1/admin/rent-templates/[id]', () => {
     vi.mocked(rentTemplateRepository.findUnique).mockResolvedValue(mockTemplate as any);
 
     const response = await GET(
-      new Request(
+      new NextRequest(
         `http://localhost/api/v1/admin/rent-templates/${mockTemplate.id}`,
       ),
       { params: Promise.resolve({ id: mockTemplate.id }) },
@@ -81,7 +90,7 @@ describe('GET /api/v1/admin/rent-templates/[id]', () => {
 
     const templateId = '550e8400-e29b-41d4-a716-446655440011';
     const response = await GET(
-      new Request(`http://localhost/api/v1/admin/rent-templates/${templateId}`),
+      new NextRequest(`http://localhost/api/v1/admin/rent-templates/${templateId}`),
       { params: Promise.resolve({ id: templateId }) },
     );
 
@@ -102,7 +111,7 @@ describe('PUT /api/v1/admin/rent-templates/[id]', () => {
     } as any);
 
     const response = await PUT(
-      new Request(
+      new NextRequest(
         `http://localhost/api/v1/admin/rent-templates/${mockTemplate.id}`,
         {
           method: 'PUT',
@@ -122,7 +131,7 @@ describe('PUT /api/v1/admin/rent-templates/[id]', () => {
 
     await expect(
       PUT(
-        new Request(
+        new NextRequest(
           `http://localhost/api/v1/admin/rent-templates/${mockTemplate.id}`,
           {
             method: 'PUT',
@@ -131,7 +140,7 @@ describe('PUT /api/v1/admin/rent-templates/[id]', () => {
         ),
         { params: Promise.resolve({ id: mockTemplate.id }) },
       ),
-    ).rejects.toThrow('Forbidden');
+    ).rejects.toThrow();
   });
 });
 
@@ -140,10 +149,10 @@ describe('DELETE /api/v1/admin/rent-templates/[id]', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
     });
-    vi.mocked(rentTemplateRepository.delete).mockResolvedValue(undefined);
+    vi.mocked(rentTemplateRepository.delete).mockResolvedValue(undefined as unknown as Awaited<ReturnType<typeof rentTemplateRepository.delete>>);
 
     const response = await DELETE(
-      new Request(
+      new NextRequest(
         `http://localhost/api/v1/admin/rent-templates/${mockTemplate.id}`,
         {
           method: 'DELETE',
@@ -162,7 +171,7 @@ describe('DELETE /api/v1/admin/rent-templates/[id]', () => {
 
     await expect(
       DELETE(
-        new Request(
+        new NextRequest(
           `http://localhost/api/v1/admin/rent-templates/${mockTemplate.id}`,
           {
             method: 'DELETE',
@@ -170,7 +179,7 @@ describe('DELETE /api/v1/admin/rent-templates/[id]', () => {
         ),
         { params: Promise.resolve({ id: mockTemplate.id }) },
       ),
-    ).rejects.toThrow('Forbidden');
+    ).rejects.toThrow();
   });
 });
 

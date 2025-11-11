@@ -80,15 +80,20 @@ export async function requireAuth(): Promise<Session> {
 }
 
 /**
- * Require specific role
- * Throws error if user doesn't have required role
+ * Require specific role or higher (using RBAC hierarchy)
+ * ADMIN has access to everything
+ * Throws error if user doesn't have required role or higher
  */
 export async function requireRole(
   requiredRole: User['role']
 ): Promise<Session> {
   const session = await requireAuth();
 
-  if (session.user.role !== requiredRole) {
+  // Import RBAC utilities
+  const { hasRole } = await import('@/lib/auth/rbac');
+
+  // Check if user has required role or higher
+  if (!hasRole(session.user.role, requiredRole)) {
     throw new Error('FORBIDDEN');
   }
 

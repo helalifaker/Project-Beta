@@ -25,9 +25,9 @@ const updateCurriculumTemplateSchema = z.object({
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session } = await applyApiMiddleware(request, {
+    await applyApiMiddleware(request, {
       requireAuth: true,
     });
 
@@ -49,9 +49,9 @@ export async function GET(
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session, body } = await applyApiMiddleware(request, {
+    const { body } = await applyApiMiddleware(request, {
       requireAuth: true,
       requireRole: 'ADMIN',
       validateBody: updateCurriculumTemplateSchema,
@@ -59,10 +59,35 @@ export async function PUT(
 
     const { id } = await params;
     const validated = idParamSchema.parse({ id });
+    const updateData = body as z.infer<typeof updateCurriculumTemplateSchema>;
+
+    // Filter out undefined values for exactOptionalPropertyTypes
+    const updateInput: {
+      name?: string;
+      capacity?: number;
+      tuitionBase?: number;
+      cpiRate?: number;
+      cpiFrequency?: 'ANNUAL' | 'EVERY_2_YEARS' | 'EVERY_3_YEARS';
+    } = {};
+    if (updateData.name !== undefined) {
+      updateInput.name = updateData.name;
+    }
+    if (updateData.capacity !== undefined) {
+      updateInput.capacity = updateData.capacity;
+    }
+    if (updateData.tuitionBase !== undefined) {
+      updateInput.tuitionBase = updateData.tuitionBase;
+    }
+    if (updateData.cpiRate !== undefined) {
+      updateInput.cpiRate = updateData.cpiRate;
+    }
+    if (updateData.cpiFrequency !== undefined) {
+      updateInput.cpiFrequency = updateData.cpiFrequency;
+    }
 
     const template = await curriculumTemplateRepository.update(
       { id: validated.id },
-      body as z.infer<typeof updateCurriculumTemplateSchema>
+      updateInput
     );
 
     return successResponse(template);
@@ -72,9 +97,9 @@ export async function PUT(
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session } = await applyApiMiddleware(request, {
+    await applyApiMiddleware(request, {
       requireAuth: true,
       requireRole: 'ADMIN',
     });

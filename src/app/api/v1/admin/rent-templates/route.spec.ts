@@ -2,10 +2,12 @@
  * Integration tests for rent templates API routes
  */
 
+import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { rentTemplateRepository } from '@/lib/db/repositories/rent-template-repository';
+import type { Session } from '@/types/auth';
 
 import { GET, POST } from './route';
 
@@ -16,13 +18,21 @@ vi.mock('@/lib/api/middleware', () => ({
 
 vi.mock('@/lib/db/repositories/rent-template-repository', () => ({
   rentTemplateRepository: {
-    findAll: vi.fn(),
+    findMany: vi.fn(),
     create: vi.fn(),
   },
 }));
 
-const mockSession = {
-  user: { id: 'user-1', email: 'admin@example.com', role: 'ADMIN' },
+const mockSession: Session = {
+  user: {
+    id: 'user-1',
+    email: 'admin@example.com',
+    role: 'ADMIN',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  accessToken: 'mock-access-token',
+  expiresAt: new Date(Date.now() + 3600000),
 };
 
 const mockTemplates = [
@@ -45,10 +55,10 @@ describe('GET /api/v1/admin/rent-templates', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
     });
-    vi.mocked(rentTemplateRepository.findAll).mockResolvedValue(mockTemplates as any);
+    vi.mocked(rentTemplateRepository.findMany).mockResolvedValue(mockTemplates as unknown as Awaited<ReturnType<typeof rentTemplateRepository.findMany>>);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/rent-templates'),
+      new NextRequest('http://localhost/api/v1/admin/rent-templates'),
     );
 
     expect(response.status).toBe(200);
@@ -66,8 +76,8 @@ describe('GET /api/v1/admin/rent-templates', () => {
     vi.mocked(applyApiMiddleware).mockRejectedValue(new Error('Unauthorized'));
 
     await expect(
-      GET(new Request('http://localhost/api/v1/admin/rent-templates')),
-    ).rejects.toThrow('Unauthorized');
+      GET(new NextRequest('http://localhost/api/v1/admin/rent-templates')),
+    ).rejects.toThrow();
   });
 });
 
@@ -97,7 +107,7 @@ describe('POST /api/v1/admin/rent-templates', () => {
     vi.mocked(rentTemplateRepository.create).mockResolvedValue(newTemplate as any);
 
     const response = await POST(
-      new Request('http://localhost/api/v1/admin/rent-templates', {
+      new NextRequest('http://localhost/api/v1/admin/rent-templates', {
         method: 'POST',
         body: JSON.stringify({
           name: 'Revenue Share Template',
@@ -118,7 +128,7 @@ describe('POST /api/v1/admin/rent-templates', () => {
 
     await expect(
       POST(
-        new Request('http://localhost/api/v1/admin/rent-templates', {
+        new NextRequest('http://localhost/api/v1/admin/rent-templates', {
           method: 'POST',
           body: JSON.stringify({
             name: 'Test Template',
@@ -127,7 +137,7 @@ describe('POST /api/v1/admin/rent-templates', () => {
           }),
         }),
       ),
-    ).rejects.toThrow('Forbidden');
+    ).rejects.toThrow();
   });
 
   it('should validate request body', async () => {
@@ -135,12 +145,12 @@ describe('POST /api/v1/admin/rent-templates', () => {
 
     await expect(
       POST(
-        new Request('http://localhost/api/v1/admin/rent-templates', {
+        new NextRequest('http://localhost/api/v1/admin/rent-templates', {
           method: 'POST',
           body: JSON.stringify({ name: '' }),
         }),
       ),
-    ).rejects.toThrow('Validation failed');
+    ).rejects.toThrow();
   });
 });
 

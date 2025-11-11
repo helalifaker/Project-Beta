@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse, paginatedResponse } from '@/lib/api/response';
 import { paginationSchema, filterSchema } from '@/lib/api/schemas';
+import { canPerformAction } from '@/lib/auth/rbac';
 import { versionRepository } from '@/lib/db/repositories/version-repository';
 
 const createVersionSchema = z.object({
@@ -68,12 +69,17 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 export const POST = withErrorHandling(async (request: NextRequest) => {
   const { session, body } = await applyApiMiddleware(request, {
     requireAuth: true,
-    requireRole: 'ADMIN', // Only ADMIN and ANALYST can create versions
     validateBody: createVersionSchema,
   });
 
   if (!session?.user) {
     throw new Error('Session not found');
+  }
+
+  // Check if user can create versions (ADMIN or ANALYST)
+  const canCreate = canPerformAction(session.user.role, 'versions:create');
+  if (!canCreate.allowed) {
+    throw new Error('FORBIDDEN');
   }
 
   const { name, description, baseVersionId } = body as z.infer<

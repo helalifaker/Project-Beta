@@ -6,7 +6,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { JSX } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { registerUser } from '@/lib/auth/utils';
+import { getSupabaseClient } from '@/lib/supabase/client';
 import type { UserRole } from '@/types/auth';
 
 
@@ -32,8 +32,52 @@ export default function RegisterPage(): JSX.Element {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<UserRole>('ANALYST');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const supabase = getSupabaseClient();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          router.push('/login?redirect=/register');
+          return;
+        }
+
+        // Check if user has ADMIN role
+        const { data: profile, error: profileError } = await supabase
+          .from('profile')
+          .select('role')
+          .eq('external_id', session.user.id)
+          .single();
+
+        if (profileError || !profile) {
+          setError('User profile not found. Please contact administrator.');
+          setIsCheckingAuth(false);
+          return;
+        }
+
+        if (profile.role !== 'ADMIN') {
+          setError('Only administrators can create user accounts.');
+          setIsCheckingAuth(false);
+          return;
+        }
+
+        setIsAuthenticated(true);
+      } catch (err) {
+        setError('Failed to verify authentication. Please try again.');
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -53,17 +97,34 @@ export default function RegisterPage(): JSX.Element {
     setIsLoading(true);
 
     try {
-      const { userId, error: registerError } = await registerUser(
-        email,
-        password,
-        role
-      );
+      // Get session token for API request
+      const supabase = getSupabaseClient();
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        setError('You must be logged in to create users. Please refresh the page.');
+        setIsLoading(false);
+        return;
+      }
 
-      if (registerError || !userId) {
-        setError(
-          registerError?.message ||
-            'Failed to create user. Please check your permissions.'
-        );
+      // Call API endpoint with credentials
+      const response = await fetch('/api/v1/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies for session
+        body: JSON.stringify({
+          email,
+          password,
+          role,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Failed to create user. Please check your permissions.');
         setIsLoading(false);
         return;
       }
@@ -72,11 +133,25 @@ export default function RegisterPage(): JSX.Element {
       setTimeout(() => {
         router.push('/admin/users');
       }, 2000);
-    } catch {
-      setError('An unexpected error occurred. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[--color-background] p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <p className="text-[--color-muted-foreground]">Verifying authentication...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (success) {
     return (
@@ -88,6 +163,26 @@ export default function RegisterPage(): JSX.Element {
               Redirecting to user management...
             </CardDescription>
           </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[--color-background] p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              {error || 'You must be logged in as an administrator to create user accounts.'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => router.push('/login?redirect=/register')} fullWidth>
+              Go to Login
+            </Button>
+          </CardContent>
         </Card>
       </div>
     );

@@ -199,20 +199,29 @@ export default function LoginPage(): JSX.Element {
               <Button type="submit" fullWidth disabled={isLoading}>
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                fullWidth
-                onClick={() => setIsMagicLink(true)}
-                disabled={isLoading}
-              >
-                Use magic link instead
-              </Button>
-            </form>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+                     <Button
+                       type="button"
+                       variant="ghost"
+                       fullWidth
+                       onClick={() => setIsMagicLink(true)}
+                       disabled={isLoading}
+                     >
+                       Use magic link instead
+                     </Button>
+                   </form>
+                 )}
+                 <div className="mt-4 text-center text-sm">
+                   <span className="text-[--color-muted-foreground]">Need an account? </span>
+                   <Link
+                     href="/register"
+                     className="text-[--color-primary] hover:underline"
+                   >
+                     Create user account
+                   </Link>
+                 </div>
+               </CardContent>
+             </Card>
+           </div>
+         );
+       }
 

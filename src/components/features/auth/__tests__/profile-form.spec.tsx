@@ -18,7 +18,8 @@ const mockUser: User = {
   id: 'user-1',
   email: 'test@example.com',
   role: 'ANALYST',
-  createdAt: new Date('2024-01-01').toISOString(),
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
 };
 
 describe('ProfileForm', () => {

@@ -2,6 +2,8 @@
  * Curriculum template admin API route tests
  */
 
+import { Decimal } from '@prisma/client/runtime/library';
+import { NextRequest } from 'next/server';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { applyApiMiddleware } from '@/lib/api/middleware';
@@ -64,9 +66,12 @@ describe('Admin Curriculum Templates API routes', () => {
     vi.clearAllMocks();
     mockedWorkspaceRepo.getOrCreateDefault.mockResolvedValue({
       ...workspace,
+      discountRate: new Decimal(workspace.discountRate),
+      cpiMin: new Decimal(workspace.cpiMin),
+      cpiMax: new Decimal(workspace.cpiMax),
       createdAt: new Date(workspace.createdAt),
       updatedAt: new Date(workspace.updatedAt),
-    });
+    } as Awaited<ReturnType<typeof workspaceRepository.getOrCreateDefault>>);
   });
 
   it('should list curriculum templates for authenticated users', async () => {
@@ -82,20 +87,20 @@ describe('Admin Curriculum Templates API routes', () => {
         slug: 'ib-diploma',
         capacity: 600,
         launchYear: 2028,
-        tuitionBase: 92000,
-        cpiRate: 0.025,
+        tuitionBase: new Decimal(92000),
+        cpiRate: new Decimal(0.025),
         cpiFrequency: 'ANNUAL' as const,
         createdAt: new Date('2024-02-01T00:00:00.000Z'),
         updatedAt: new Date('2024-02-01T00:00:00.000Z'),
         rampSteps: [],
         tuitionAdjustments: [],
       },
-    ];
+    ] as unknown as Awaited<ReturnType<typeof curriculumTemplateRepository.findByWorkspace>>;
 
     mockedTemplateRepo.findByWorkspace.mockResolvedValue(templates);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/curriculum-templates'),
+      new NextRequest('http://localhost/api/v1/admin/curriculum-templates'),
     );
     const body = await response.json();
 
@@ -132,18 +137,23 @@ describe('Admin Curriculum Templates API routes', () => {
     const createdTemplate = {
       id: 'template-2',
       workspaceId: workspace.id,
-      ...requestBody,
+      name: requestBody.name,
+      slug: requestBody.slug,
+      capacity: requestBody.capacity,
       launchYear: 2028,
+      tuitionBase: new Decimal(requestBody.tuitionBase),
+      cpiRate: new Decimal(requestBody.cpiRate),
+      cpiFrequency: requestBody.cpiFrequency,
       createdAt: new Date('2024-03-01T00:00:00.000Z'),
       updatedAt: new Date('2024-03-01T00:00:00.000Z'),
       rampSteps: [],
       tuitionAdjustments: [],
-    };
+    } as unknown as Awaited<ReturnType<typeof curriculumTemplateRepository.create>>;
 
     mockedTemplateRepo.create.mockResolvedValue(createdTemplate);
 
     const response = await POST(
-      new Request('http://localhost/api/v1/admin/curriculum-templates', {
+      new NextRequest('http://localhost/api/v1/admin/curriculum-templates', {
         method: 'POST',
         body: JSON.stringify(requestBody),
       }),

@@ -22,9 +22,9 @@ const updateRentTemplateSchema = z.object({
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session } = await applyApiMiddleware(request, {
+    await applyApiMiddleware(request, {
       requireAuth: true,
     });
 
@@ -46,9 +46,9 @@ export async function GET(
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session, body } = await applyApiMiddleware(request, {
+    const { body } = await applyApiMiddleware(request, {
       requireAuth: true,
       requireRole: 'ADMIN',
       validateBody: updateRentTemplateSchema,
@@ -56,10 +56,23 @@ export async function PUT(
 
     const { id } = await params;
     const validated = idParamSchema.parse({ id });
+    const updateData = body as z.infer<typeof updateRentTemplateSchema>;
+
+    // Filter out undefined values for exactOptionalPropertyTypes
+    const updateInput: {
+      name?: string;
+      params?: Record<string, unknown>;
+    } = {};
+    if (updateData.name !== undefined) {
+      updateInput.name = updateData.name;
+    }
+    if (updateData.params !== undefined) {
+      updateInput.params = updateData.params;
+    }
 
     const template = await rentTemplateRepository.update(
       { id: validated.id },
-      body as z.infer<typeof updateRentTemplateSchema>
+      updateInput
     );
 
     return successResponse(template);
@@ -69,9 +82,9 @@ export async function PUT(
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session } = await applyApiMiddleware(request, {
+    await applyApiMiddleware(request, {
       requireAuth: true,
       requireRole: 'ADMIN',
     });

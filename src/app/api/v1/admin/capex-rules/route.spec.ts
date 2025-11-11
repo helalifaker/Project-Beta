@@ -92,6 +92,7 @@ describe('Admin Capex Rules API routes', () => {
         },
       })),
     );
+    expect(body.data.length).toBeGreaterThan(0);
   });
 
   it('should create capex rule for admins', async () => {
@@ -144,6 +145,7 @@ describe('Admin Capex Rules API routes', () => {
       createdAt: createdRule.createdAt.toISOString(),
       updatedAt: createdRule.updatedAt.toISOString(),
     });
+    expect(body.data.name).toBe('Facilities Upgrade');
   });
 });
 

@@ -1,0 +1,46 @@
+/**
+ * Capex rules API routes
+ * GET: List capex rules
+ * POST: Create capex rule
+ */
+
+import { NextRequest } from 'next/server';
+import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
+import { successResponse } from '@/lib/api/response';
+import { capexRuleRepository } from '@/lib/db/repositories/capex-rule-repository';
+import { z } from 'zod';
+
+const createCapexRuleSchema = z.object({
+  categoryId: z.string().uuid(),
+  name: z.string().min(1).max(200),
+  triggerType: z.enum(['CYCLE', 'UTILIZATION', 'CUSTOM_DATE']),
+  triggerParams: z.record(z.unknown()),
+  baseCost: z.number().positive().optional(),
+  costPerStudent: z.number().positive().optional(),
+  escalationRate: z.number().min(0).max(1).optional(),
+});
+
+export const GET = withErrorHandling(async (request: NextRequest) => {
+  const { session } = await applyApiMiddleware(request, {
+    requireAuth: true,
+  });
+
+  const rules = await capexRuleRepository.findAllWithCategories();
+
+  return successResponse(rules);
+});
+
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const { session, body } = await applyApiMiddleware(request, {
+    requireAuth: true,
+    requireRole: 'ADMIN',
+    validateBody: createCapexRuleSchema,
+  });
+
+  const rule = await capexRuleRepository.create(
+    body as z.infer<typeof createCapexRuleSchema>
+  );
+
+  return successResponse(rule, 201);
+});
+

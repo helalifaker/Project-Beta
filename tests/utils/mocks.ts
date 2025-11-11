@@ -1,5 +1,26 @@
 import { vi } from 'vitest';
 
+interface MockUser {
+  id: string;
+  email: string;
+  role: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface MockVersion {
+  id: string;
+  name: string;
+  status: string;
+  rentModelType: string;
+  ownerId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+type MockOverrides<T> = Partial<T> & Record<string, unknown>;
+
 /**
  * Mock Supabase client
  */
@@ -43,7 +64,9 @@ export const mockFetch = vi.fn();
 /**
  * Create mock user
  */
-export function createMockUser(overrides = {}) {
+export function createMockUser<T extends MockOverrides<MockUser>>(
+  overrides: T = {} as T,
+): MockUser & T {
   return {
     id: 'user-123',
     email: 'test@example.com',
@@ -58,7 +81,9 @@ export function createMockUser(overrides = {}) {
 /**
  * Create mock version
  */
-export function createMockVersion(overrides = {}) {
+export function createMockVersion<T extends MockOverrides<MockVersion>>(
+  overrides: T = {} as T,
+): MockVersion & T {
   return {
     id: 'version-123',
     name: 'Test Version',

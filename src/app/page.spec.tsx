@@ -1,31 +1,60 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+
 import Home from './page';
 
+vi.mock('@/components/charts/revenue-trend', () => ({
+  RevenueTrend: () => (
+    <div data-testid="revenue-trend-chart" role="img" aria-label="Revenue trend chart placeholder" />
+  ),
+}));
+
 describe('Home Page', () => {
-  it('should render without crashing', () => {
+  it('should render the hero section content', () => {
     render(<Home />);
-    expect(screen.getByRole('main')).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Model the complete school relocation journey.',
+      }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText('2028 Relocation Program')).toBeInTheDocument();
+    expect(screen.getByText(/generate tuition projections by curriculum/i)).toBeInTheDocument();
+    expect(screen.getByText(/Last synchronized:/i)).toBeInTheDocument();
   });
 
-  it('should display the Next.js logo', () => {
+  it('should render primary call-to-action buttons', () => {
     render(<Home />);
-    const logo = screen.getByAltText('Next.js logo');
-    expect(logo).toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'View Latest Scenario' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Compare Plans' })).toBeInTheDocument();
   });
 
-  it('should display the getting started heading', () => {
+  it('should display all metric cards', () => {
     render(<Home />);
-    const heading = screen.getByRole('heading', {
-      name: /to get started/i,
+
+    const metrics = [
+      'Projected Tuition (2032)',
+      'Operating Margin',
+      'Capex Headroom',
+    ];
+
+    metrics.forEach((metric) => {
+      const card = screen.getByText(metric).closest('div');
+      expect(card).toBeTruthy();
+      const cardScope = within(card as HTMLElement);
+      expect(cardScope.getByText(metric)).toBeInTheDocument();
     });
-    expect(heading).toBeInTheDocument();
   });
 
-  it('should have links to documentation', () => {
+  it('should render the revenue trend chart and next steps content', () => {
     render(<Home />);
-    const links = screen.getAllByRole('link');
-    expect(links.length).toBeGreaterThan(0);
+
+    expect(screen.getByTestId('revenue-trend-chart')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Next Steps' })).toBeInTheDocument();
+    expect(screen.getByText('Curriculum ramp audit')).toBeInTheDocument();
+    expect(screen.getByText('Staffing salary review')).toBeInTheDocument();
   });
 });
 

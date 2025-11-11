@@ -1,65 +1,119 @@
-import Image from "next/image";
+import { ArrowUpRight, CalendarClock, TrendingUp } from "lucide-react";
+import type { JSX } from "react";
 
-export default function Home() {
+import { RevenueTrend } from "@/components/charts/revenue-trend";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+const metricCards = [
+  {
+    label: "Projected Tuition (2032)",
+    value: "SAR 36.5M",
+    delta: "+8.1%",
+    description: "Includes CPI and curriculum ramp assumptions",
+  },
+  {
+    label: "Operating Margin",
+    value: "31.0%",
+    delta: "+2.0 pp",
+    description: "Post-ramp steady-state estimate",
+  },
+  {
+    label: "Capex Headroom",
+    value: "SAR 12.0M",
+    delta: "Updated this week",
+    description: "Remaining vs. 2028 capex plan",
+  },
+];
+
+export default function Home(): JSX.Element {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-10">
+      <section className="flex flex-col gap-6 rounded-lg border border-[--color-border] bg-[--color-card] px-8 py-10 shadow-md">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl space-y-3">
+            <Badge variant="fluent" className="w-fit rounded-md px-3 py-1 text-xs">
+              2028 Relocation Program
+            </Badge>
+            <h1 className="text-3xl font-semibold tracking-tight text-[--color-foreground] sm:text-4xl">
+              Model the complete school relocation journey.
+            </h1>
+            <p className="text-base text-[--color-muted-foreground]">
+              Generate tuition projections by curriculum, align staffing plans with ramp
+              capacity, and confirm P&amp;L, Balance Sheet, and Cash Flow convergence in
+              under a second.
+            </p>
+          </div>
+          <div className="flex shrink-0 gap-3">
+            <Button variant="secondary" size="md" rightIcon={<ArrowUpRight className="size-4" />}>
+              View Latest Scenario
+            </Button>
+            <Button variant="primary" size="md" rightIcon={<TrendingUp className="size-4" />}>
+              Compare Plans
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex items-center gap-3 text-sm text-[--color-muted-foreground]">
+          <CalendarClock className="size-4" aria-hidden />
+          <span>Last synchronized: {new Date().toLocaleString()}</span>
         </div>
-      </main>
+      </section>
+
+      <section className="grid gap-6 md:grid-cols-3">
+        {metricCards.map((card) => (
+          <Card key={card.label}>
+            <CardHeader>
+              <CardDescription>{card.label}</CardDescription>
+              <CardTitle className="text-2xl font-semibold text-[--color-foreground]">
+                {card.value}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between pt-0">
+              <span className="text-sm font-medium text-[--color-primary]">{card.delta}</span>
+              <p className="max-w-[12rem] text-xs text-right text-[--color-muted-foreground]">
+                {card.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <RevenueTrend />
+        <Card>
+          <CardHeader>
+            <CardTitle>Next Steps</CardTitle>
+            <CardDescription>Focus on curriculum-specific ramp adjustments.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-md border border-dashed border-[--color-border] bg-[--color-muted]/40 p-4">
+              <p className="text-sm font-medium text-[--color-foreground]">
+                Curriculum ramp audit
+              </p>
+              <p className="text-xs text-[--color-muted-foreground]">
+                Confirm French curriculum stays at 100% post-2028 while IB follows the staged
+                ramp.
+              </p>
+            </div>
+            <div className="rounded-md border border-dashed border-[--color-border] bg-[--color-muted]/40 p-4">
+              <p className="text-sm font-medium text-[--color-foreground]">
+                Staffing salary review
+              </p>
+              <p className="text-xs text-[--color-muted-foreground]">
+                Differentiate teacher vs. non-teacher escalation prior to Week 3 financial
+                engine implementation.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

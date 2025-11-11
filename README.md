@@ -62,6 +62,12 @@ pnpm format           # Format code with Prettier
 pnpm format:check     # Check formatting
 pnpm type-check       # Run TypeScript compiler
 
+# Database
+pnpm prisma:generate  # Generate Prisma client
+pnpm prisma:migrate   # Run database migrations
+pnpm prisma:studio    # Open Prisma Studio
+pnpm db:seed          # Seed the database
+
 # Testing
 pnpm test             # Run unit tests
 pnpm test:ui          # Run tests with UI
@@ -70,16 +76,40 @@ pnpm test:e2e         # Run E2E tests
 pnpm test:e2e:ui      # Run E2E tests with UI
 ```
 
+## 🗄️ Database Setup
+
+1. **Install dependencies**  
+   ```bash
+   pnpm install
+   ```
+
+2. **Configure environment**  
+   Copy `.env.example` → `.env.local` and set `DATABASE_URL` / `DIRECT_URL` to your Supabase Postgres connection strings.
+
+3. **Run migrations & generate client**  
+   ```bash
+   pnpm prisma:generate
+   pnpm prisma:migrate
+   ```
+
+4. **Seed baseline data (workspace, curriculum templates, sample version)**  
+   ```bash
+   pnpm db:seed
+   ```
+
+> Prisma schema and seed live under `prisma/`. Database access helpers are under `src/lib/db/prisma.ts`.
+
 ## 🏗️ Tech Stack
 
 ### Frontend
 - **Next.js 14** — React framework with App Router
 - **TypeScript 5.3+** — Type safety
-- **Tailwind CSS 3.4+** — Styling
-- **shadcn/ui** — UI components
-- **Tremor 3.14+** — Charts
+- **Tailwind CSS 4 (inline design tokens)** — Styling + theme system
+- **shadcn/ui patterns + CVA** — Accessible UI primitives
+- **Tremor 3.14+** — Financial dashboards and charts
 - **TanStack Query** — Server state management
 - **React Hook Form + Zod** — Forms and validation
+- **Lucide React** — Iconography
 
 ### Backend
 - **Next.js API Routes** — API with Edge Runtime
@@ -107,8 +137,8 @@ pnpm test:e2e:ui      # Run E2E tests with UI
 
 ## 📊 Project Status
 
-**Current Phase**: Phase 0 - Foundation Setup (Week 1)  
-**Progress**: Day 1-2 Complete ✅
+**Current Phase**: Phase 4 - Analysis & Comparison (Week 10-11 Complete) ✅  
+**Progress**: Statement Tables ✅ | Charts ✅ | Comparison Tools ✅ | NPV Comparison ✅ | Ready for Phase 5
 
 See [PROJECT_DELIVERY_PLAN.md](../PROJECT_DELIVERY_PLAN.md) for the complete 16-week delivery plan.
 

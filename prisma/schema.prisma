@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// Users authorised through Supabase.
+model Profile {
+  id         String    @id @default(uuid())
+  externalId String    @unique @map("external_id")
+  email      String    @unique
+  role       UserRole  @default(ANALYST)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  versions Version[] @relation("VersionOwner")
+  auditLogs AuditLog[]
+
+  @@map("profile")
+}
+
+/// Workspace-level configuration such as currency and CPI bounds.
+model WorkspaceSetting {
+  id           String   @id @default(uuid())
+  name         String   @default("Default Workspace")
+  baseCurrency String   @default("SAR") @map("base_currency")
+  timezone     String   @default("Asia/Riyadh")
+  discountRate Decimal  @db.Decimal(8, 6) @map("discount_rate")
+  cpiMin       Decimal  @db.Decimal(5, 4) @map("cpi_min")
+  cpiMax       Decimal  @db.Decimal(5, 4) @map("cpi_max")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  curriculumTemplates CurriculumTemplate[]
+
+  @@map("workspace_setting")
+}
+
+/// Reusable curriculum assumptions maintained by Admin.
+model CurriculumTemplate {
+  id                 String                    @id @default(uuid())
+  workspace          WorkspaceSetting          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId        String                    @map("workspace_id")
+  name               String
+  slug               String                    @unique
+  capacity           Int
+  launchYear         Int                       @default(2028) @map("launch_year")
+  tuitionBase        Decimal                   @db.Decimal(14, 2) @map("tuition_base")
+  cpiRate            Decimal                   @db.Decimal(5, 4) @map("cpi_rate")
+  cpiFrequency       CurriculumCpiFrequency    @default(ANNUAL) @map("cpi_frequency")
+  createdAt          DateTime                  @default(now()) @map("created_at")
+  updatedAt          DateTime                  @updatedAt @map("updated_at")
+
+  rampSteps          CurriculumRampStep[]
+  tuitionAdjustments CurriculumTuitionBand[]
+  versionCurricula   VersionCurriculum[]
+
+  @@index([workspaceId, slug])
+  @@map("curriculum_template")
+}
+
+/// Defines the ramp utilisation for each curriculum template (e.g., 20%, 40%, 60%, 80%, 100%).
+model CurriculumRampStep {
+  id          String             @id @default(uuid())
+  template    CurriculumTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  templateId  String             @map("template_id")
+  yearOffset  Int                @map("year_offset")
+  utilisation Decimal            @db.Decimal(5, 4)
+  sortOrder   Int                @default(0) @map("sort_order")
+
+  @@unique([templateId, yearOffset])
+  @@index([templateId, sortOrder])
+  @@map("curriculum_ramp_step")
+}
+
+/// Optional tuition overrides per curriculum template.
+model CurriculumTuitionBand {
+  id         String             @id @default(uuid())
+  template   CurriculumTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  templateId String             @map("template_id")
+  year       Int
+  tuition    Decimal            @db.Decimal(14, 2)
+
+  @@unique([templateId, year])
+  @@map("curriculum_tuition_band")
+}
+
+/// Planning versions created by analysts.
+model Version {
+  id          String        @id @default(uuid())
+  name        String
+  status      VersionStatus @default(DRAFT)
+  description String?
+  owner       Profile?      @relation("VersionOwner", fields: [ownerId], references: [id])
+  ownerId     String?       @map("owner_id")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  lockedAt    DateTime?     @map("locked_at")
+  approvedAt  DateTime?     @map("approved_at")
+
+  curricula VersionCurriculum[]
+
+  @@index([status, updatedAt])
+  @@map("version")
+}
+
+/// Links a version to a curriculum template, allowing overrides.
+model VersionCurriculum {
+  id                    String                     @id @default(uuid())
+  version               Version                    @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  versionId             String                     @map("version_id")
+  curriculumTemplate    CurriculumTemplate         @relation(fields: [curriculumTemplateId], references: [id])
+  curriculumTemplateId  String                     @map("curriculum_template_id")
+  customCapacity        Int?                       @map("custom_capacity")
+  createdAt             DateTime                   @default(now()) @map("created_at")
+  updatedAt             DateTime                   @updatedAt @map("updated_at")
+
+  rampOverrides    VersionCurriculumRamp[]
+  tuitionOverrides VersionCurriculumTuition[]
+
+  @@unique([versionId, curriculumTemplateId])
+  @@map("version_curriculum")
+}
+
+/// Curriculum ramp overrides for a specific version.
+model VersionCurriculumRamp {
+  id                  String             @id @default(uuid())
+  versionCurriculum   VersionCurriculum  @relation(fields: [versionCurriculumId], references: [id], onDelete: Cascade)
+  versionCurriculumId String             @map("version_curriculum_id")
+  year                Int
+  utilisation         Decimal            @db.Decimal(5, 4)
+
+  @@unique([versionCurriculumId, year])
+  @@map("version_curriculum_ramp")
+}
+
+/// Tuition overrides per curriculum per year for a specific version.
+model VersionCurriculumTuition {
+  id                  String             @id @default(uuid())
+  versionCurriculum   VersionCurriculum  @relation(fields: [versionCurriculumId], references: [id], onDelete: Cascade)
+  versionCurriculumId String             @map("version_curriculum_id")
+  year                Int
+  tuition             Decimal            @db.Decimal(14, 2)
+
+  @@unique([versionCurriculumId, year])
+  @@map("version_curriculum_tuition")
+}
+
+enum UserRole {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+enum VersionStatus {
+  DRAFT
+  READY
+  LOCKED
+  ARCHIVED
+}
+
+/// Capex categories for organizing capital expenditure rules.
+model CapexCategory {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  rules CapexRule[]
+
+  @@map("capex_category")
+}
+
+/// Capex reinvestment rules defining when and how capex occurs.
+model CapexRule {
+  id             String            @id @default(uuid())
+  category       CapexCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId     String            @map("category_id")
+  name           String
+  triggerType    CapexTriggerType  @map("trigger_type")
+  triggerParams  Json              @map("trigger_params")
+  baseCost       Decimal?          @db.Decimal(14, 2) @map("base_cost")
+  costPerStudent Decimal?          @db.Decimal(14, 2) @map("cost_per_student")
+  escalationRate Decimal?          @db.Decimal(5, 4) @map("escalation_rate")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@map("capex_rule")
+}
+
+/// Audit log for tracking all system changes.
+model AuditLog {
+  id         String   @id @default(uuid())
+  actor      Profile  @relation(fields: [actorId], references: [id])
+  actorId    String   @map("actor_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  metadata   Json?
+  ip         String?
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_log")
+}
+
+/// Rent model templates for reusable lease structures.
+model RentModelTemplate {
+  id        String            @id @default(uuid())
+  name      String
+  type      RentModelType
+  params    Json              // Model-specific parameters
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+
+  @@map("rent_model_template")
+}
+
+enum CurriculumCpiFrequency {
+  ANNUAL
+  EVERY_2_YEARS
+  EVERY_3_YEARS
+}
+
+enum CapexTriggerType {
+  CYCLE
+  UTILIZATION
+  CUSTOM_DATE
+}
+
+enum RentModelType {
+  FIXED_ESC
+  REV_SHARE
+  PARTNER
+}
+
+

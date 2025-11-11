@@ -1,6 +1,7 @@
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
 import path from 'path';
+
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
@@ -46,7 +47,7 @@ export default defineConfig({
       '@/types': path.resolve(__dirname, './src/types'),
       '@/tests': path.resolve(__dirname, './tests'),
       '@/tests/utils/test-utils': path.resolve(__dirname, './tests/utils/test-utils.tsx'),
+      '@hookform/resolvers/zod': path.resolve(__dirname, './tests/stubs/hookform-zod.ts'),
     },
   },
 });
-

@@ -39,7 +39,6 @@ export default function AuthCallbackPage(): JSX.Element {
 
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
-        const type = hashParams.get('type');
         const errorParam = hashParams.get('error');
         const errorDescription = hashParams.get('error_description');
 

@@ -36,7 +36,7 @@ export default function LoginPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
 
-  const handlePasswordLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePasswordLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
@@ -53,13 +53,13 @@ export default function LoginPage(): JSX.Element {
       // Redirect to intended page or overview
       router.push(redirect);
       router.refresh();
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
   };
 
-  const handleMagicLinkLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleMagicLinkLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
@@ -68,7 +68,6 @@ export default function LoginPage(): JSX.Element {
       // Magic link redirect URL - Supabase will append token and type in hash fragment
       // Use exact URL without wildcards - Supabase will handle the hash fragment
       const redirectTo = `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`;
-      console.log('Magic link redirectTo:', redirectTo);
       const { error: magicLinkError } = await loginWithMagicLink(email, redirectTo);
 
       if (magicLinkError) {
@@ -89,7 +88,7 @@ export default function LoginPage(): JSX.Element {
 
       setMagicLinkSent(true);
       setIsLoading(false);
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
@@ -102,7 +101,7 @@ export default function LoginPage(): JSX.Element {
           <CardHeader>
             <CardTitle>Check your email</CardTitle>
             <CardDescription>
-              We've sent a magic link to {email}. Click the link in the email to sign in.
+              We&apos;ve sent a magic link to {email}. Click the link in the email to sign in.
             </CardDescription>
           </CardHeader>
           <CardFooter>

@@ -22,7 +22,7 @@ const createCapexRuleSchema = z.object({
 });
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { session } = await applyApiMiddleware(request, {
+  await applyApiMiddleware(request, {
     requireAuth: true,
   });
 
@@ -32,15 +32,41 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 });
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { session, body } = await applyApiMiddleware(request, {
+  const { body } = await applyApiMiddleware(request, {
     requireAuth: true,
     requireRole: 'ADMIN',
     validateBody: createCapexRuleSchema,
   });
 
-  const rule = await capexRuleRepository.create(
-    body as z.infer<typeof createCapexRuleSchema>
-  );
+  const createData = body as z.infer<typeof createCapexRuleSchema>;
+  
+  // Filter out undefined values for exactOptionalPropertyTypes
+  const createInput: {
+    categoryId: string;
+    name: string;
+    triggerType: 'CYCLE' | 'UTILIZATION' | 'CUSTOM_DATE';
+    triggerParams: Record<string, unknown>;
+    baseCost?: number;
+    costPerStudent?: number;
+    escalationRate?: number;
+  } = {
+    categoryId: createData.categoryId,
+    name: createData.name,
+    triggerType: createData.triggerType,
+    triggerParams: createData.triggerParams,
+  };
+  
+  if (createData.baseCost !== undefined) {
+    createInput.baseCost = createData.baseCost;
+  }
+  if (createData.costPerStudent !== undefined) {
+    createInput.costPerStudent = createData.costPerStudent;
+  }
+  if (createData.escalationRate !== undefined) {
+    createInput.escalationRate = createData.escalationRate;
+  }
+
+  const rule = await capexRuleRepository.create(createInput);
 
   return successResponse(rule, 201);
 });

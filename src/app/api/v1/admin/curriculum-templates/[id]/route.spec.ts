@@ -2,11 +2,13 @@
  * Integration tests for curriculum template detail API routes
  */
 
+import { NextRequest } from 'next/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { curriculumTemplateRepository } from '@/lib/db/repositories/curriculum-template-repository';
+import type { Session } from '@/types/auth';
 
 import { GET, PUT, DELETE } from './route';
 
@@ -38,8 +40,16 @@ vi.mock('@/lib/db/repositories/curriculum-template-repository', () => ({
   },
 }));
 
-const mockSession = {
-  user: { id: 'user-1', email: 'admin@example.com', role: 'ADMIN' },
+const mockSession: Session = {
+  user: {
+    id: 'user-1',
+    email: 'admin@example.com',
+    role: 'ADMIN',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  accessToken: 'mock-access-token',
+  expiresAt: new Date(Date.now() + 3600000),
 };
 
 const mockTemplate = {
@@ -47,12 +57,14 @@ const mockTemplate = {
   name: 'Elementary',
   slug: 'elementary',
   capacity: 500,
-  tuitionBase: 50000,
-  cpiRate: 0.03,
+  launchYear: 2025,
+  tuitionBase: null,
+  cpiRate: null,
   cpiFrequency: 'ANNUAL' as const,
+  workspaceId: 'workspace-1',
   createdAt: new Date('2024-01-01T00:00:00.000Z'),
   updatedAt: new Date('2024-01-01T00:00:00.000Z'),
-};
+} as unknown as Awaited<ReturnType<typeof curriculumTemplateRepository.findUnique>>;
 
 describe('GET /api/v1/admin/curriculum-templates/[id]', () => {
   it('should return template when found', async () => {
@@ -62,7 +74,7 @@ describe('GET /api/v1/admin/curriculum-templates/[id]', () => {
     vi.mocked(curriculumTemplateRepository.findUnique).mockResolvedValue(mockTemplate);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004'),
+      new NextRequest('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004'),
       { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440004' }) },
     );
 
@@ -94,7 +106,7 @@ describe('GET /api/v1/admin/curriculum-templates/[id]', () => {
 
     await expect(
       GET(
-        new Request('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004'),
+        new NextRequest('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004'),
         { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440004' }) },
       ),
     ).rejects.toThrow('Unauthorized');
@@ -114,7 +126,7 @@ describe('PUT /api/v1/admin/curriculum-templates/[id]', () => {
     });
 
     const response = await PUT(
-      new Request('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004', {
+      new NextRequest('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004', {
         method: 'PUT',
         body: JSON.stringify(updateData),
       }),
@@ -132,7 +144,7 @@ describe('PUT /api/v1/admin/curriculum-templates/[id]', () => {
 
     await expect(
       PUT(
-        new Request('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004', {
+        new NextRequest('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004', {
           method: 'PUT',
           body: JSON.stringify({ name: 'Updated' }),
         }),
@@ -150,7 +162,7 @@ describe('DELETE /api/v1/admin/curriculum-templates/[id]', () => {
     vi.mocked(curriculumTemplateRepository.delete).mockResolvedValue(undefined);
 
     const response = await DELETE(
-      new Request('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004', {
+      new NextRequest('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004', {
         method: 'DELETE',
       }),
       { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440004' }) },
@@ -166,7 +178,7 @@ describe('DELETE /api/v1/admin/curriculum-templates/[id]', () => {
 
     await expect(
       DELETE(
-        new Request('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004', {
+        new NextRequest('http://localhost/api/v1/admin/curriculum-templates/550e8400-e29b-41d4-a716-446655440004', {
           method: 'DELETE',
         }),
         { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440004' }) },

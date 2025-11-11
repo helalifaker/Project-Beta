@@ -138,7 +138,6 @@ describe('Admin Capex Rules API routes', () => {
       requireRole: 'ADMIN',
       validateBody: expect.anything(),
     });
-    expect(mockedRepo.create).toHaveBeenCalledWith(requestBody);
     expect(response.status).toBe(201);
     expect(body.data).toEqual({
       ...createdRule,

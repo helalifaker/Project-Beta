@@ -71,11 +71,12 @@ describe('ProfileForm', () => {
     expect(screen.getByText('Change Password')).toBeInTheDocument();
   });
 
-  it('should navigate to reset password page when Change Password is clicked', () => {
+  it('should show password form when Change Password is clicked', async () => {
     render(<ProfileForm user={mockUser} />);
     const button = screen.getByText('Change Password');
-    button.click();
-    expect(mockPush).toHaveBeenCalledWith('/auth/reset-password');
+    await button.click();
+    expect(screen.getByLabelText('New Password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Confirm New Password')).toBeInTheDocument();
   });
 
   it('should disable email input', () => {

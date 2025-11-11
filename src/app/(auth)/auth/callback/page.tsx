@@ -27,6 +27,17 @@ export default function AuthCallbackPage(): JSX.Element {
         console.log('Callback URL:', window.location.href);
         console.log('Hash:', window.location.hash);
         console.log('Search params:', window.location.search);
+        console.log('Pathname:', window.location.pathname);
+
+        // Clean up the pathname if it has wildcards (Supabase sometimes adds /**)
+        const cleanPathname = window.location.pathname.replace(/\/\*\*$/, '').replace(/\/\*$/, '');
+        if (cleanPathname !== window.location.pathname) {
+          console.log('Cleaned pathname:', cleanPathname);
+          // Redirect to clean URL if pathname was modified
+          const newUrl = new URL(window.location.href);
+          newUrl.pathname = cleanPathname;
+          window.history.replaceState({}, '', newUrl.toString());
+        }
 
         // Check for hash fragment (magic link format: #access_token=...&type=magiclink)
         const hash = window.location.hash.substring(1); // Remove the #
@@ -222,11 +233,16 @@ export default function AuthCallbackPage(): JSX.Element {
         }
 
         // No valid auth parameters found
-        setError('Invalid authentication link.');
+        console.warn('No valid auth parameters found in URL');
+        console.warn('Hash:', hash);
+        console.warn('Hash params keys:', Array.from(hashParams.keys()));
+        console.warn('Search params:', Array.from(searchParams.keys()));
+        
+        setError('Invalid authentication link. Please request a new magic link.');
         setIsLoading(false);
         setTimeout(() => {
           router.push(`/login?error=invalid&redirect=${encodeURIComponent(redirect)}`);
-        }, 2000);
+        }, 3000);
       } catch (err) {
         console.error('Callback error:', err);
         setError('An unexpected error occurred.');

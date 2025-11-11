@@ -16,6 +16,7 @@
     "prisma:studio": "prisma studio",
     "db:seed": "pnpm prisma db seed",
     "test": "vitest",
+    "test:run": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",

@@ -8,7 +8,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { UserManagement } from '../user-management';
 
-const createTestQueryClient = () =>
+const createTestQueryClient = (): QueryClient =>
   new QueryClient({
     defaultOptions: {
       queries: { retry: false },

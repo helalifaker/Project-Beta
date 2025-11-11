@@ -132,8 +132,8 @@ describe('PUT /api/v1/admin/capex-rules/[id]', () => {
     });
     vi.mocked(capexRuleRepository.update).mockResolvedValue({
       ...mockRule,
-      ...updateData,
-    });
+      name: updateData.name,
+    } as unknown as Awaited<ReturnType<typeof capexRuleRepository.update>>);
 
     const response = await PUT(
       new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {

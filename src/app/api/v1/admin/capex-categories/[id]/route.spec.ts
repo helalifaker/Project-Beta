@@ -2,11 +2,13 @@
  * Integration tests for capex category detail API routes
  */
 
+import { NextRequest } from 'next/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { capexCategoryRepository } from '@/lib/db/repositories/capex-category-repository';
+import type { Session } from '@/types/auth';
 
 import { GET, PUT, DELETE } from './route';
 
@@ -37,8 +39,16 @@ vi.mock('@/lib/db/repositories/capex-category-repository', () => ({
   },
 }));
 
-const mockSession = {
-  user: { id: 'user-1', email: 'admin@example.com', role: 'ADMIN' },
+const mockSession: Session = {
+  user: {
+    id: 'user-1',
+    email: 'admin@example.com',
+    role: 'ADMIN',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  accessToken: 'mock-access-token',
+  expiresAt: new Date(Date.now() + 3600000),
 };
 
 const mockCategory = {
@@ -57,7 +67,7 @@ describe('GET /api/v1/admin/capex-categories/[id]', () => {
     vi.mocked(capexCategoryRepository.findUnique).mockResolvedValue(mockCategory);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000'),
+      new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000'),
       { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) },
     );
 
@@ -77,7 +87,7 @@ describe('GET /api/v1/admin/capex-categories/[id]', () => {
     vi.mocked(capexCategoryRepository.findUnique).mockResolvedValue(null);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440001'),
+      new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440001'),
       { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440001' }) },
     );
 
@@ -91,7 +101,7 @@ describe('GET /api/v1/admin/capex-categories/[id]', () => {
 
     await expect(
       GET(
-        new Request('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000'),
+        new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000'),
         { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) },
       ),
     ).rejects.toThrow('Unauthorized');
@@ -112,7 +122,7 @@ describe('PUT /api/v1/admin/capex-categories/[id]', () => {
 
     const categoryId = '550e8400-e29b-41d4-a716-446655440000';
     const response = await PUT(
-      new Request(`http://localhost/api/v1/admin/capex-categories/${categoryId}`, {
+      new NextRequest(`http://localhost/api/v1/admin/capex-categories/${categoryId}`, {
         method: 'PUT',
         body: JSON.stringify(updateData),
       }),
@@ -133,7 +143,7 @@ describe('PUT /api/v1/admin/capex-categories/[id]', () => {
 
     await expect(
       PUT(
-        new Request('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000', {
+        new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000', {
           method: 'PUT',
           body: JSON.stringify({ name: 'Updated' }),
         }),
@@ -147,7 +157,7 @@ describe('PUT /api/v1/admin/capex-categories/[id]', () => {
 
     await expect(
       PUT(
-        new Request('http://localhost/api/v1/admin/capex-categories/cat-1', {
+        new NextRequest('http://localhost/api/v1/admin/capex-categories/cat-1', {
           method: 'PUT',
           body: JSON.stringify({ name: '' }),
         }),
@@ -162,11 +172,11 @@ describe('DELETE /api/v1/admin/capex-categories/[id]', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
     });
-    vi.mocked(capexCategoryRepository.delete).mockResolvedValue(undefined);
+    vi.mocked(capexCategoryRepository.delete).mockResolvedValue(mockCategory);
 
     const categoryId = '550e8400-e29b-41d4-a716-446655440000';
     const response = await DELETE(
-      new Request(`http://localhost/api/v1/admin/capex-categories/${categoryId}`, {
+      new NextRequest(`http://localhost/api/v1/admin/capex-categories/${categoryId}`, {
         method: 'DELETE',
       }),
       { params: Promise.resolve({ id: categoryId }) },
@@ -183,7 +193,7 @@ describe('DELETE /api/v1/admin/capex-categories/[id]', () => {
 
     await expect(
       DELETE(
-        new Request('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000', {
+        new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000', {
           method: 'DELETE',
         }),
         { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) },

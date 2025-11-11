@@ -2,6 +2,7 @@
  * Capex categories admin API route tests
  */
 
+import { NextRequest } from 'next/server';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { applyApiMiddleware } from '@/lib/api/middleware';
@@ -59,7 +60,7 @@ describe('Admin Capex Categories API routes', () => {
 
     mockedRepo.findAllOrdered.mockResolvedValue(categories);
 
-    const response = await GET(new Request('http://localhost/api/v1/admin/capex-categories'));
+    const response = await GET(new NextRequest('http://localhost/api/v1/admin/capex-categories'));
     const body = await response.json();
 
     expect(mockedApply).toHaveBeenCalledWith(expect.any(Request), {
@@ -97,7 +98,7 @@ describe('Admin Capex Categories API routes', () => {
     mockedRepo.create.mockResolvedValue(createdCategory);
 
     const response = await POST(
-      new Request('http://localhost/api/v1/admin/capex-categories', {
+      new NextRequest('http://localhost/api/v1/admin/capex-categories', {
         method: 'POST',
         body: JSON.stringify(requestBody),
       }),

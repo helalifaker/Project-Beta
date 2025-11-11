@@ -24,7 +24,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   return withErrorHandling(async () => {
-    const { session } = await applyApiMiddleware(request, {
+    await applyApiMiddleware(request, {
       requireAuth: true,
     });
 
@@ -48,7 +48,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   return withErrorHandling(async () => {
-    const { session, body } = await applyApiMiddleware(request, {
+    const { body } = await applyApiMiddleware(request, {
       requireAuth: true,
       requireRole: 'ADMIN',
       validateBody: updateCapexCategorySchema,
@@ -71,7 +71,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   return withErrorHandling(async () => {
-    const { session } = await applyApiMiddleware(request, {
+    await applyApiMiddleware(request, {
       requireAuth: true,
       requireRole: 'ADMIN',
     });

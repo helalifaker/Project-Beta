@@ -8,7 +8,7 @@ import { NextRequest } from 'next/server';
 import type { Mock } from 'vitest';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-import { GET } from './route';
+import { GET } from '@/app/api/auth/callback/route';
 
 declare const process: NodeJS.Process & {
   env: Record<string, string | undefined>;

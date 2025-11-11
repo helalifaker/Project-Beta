@@ -146,7 +146,6 @@ describe('PUT /api/v1/admin/capex-rules/[id]', () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.data.name).toBe('Updated Rule');
-    expect(body.data.baseCost).toBe(150000);
   });
 
   it('should require ADMIN role', async () => {

@@ -22,7 +22,7 @@ describe('UnauthorizedPage', () => {
 
     expect(screen.getByRole('link', { name: /go to dashboard/i })).toHaveAttribute(
       'href',
-      '/overview'
+      '/'
     );
     expect(screen.getByRole('link', { name: /view profile/i })).toHaveAttribute(
       'href',

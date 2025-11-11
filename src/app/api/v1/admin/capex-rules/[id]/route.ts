@@ -26,9 +26,9 @@ const updateCapexRuleSchema = z.object({
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session } = await applyApiMiddleware(request, {
+    await applyApiMiddleware(request, {
       requireAuth: true,
     });
 
@@ -52,7 +52,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   return withErrorHandling(async () => {
-    const { session, body } = await applyApiMiddleware(request, {
+    const { body } = await applyApiMiddleware(request, {
       requireAuth: true,
       requireRole: 'ADMIN',
       validateBody: updateCapexRuleSchema,
@@ -60,10 +60,39 @@ export async function PUT(
 
     const { id } = await params;
     const validated = idParamSchema.parse({ id });
+    const updateData = body as z.infer<typeof updateCapexRuleSchema>;
+
+    // Filter out undefined values for exactOptionalPropertyTypes
+    const updateInput: {
+      name?: string;
+      triggerType?: 'CYCLE' | 'UTILIZATION' | 'CUSTOM_DATE';
+      triggerParams?: Record<string, unknown>;
+      baseCost?: number;
+      costPerStudent?: number;
+      escalationRate?: number;
+    } = {};
+    if (updateData.name !== undefined) {
+      updateInput.name = updateData.name;
+    }
+    if (updateData.triggerType !== undefined) {
+      updateInput.triggerType = updateData.triggerType;
+    }
+    if (updateData.triggerParams !== undefined) {
+      updateInput.triggerParams = updateData.triggerParams;
+    }
+    if (updateData.baseCost !== undefined) {
+      updateInput.baseCost = updateData.baseCost;
+    }
+    if (updateData.costPerStudent !== undefined) {
+      updateInput.costPerStudent = updateData.costPerStudent;
+    }
+    if (updateData.escalationRate !== undefined) {
+      updateInput.escalationRate = updateData.escalationRate;
+    }
 
     const rule = await capexRuleRepository.update(
       { id: validated.id },
-      body as z.infer<typeof updateCapexRuleSchema>
+      updateInput
     );
 
     return successResponse(rule);

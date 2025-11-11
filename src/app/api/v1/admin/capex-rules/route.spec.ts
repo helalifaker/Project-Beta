@@ -2,6 +2,7 @@
  * Capex rules admin API route tests
  */
 
+import { NextRequest } from 'next/server';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { applyApiMiddleware } from '@/lib/api/middleware';
@@ -54,9 +55,9 @@ describe('Admin Capex Rules API routes', () => {
         name: 'Technology Refresh',
         triggerType: 'CYCLE' as const,
         triggerParams: { cycleYears: 3 },
-        baseCost: 500000,
-        costPerStudent: 1000,
-        escalationRate: 0.03,
+        baseCost: null,
+        costPerStudent: null,
+        escalationRate: null,
         createdAt: new Date('2024-02-01T00:00:00.000Z'),
         updatedAt: new Date('2024-02-01T00:00:00.000Z'),
         category: {
@@ -67,11 +68,11 @@ describe('Admin Capex Rules API routes', () => {
           updatedAt: new Date('2024-02-01T00:00:00.000Z'),
         },
       },
-    ];
+    ] as unknown as Awaited<ReturnType<typeof capexRuleRepository.findAllWithCategories>>;
 
     mockedRepo.findAllWithCategories.mockResolvedValue(rules);
 
-    const response = await GET(new Request('http://localhost/api/v1/admin/capex-rules'));
+    const response = await GET(new NextRequest('http://localhost/api/v1/admin/capex-rules'));
     const body = await response.json();
 
     expect(mockedApply).toHaveBeenCalledWith(expect.any(Request), {
@@ -111,15 +112,21 @@ describe('Admin Capex Rules API routes', () => {
 
     const createdRule = {
       id: 'rule-2',
-      ...requestBody,
+      categoryId: requestBody.categoryId,
+      name: requestBody.name,
+      triggerType: requestBody.triggerType,
+      triggerParams: requestBody.triggerParams,
+      baseCost: null,
+      costPerStudent: null,
+      escalationRate: null,
       createdAt: new Date('2024-03-01T00:00:00.000Z'),
       updatedAt: new Date('2024-03-01T00:00:00.000Z'),
-    };
+    } as unknown as Awaited<ReturnType<typeof capexRuleRepository.create>>;
 
     mockedRepo.create.mockResolvedValue(createdRule);
 
     const response = await POST(
-      new Request('http://localhost/api/v1/admin/capex-rules', {
+      new NextRequest('http://localhost/api/v1/admin/capex-rules', {
         method: 'POST',
         body: JSON.stringify(requestBody),
       }),

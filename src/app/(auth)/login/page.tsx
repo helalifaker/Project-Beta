@@ -65,8 +65,10 @@ export default function LoginPage(): JSX.Element {
     setIsLoading(true);
 
     try {
-      // Magic link redirect URL - Supabase will append token and type
+      // Magic link redirect URL - Supabase will append token and type in hash fragment
+      // Use exact URL without wildcards - Supabase will handle the hash fragment
       const redirectTo = `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`;
+      console.log('Magic link redirectTo:', redirectTo);
       const { error: magicLinkError } = await loginWithMagicLink(email, redirectTo);
 
       if (magicLinkError) {

@@ -13,7 +13,7 @@ describe('AppSidebar', () => {
 
     expect(screen.getByText('School Relocation Planner')).toBeInTheDocument();
     expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Versions')).toBeInTheDocument();
   });
 
   it('should render custom sections', () => {
@@ -35,7 +35,8 @@ describe('AppSidebar', () => {
   it('should render badges for items with badges', () => {
     render(<AppSidebar />);
 
-    expect(screen.getByText('Admin')).toBeInTheDocument();
+    const adminBadges = screen.getAllByText('Admin');
+    expect(adminBadges.length).toBeGreaterThan(0);
   });
 
   it('should mark active items', () => {

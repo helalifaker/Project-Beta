@@ -6,10 +6,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getSupabaseClient } from '@/lib/supabase/client';
+import { useEffect, useState } from 'react';
 import type { JSX } from 'react';
+
+import { getSupabaseClient } from '@/lib/supabase/client';
 
 export default function AuthCallbackPage(): JSX.Element {
   const router = useRouter();
@@ -23,16 +24,9 @@ export default function AuthCallbackPage(): JSX.Element {
         const supabase = getSupabaseClient();
         const redirect = searchParams.get('redirect') || '/';
 
-        // Debug: Log the full URL to see what we're receiving
-        console.log('Callback URL:', window.location.href);
-        console.log('Hash:', window.location.hash);
-        console.log('Search params:', window.location.search);
-        console.log('Pathname:', window.location.pathname);
-
         // Clean up the pathname if it has wildcards (Supabase sometimes adds /**)
         const cleanPathname = window.location.pathname.replace(/\/\*\*$/, '').replace(/\/\*$/, '');
         if (cleanPathname !== window.location.pathname) {
-          console.log('Cleaned pathname:', cleanPathname);
           // Redirect to clean URL if pathname was modified
           const newUrl = new URL(window.location.href);
           newUrl.pathname = cleanPathname;
@@ -49,14 +43,6 @@ export default function AuthCallbackPage(): JSX.Element {
         const errorParam = hashParams.get('error');
         const errorDescription = hashParams.get('error_description');
 
-        console.log('Parsed tokens:', {
-          hasAccessToken: !!accessToken,
-          hasRefreshToken: !!refreshToken,
-          type,
-          errorParam,
-          errorDescription,
-        });
-
         // Check for errors in hash fragment
         if (errorParam) {
           console.error('Auth error in hash:', errorParam, errorDescription);
@@ -70,7 +56,6 @@ export default function AuthCallbackPage(): JSX.Element {
 
         // If we have tokens in hash, set the session
         if (accessToken && refreshToken) {
-          console.log('Setting session with tokens from hash fragment');
           const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
@@ -233,11 +218,6 @@ export default function AuthCallbackPage(): JSX.Element {
         }
 
         // No valid auth parameters found
-        console.warn('No valid auth parameters found in URL');
-        console.warn('Hash:', hash);
-        console.warn('Hash params keys:', Array.from(hashParams.keys()));
-        console.warn('Search params:', Array.from(searchParams.keys()));
-        
         setError('Invalid authentication link. Please request a new magic link.');
         setIsLoading(false);
         setTimeout(() => {

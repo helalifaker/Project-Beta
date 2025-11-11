@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { updatePassword } from '@/lib/auth/utils';
 import type { User } from '@/types/auth';
 
 interface ProfileFormProps {
@@ -27,6 +28,14 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  
+  // Password change state
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   const getRoleBadgeVariant = (userRole: User['role']) => {
     switch (userRole) {
@@ -38,6 +47,48 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
         return 'secondary';
       default:
         return 'default';
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    // Validation
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+
+    try {
+      const { error: updateError } = await updatePassword(newPassword);
+
+      if (updateError) {
+        setPasswordError(updateError.message || 'Failed to update password');
+        setIsUpdatingPassword(false);
+        return;
+      }
+
+      setPasswordSuccess(true);
+      setNewPassword('');
+      setConfirmPassword('');
+      setShowPasswordForm(false);
+      
+      setTimeout(() => {
+        setPasswordSuccess(false);
+      }, 3000);
+    } catch (err) {
+      setPasswordError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsUpdatingPassword(false);
     }
   };
 
@@ -78,13 +129,97 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
         </div>
       </div>
 
-      <div className="flex gap-4">
-        <Button
-          variant="outline"
-          onClick={() => router.push('/auth/reset-password')}
-        >
-          Change Password
-        </Button>
+      {/* Password Change Section */}
+      <div className="border-t pt-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>Password</Label>
+              <p className="text-sm text-[--color-muted-foreground]">
+                {showPasswordForm
+                  ? 'Set a new password for your account'
+                  : 'Change your account password'}
+              </p>
+            </div>
+            {!showPasswordForm && (
+              <Button
+                variant="outline"
+                onClick={() => setShowPasswordForm(true)}
+              >
+                Change Password
+              </Button>
+            )}
+          </div>
+
+          {passwordSuccess && (
+            <Alert>
+              <AlertDescription>Password updated successfully!</AlertDescription>
+            </Alert>
+          )}
+
+          {passwordError && (
+            <Alert variant="destructive">
+              <AlertDescription>{passwordError}</AlertDescription>
+            </Alert>
+          )}
+
+          {showPasswordForm && (
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  disabled={isUpdatingPassword}
+                  minLength={8}
+                />
+                <p className="text-xs text-[--color-muted-foreground]">
+                  Must be at least 8 characters
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={isUpdatingPassword}
+                  minLength={8}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  disabled={isUpdatingPassword}
+                >
+                  {isUpdatingPassword ? 'Updating...' : 'Update Password'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowPasswordForm(false);
+                    setPasswordError(null);
+                    setNewPassword('');
+                    setConfirmPassword('');
+                  }}
+                  disabled={isUpdatingPassword}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

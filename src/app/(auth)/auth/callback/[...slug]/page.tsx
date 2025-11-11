@@ -6,18 +6,14 @@
 
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import type { JSX } from 'react';
 
 export default function AuthCallbackCatchAll(): JSX.Element {
   const router = useRouter();
 
   useEffect(() => {
-    // Remove any wildcards from the pathname and redirect to clean callback URL
-    const currentPath = window.location.pathname;
-    const cleanPath = currentPath.replace(/\/\*\*.*$/, '').replace(/\/\*.*$/, '');
-    
     // Preserve hash and search params
     const hash = window.location.hash;
     const search = window.location.search;

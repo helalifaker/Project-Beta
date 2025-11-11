@@ -98,6 +98,7 @@ describe('loginWithMagicLink', () => {
       email: 'test@example.com',
       options: {
         emailRedirectTo: undefined,
+        shouldCreateUser: true,
       },
     });
   });
@@ -114,6 +115,7 @@ describe('loginWithMagicLink', () => {
       email: 'test@example.com',
       options: {
         emailRedirectTo: '/dashboard',
+        shouldCreateUser: true,
       },
     });
   });

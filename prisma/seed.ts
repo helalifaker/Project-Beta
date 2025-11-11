@@ -93,7 +93,7 @@ async function main(): Promise<void> {
     },
   });
 
-  console.log('✅ Seed data created successfully.');
+  // Seed data created successfully
 }
 
 main()

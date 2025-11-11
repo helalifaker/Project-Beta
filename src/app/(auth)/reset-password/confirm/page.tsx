@@ -5,13 +5,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { updatePassword } from '@/lib/auth/utils';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import type { JSX } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Card,
   CardContent,
@@ -19,31 +19,34 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import type { JSX } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { updatePassword } from '@/lib/auth/utils';
+
 
 export default function ConfirmResetPasswordPage(): JSX.Element {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  // searchParams reserved for future use (e.g., redirect after reset)
+  useSearchParams();
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Check if we have the required tokens from Supabase
+  const hashParams = new URLSearchParams(
+    typeof window !== 'undefined' ? window.location.hash.substring(1) : ''
+  );
+  const accessToken = hashParams.get('access_token');
+  const type = hashParams.get('type');
+  const initialError =
+    !accessToken || type !== 'recovery'
+      ? 'Invalid or expired reset link. Please request a new one.'
+      : null;
+
+  const [error, setError] = useState<string | null>(initialError);
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    // Check if we have the required tokens from Supabase
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    const type = hashParams.get('type');
-
-    if (!accessToken || type !== 'recovery') {
-      setError('Invalid or expired reset link. Please request a new one.');
-    }
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError(null);
 
@@ -73,7 +76,7 @@ export default function ConfirmResetPasswordPage(): JSX.Element {
       setTimeout(() => {
         router.push('/login');
       }, 2000);
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
@@ -104,11 +107,9 @@ export default function ConfirmResetPasswordPage(): JSX.Element {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
+          {error ? <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+            </Alert> : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">

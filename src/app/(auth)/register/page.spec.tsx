@@ -2,12 +2,13 @@
  * Tests for register page
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { useRouter } from 'next/navigation';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+
+import { registerUser } from '@/lib/auth/utils';
 
 import RegisterPage from './page';
-import { registerUser } from '@/lib/auth/utils';
-import { useRouter } from 'next/navigation';
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
@@ -24,7 +25,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.mocked(useRouter).mockReturnValue({
     push: mockPush,
-  } as any);
+  } as unknown as ReturnType<typeof useRouter>);
 });
 
 afterEach(() => {
@@ -33,7 +34,7 @@ afterEach(() => {
 });
 
 describe('RegisterPage', () => {
-  const fillBaseFields = () => {
+  const fillBaseFields = (): void => {
     fireEvent.change(screen.getByLabelText('Email'), {
       target: { value: 'new-user@example.com' },
     });
@@ -80,7 +81,7 @@ describe('RegisterPage', () => {
   it('should handle registration error from server', async () => {
     vi.mocked(registerUser).mockResolvedValue({
       userId: null,
-      error: { message: 'Not authorized' },
+      error: { name: 'AuthError', message: 'Not authorized' },
     });
 
     render(<RegisterPage />);

@@ -2,11 +2,12 @@
  * Tests for reset password request page
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+
+import { sendPasswordReset } from '@/lib/auth/utils';
 
 import ResetPasswordPage from './page';
-import { sendPasswordReset } from '@/lib/auth/utils';
 
 vi.mock('@/lib/auth/utils', () => ({
   sendPasswordReset: vi.fn(),
@@ -51,7 +52,7 @@ describe('ResetPasswordPage', () => {
 
   it('should show error when reset fails', async () => {
     vi.mocked(sendPasswordReset).mockResolvedValue({
-      error: { message: 'Reset failed' },
+      error: { name: 'AuthError', message: 'Reset failed' },
     });
 
     render(<ResetPasswordPage />);

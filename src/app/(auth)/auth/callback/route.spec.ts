@@ -2,10 +2,11 @@
  * Tests for auth callback route
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { GET } from './route';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+
+import { GET } from './route';
 
 declare const process: NodeJS.Process & {
   env: Record<string, string | undefined>;
@@ -42,7 +43,7 @@ describe('GET /auth/callback', () => {
     const exchangeCodeForSession = vi.fn().mockResolvedValue(undefined);
     vi.mocked(createServerClient).mockReturnValue({
       auth: { exchangeCodeForSession },
-    } as any);
+    } as unknown as ReturnType<typeof createServerClient>);
 
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://supabase.test';
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon';
@@ -51,7 +52,7 @@ describe('GET /auth/callback', () => {
       'https://example.com/auth/callback?code=abc123&redirect=%2Fdashboard'
     );
 
-    const response = await GET(request as any);
+    const response = await GET(request as unknown as Request);
 
     expect(exchangeCodeForSession).toHaveBeenCalledWith('abc123');
     expect(response.headers.get('location')).toBe('https://example.com/dashboard');
@@ -63,7 +64,7 @@ describe('GET /auth/callback', () => {
 
     const request = new Request('https://example.com/auth/callback?code=abc123');
 
-    const response = await GET(request as any);
+    const response = await GET(request as unknown as Request);
 
     expect(response.headers.get('location')).toBe(
       'https://example.com/login?error=config'
@@ -74,7 +75,7 @@ describe('GET /auth/callback', () => {
   it('should redirect to login when code is missing', async () => {
     const request = new Request('https://example.com/auth/callback');
 
-    const response = await GET(request as any);
+    const response = await GET(request as unknown as Request);
 
     expect(response.headers.get('location')).toBe('https://example.com/login');
   });

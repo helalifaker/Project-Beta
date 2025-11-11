@@ -2,12 +2,13 @@
  * Tests for password reset confirmation page
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+
+import { updatePassword } from '@/lib/auth/utils';
 
 import ConfirmResetPasswordPage from './page';
-import { updatePassword } from '@/lib/auth/utils';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
@@ -24,8 +25,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.useFakeTimers();
   window.location.hash = '#access_token=token&type=recovery';
-  vi.mocked(useRouter).mockReturnValue({ push: mockPush } as any);
-  vi.mocked(useSearchParams).mockReturnValue({ get: () => null } as any);
+  vi.mocked(useRouter).mockReturnValue({ push: mockPush } as unknown as ReturnType<typeof useRouter>);
+  vi.mocked(useSearchParams).mockReturnValue({ get: () => null } as unknown as ReturnType<typeof useSearchParams>);
 });
 
 afterEach(() => {
@@ -89,7 +90,7 @@ describe('ConfirmResetPasswordPage', () => {
 
   it('should display error when update fails', async () => {
     vi.mocked(updatePassword).mockResolvedValue({
-      error: { message: 'Update failed' },
+      error: { name: 'AuthError', message: 'Update failed' },
     });
 
     render(<ConfirmResetPasswordPage />);

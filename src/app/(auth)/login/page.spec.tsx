@@ -2,12 +2,13 @@
  * Tests for login page
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+
+import { loginWithPassword, loginWithMagicLink } from '@/lib/auth/utils';
 
 import LoginPage from './page';
-import { loginWithPassword, loginWithMagicLink } from '@/lib/auth/utils';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
@@ -21,17 +22,19 @@ vi.mock('@/lib/auth/utils', () => ({
 
 const mockPush = vi.fn();
 const mockRefresh = vi.fn();
+const mockGet = vi.fn((key: string) => (key === 'redirect' ? null : null));
 const mockSearchParams = {
-  get: vi.fn((key: string) => (key === 'redirect' ? null : null)),
+  get: mockGet,
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockGet.mockImplementation((key: string) => (key === 'redirect' ? null : null));
   vi.mocked(useRouter).mockReturnValue({
     push: mockPush,
     refresh: mockRefresh,
-  } as any);
-  vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as any);
+  } as unknown as ReturnType<typeof useRouter>);
+  vi.mocked(useSearchParams).mockReturnValue(mockSearchParams as unknown as ReturnType<typeof useSearchParams>);
 });
 
 afterEach(() => {
@@ -52,7 +55,7 @@ describe('LoginPage', () => {
   });
 
   it('should submit password login and redirect on success', async () => {
-    mockSearchParams.get = vi.fn((key: string) =>
+    mockGet.mockImplementation((key: string) =>
       key === 'redirect' ? '/overview/custom' : null
     );
     vi.mocked(loginWithPassword).mockResolvedValue({ error: null });
@@ -80,8 +83,8 @@ describe('LoginPage', () => {
 
   it('should show error when password login fails', async () => {
     vi.mocked(loginWithPassword).mockResolvedValue({
-      error: { message: 'Invalid credentials' },
-    } as any);
+      error: { name: 'AuthError', message: 'Invalid credentials' },
+    });
 
     render(<LoginPage />);
 

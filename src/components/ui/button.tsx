@@ -54,10 +54,27 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const Comp = asChild ? Slot : 'button';
+    const buttonClassName = cn(buttonVariants({ variant, size, fullWidth }), className);
+    
+    if (asChild) {
+      // When asChild is true, Slot expects a single child element
+      // The child should already contain the icons and content
+      return (
+        <Comp
+          ref={ref as any}
+          className={buttonClassName}
+          {...props}
+        >
+          {children}
+        </Comp>
+      );
+    }
+    
+    // Regular button rendering with icons
     return (
       <Comp
-        ref={ref as any}
-        className={cn(buttonVariants({ variant, size, fullWidth }), className)}
+        ref={ref}
+        className={buttonClassName}
         {...props}
       >
         {leftIcon}

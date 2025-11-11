@@ -1,6 +1,106 @@
 import { expect, test } from '@playwright/test';
 
+/**
+ * Setup authentication for admin tests
+ * Mocks Supabase session and profile API calls
+ */
+async function setupAuth(page: Awaited<ReturnType<typeof test>['page']>) {
+  // Mock Supabase auth session API (used by middleware)
+  await page.route('**/auth/v1/session**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: 'bearer',
+        user: {
+          id: 'mock-user-id',
+          email: 'admin@example.com',
+          aud: 'authenticated',
+          role: 'authenticated',
+        },
+      }),
+    });
+  });
+
+  // Mock Supabase profile query (used by middleware to check role)
+  await page.route('**/rest/v1/profile**', async (route) => {
+    const url = new URL(route.request().url());
+    // Handle select query
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            id: 'profile-id',
+            external_id: 'mock-user-id',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ]),
+      });
+    } else {
+      await route.continue();
+    }
+  });
+
+  // Mock session API route (used by client components)
+  await page.route('**/api/auth/session', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: {
+          user: {
+            id: 'profile-id',
+            email: 'admin@example.com',
+            role: 'ADMIN',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          expiresAt: new Date(Date.now() + 3600000).toISOString(),
+        },
+      }),
+    });
+  });
+
+  // Set auth cookies to simulate authenticated session
+  // Supabase SSR uses specific cookie names
+  const cookies = [
+    {
+      name: 'sb-access-token',
+      value: 'mock-access-token',
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
+      secure: false,
+      sameSite: 'Lax' as const,
+    },
+    {
+      name: 'sb-refresh-token',
+      value: 'mock-refresh-token',
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
+      secure: false,
+      sameSite: 'Lax' as const,
+    },
+  ];
+  
+  await page.context().addCookies(cookies);
+}
+
 test.describe('Admin flows', () => {
+  test.beforeEach(async ({ page }) => {
+    await setupAuth(page);
+  });
+
   test('admin dashboard renders navigation cards', async ({ page }) => {
     await page.goto('/admin');
 
@@ -30,6 +130,8 @@ test.describe('Admin flows', () => {
   });
 
   test('workspace settings form loads and submits updates', async ({ page }) => {
+    await setupAuth(page);
+
     const initialWorkspace = {
       name: 'Default Workspace',
       baseCurrency: 'SAR',
@@ -94,6 +196,8 @@ test.describe('Admin flows', () => {
   });
 
   test('audit log page shows entries and filters', async ({ page }) => {
+    await setupAuth(page);
+
     await page.route('**/api/v1/admin/audit-log**', async (route) => {
       const url = new URL(route.request().url());
       const entityType = url.searchParams.get('entityType') ?? 'all';

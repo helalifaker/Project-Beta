@@ -5,9 +5,6 @@
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import {
   Settings,
   BookOpen,
@@ -16,6 +13,10 @@ import {
   FileText,
   DollarSign,
 } from 'lucide-react';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function AdminDashboard(): JSX.Element {
   const adminSections = [

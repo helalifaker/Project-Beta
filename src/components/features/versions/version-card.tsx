@@ -3,11 +3,12 @@
  * Displays version summary in list view
  */
 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { VersionStatus } from '@prisma/client';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
-import type { VersionStatus } from '@prisma/client';
+
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export interface VersionCardProps {
   id: string;
@@ -63,24 +64,20 @@ export function VersionCard({
         </div>
       </CardHeader>
       <CardContent>
-        {description && (
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+        {description ? <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
             {description}
-          </p>
-        )}
+          </p> : null}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div>
-            {ownerName && <span>Owner: {ownerName}</span>}
+            {ownerName ? <span>Owner: {ownerName}</span> : null}
           </div>
           <div>
             Updated {formatDistanceToNow(updatedAt, { addSuffix: true })}
           </div>
         </div>
-        {lockedAt && (
-          <div className="mt-2 text-xs text-muted-foreground">
+        {lockedAt ? <div className="mt-2 text-xs text-muted-foreground">
             Locked {formatDistanceToNow(lockedAt, { addSuffix: true })}
-          </div>
-        )}
+          </div> : null}
       </CardContent>
     </Card>
   );

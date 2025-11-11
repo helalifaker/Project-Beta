@@ -2,9 +2,9 @@
  * Tests for dashboard admin pages
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 const { capexCategoriesMock, capexRulesMock } = vi.hoisted(() => ({
   capexCategoriesMock: vi.fn(() => <div data-testid="capex-categories" />),
@@ -50,13 +50,13 @@ vi.mock('@/components/features/compare/comparison-view', () => ({
   ComparisonView: () => <div data-testid="comparison-view" />,
 }));
 
-import AdminPage from '../page';
+import ComparePage from '../../compare/page';
 import AuditLogPage from '../audit-log/page';
 import CapexManagementPage from '../capex/page';
 import CurriculumTemplatesPage from '../curriculum-templates/page';
+import AdminPage from '../page';
 import RentTemplatesPage from '../rent-templates/page';
 import WorkspaceSettingsPage from '../workspace/page';
-import ComparePage from '../../compare/page';
 
 describe('Admin dashboard pages', () => {
   beforeEach(() => {

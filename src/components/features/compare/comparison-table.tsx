@@ -6,8 +6,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MODEL_START_YEAR, MODEL_END_YEAR } from '@/lib/finance/constants';
 import { formatCurrency } from '@/lib/utils/format';
 

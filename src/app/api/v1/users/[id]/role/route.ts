@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod';
+
 import { requireRole } from '@/lib/auth/session';
 import { updateUserRole } from '@/lib/auth/utils';
 import { prisma } from '@/lib/db/prisma';
@@ -16,18 +17,19 @@ const UpdateRoleSchema = z.object({
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
     // Require ADMIN role
     const session = await requireRole('ADMIN');
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = UpdateRoleSchema.parse(body);
 
     // Check if user exists
     const user = await prisma.profile.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!user) {
@@ -37,7 +39,7 @@ export async function PUT(
           message: 'User not found',
           meta: {
             resource: 'user',
-            id: params.id,
+            id,
             timestamp: new Date().toISOString(),
           },
         },
@@ -58,7 +60,7 @@ export async function PUT(
 
     // Update role
     const { error: updateError } = await updateUserRole(
-      params.id,
+      id,
       validatedData.role
     );
 
@@ -74,7 +76,7 @@ export async function PUT(
 
     // Fetch updated user
     const updatedUser = await prisma.profile.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         email: true,

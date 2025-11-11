@@ -2,12 +2,13 @@
  * Tests for ProfileForm component
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+
+import type { User } from '@/types/auth';
 
 import { ProfileForm } from '../profile-form';
-import type { User } from '@/types/auth';
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),

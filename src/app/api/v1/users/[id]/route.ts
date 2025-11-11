@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+
 import { requireRole } from '@/lib/auth/session';
 import { updateUserRole } from '@/lib/auth/utils';
 import { prisma } from '@/lib/db/prisma';
@@ -17,14 +18,15 @@ const UpdateUserSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
     // Require ADMIN role
     await requireRole('ADMIN');
 
+    const { id } = await params;
     const user = await prisma.profile.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         email: true,
@@ -41,7 +43,7 @@ export async function GET(
           message: 'User not found',
           meta: {
             resource: 'user',
-            id: params.id,
+            id,
             timestamp: new Date().toISOString(),
           },
         },
@@ -89,18 +91,19 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
     // Require ADMIN role
     await requireRole('ADMIN');
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = UpdateUserSchema.parse(body);
 
     // Check if user exists
     const existingUser = await prisma.profile.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingUser) {
@@ -110,7 +113,7 @@ export async function PUT(
           message: 'User not found',
           meta: {
             resource: 'user',
-            id: params.id,
+            id,
             timestamp: new Date().toISOString(),
           },
         },
@@ -121,7 +124,7 @@ export async function PUT(
     // Update role if provided
     if (validatedData.role) {
       const { error: updateError } = await updateUserRole(
-        params.id,
+        id,
         validatedData.role
       );
 
@@ -138,7 +141,7 @@ export async function PUT(
 
     // Fetch updated user
     const user = await prisma.profile.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         email: true,
@@ -199,15 +202,16 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
     // Require ADMIN role
     await requireRole('ADMIN');
 
+    const { id } = await params;
     // Check if user exists
     const user = await prisma.profile.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!user) {
@@ -217,7 +221,7 @@ export async function DELETE(
           message: 'User not found',
           meta: {
             resource: 'user',
-            id: params.id,
+            id,
             timestamp: new Date().toISOString(),
           },
         },
@@ -240,7 +244,7 @@ export async function DELETE(
     // Delete user (soft delete - update to DELETED status if we add it)
     // For now, hard delete (will be changed to soft delete later)
     await prisma.profile.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return Response.json(

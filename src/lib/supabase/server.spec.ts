@@ -2,8 +2,8 @@
  * Tests for Supabase server-side client
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { cookies } from 'next/headers';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { getSupabaseServerClient } from './server';
 

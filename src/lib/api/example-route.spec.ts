@@ -2,13 +2,16 @@
  * Tests for example API route
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { GET } from './example-route';
-import { applyApiMiddleware } from './middleware';
-import { userRepository } from '@/lib/db/repositories/user-repository';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+
 import { getOrSetCached } from '@/lib/cache/kv';
 import { generateCacheKey } from '@/lib/cache/react-cache';
+import { userRepository } from '@/lib/db/repositories/user-repository';
+
+import { GET } from './example-route';
+import { applyApiMiddleware } from './middleware';
+
 
 vi.mock('./middleware', () => ({
   applyApiMiddleware: vi.fn(),

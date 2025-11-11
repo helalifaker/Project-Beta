@@ -2,8 +2,8 @@
  * Tests for formatting utilities
  */
 
-import { describe, expect, it } from 'vitest';
 import Decimal from 'decimal.js';
+import { describe, expect, it } from 'vitest';
 
 import { formatCurrency, formatPercentage, formatNumber } from './format';
 

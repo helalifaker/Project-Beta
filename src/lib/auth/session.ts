@@ -3,8 +3,8 @@
  * Handles server-side session retrieval and validation
  */
 
-import { getSupabaseServerClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/db/prisma';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { User, Session } from '@/types/auth';
 
 /**

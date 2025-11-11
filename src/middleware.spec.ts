@@ -2,10 +2,12 @@
  * Tests for Next.js middleware
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { middleware } from './middleware';
-import { authMiddleware } from '@/lib/auth/middleware';
 import { NextRequest } from 'next/server';
+import { describe, it, expect, vi } from 'vitest';
+
+import { authMiddleware } from '@/lib/auth/middleware';
+
+import { middleware } from './middleware';
 
 vi.mock('@/lib/auth/middleware', () => ({
   authMiddleware: vi.fn(),

@@ -2,11 +2,11 @@
  * Integration tests for version detail API routes
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { NotFoundError, ForbiddenError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { versionRepository } from '@/lib/db/repositories/version-repository';
-import { NotFoundError, ForbiddenError } from '@/lib/api/errors';
 
 import { GET, PUT, DELETE } from './route';
 

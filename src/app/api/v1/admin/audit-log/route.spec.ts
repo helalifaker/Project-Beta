@@ -2,10 +2,12 @@
  * Integration tests for audit log API routes
  */
 
+import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { prisma } from '@/lib/db/prisma';
+import type { Session } from '@/types/auth';
 
 import { GET } from './route';
 
@@ -23,8 +25,16 @@ vi.mock('@/lib/db/prisma', () => ({
   },
 }));
 
-const mockSession = {
-  user: { id: 'user-1', email: 'admin@example.com', role: 'ADMIN' },
+const mockSession: Session = {
+  user: {
+    id: 'user-1',
+    email: 'admin@example.com',
+    role: 'ADMIN',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  accessToken: 'mock-access-token',
+  expiresAt: new Date(Date.now() + 3600000),
 };
 
 const mockAuditLogEntries = [
@@ -68,7 +78,7 @@ describe('GET /api/v1/admin/audit-log', () => {
     vi.mocked(prisma.auditLog.count).mockResolvedValue(2);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/audit-log?page=1&limit=20'),
+      new NextRequest('http://localhost/api/v1/admin/audit-log?page=1&limit=20'),
     );
 
     expect(response.status).toBe(200);
@@ -88,7 +98,7 @@ describe('GET /api/v1/admin/audit-log', () => {
     vi.mocked(prisma.auditLog.count).mockResolvedValue(1);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/audit-log?entityType=version'),
+      new NextRequest('http://localhost/api/v1/admin/audit-log?entityType=version'),
     );
 
     expect(response.status).toBe(200);
@@ -110,7 +120,7 @@ describe('GET /api/v1/admin/audit-log', () => {
     vi.mocked(prisma.auditLog.count).mockResolvedValue(1);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/audit-log?action=CREATE'),
+      new NextRequest('http://localhost/api/v1/admin/audit-log?action=CREATE'),
     );
 
     expect(response.status).toBe(200);
@@ -125,7 +135,7 @@ describe('GET /api/v1/admin/audit-log', () => {
     vi.mocked(applyApiMiddleware).mockRejectedValue(new Error('Forbidden'));
 
     await expect(
-      GET(new Request('http://localhost/api/v1/admin/audit-log')),
+      GET(new NextRequest('http://localhost/api/v1/admin/audit-log')),
     ).rejects.toThrow('Forbidden');
   });
 
@@ -138,7 +148,7 @@ describe('GET /api/v1/admin/audit-log', () => {
     vi.mocked(prisma.auditLog.count).mockResolvedValue(25);
 
     const response = await GET(
-      new Request('http://localhost/api/v1/admin/audit-log?page=2&limit=10'),
+      new NextRequest('http://localhost/api/v1/admin/audit-log?page=2&limit=10'),
     );
 
     expect(response.status).toBe(200);

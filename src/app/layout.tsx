@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import type { JSX, ReactNode } from "react";
 
 import { AppFooter } from "@/components/layout/app-footer";
@@ -7,6 +8,7 @@ import { AppHeader } from "@/components/layout/app-header";
 import { AppShell } from "@/components/layout/app-shell";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Button } from "@/components/ui/button";
+
 import { Providers } from "./providers";
 
 import "./globals.css";
@@ -27,11 +29,39 @@ export const metadata: Metadata = {
     "Evaluate long-term lease scenarios, curriculum capacity, and financial statements for the 2028 relocation.",
 };
 
-export default function RootLayout({
+/**
+ * Check if current route is an auth route
+ */
+function isAuthRoute(pathname: string): boolean {
+  return (
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/auth/') ||
+    pathname.startsWith('/reset-password')
+  );
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
-}>): JSX.Element {
+}>): Promise<JSX.Element> {
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || headersList.get('x-invoke-path') || '/';
+
+  // Don't show AppShell on auth routes
+  if (isAuthRoute(pathname)) {
+    return (
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <Providers>{children}</Providers>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="en">
       <body

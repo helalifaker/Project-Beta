@@ -2,14 +2,14 @@
  * Integration tests for curriculum template detail API routes
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { curriculumTemplateRepository } from '@/lib/db/repositories/curriculum-template-repository';
 
 import { GET, PUT, DELETE } from './route';
 
-import { NotFoundError } from '@/lib/api/errors';
 
 vi.mock('@/lib/api/middleware', () => ({
   applyApiMiddleware: vi.fn(),

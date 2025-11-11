@@ -4,6 +4,8 @@
  */
 
 import Link from 'next/link';
+import type { JSX } from 'react';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -12,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import type { JSX } from 'react';
 
 export default function UnauthorizedPage(): JSX.Element {
   return (
@@ -29,7 +30,7 @@ export default function UnauthorizedPage(): JSX.Element {
             If you believe this is an error, please contact your administrator.
           </p>
           <div className="flex gap-4">
-            <Link href="/overview">
+            <Link href="/">
               <Button variant="outline">Go to Dashboard</Button>
             </Link>
             <Link href="/profile">

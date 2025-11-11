@@ -19,6 +19,7 @@ vi.mock('@/lib/db/prisma', () => ({
 
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
+
 import * as sessionModule from './session';
 
 const { getServerSession, getServerUser, requireAuth, requireRole } =

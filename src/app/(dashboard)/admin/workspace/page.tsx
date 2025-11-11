@@ -4,6 +4,7 @@
  */
 
 import { Suspense } from 'react';
+
 import { WorkspaceSettings } from '@/components/features/admin/workspace-settings';
 
 export default function WorkspaceSettingsPage(): JSX.Element {

@@ -2,9 +2,9 @@
  * Tests for RentTemplatesList component
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { RentTemplatesList } from '../rent-templates-list';
 

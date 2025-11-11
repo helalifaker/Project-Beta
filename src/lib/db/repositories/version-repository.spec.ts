@@ -3,8 +3,10 @@
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { versionRepository } from './version-repository';
+
 import { prisma } from '../prisma';
+
+import { versionRepository } from './version-repository';
 
 vi.mock('../prisma', () => ({
   prisma: {

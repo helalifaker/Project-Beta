@@ -5,6 +5,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { prisma } from '../prisma';
+
 import { userRepository } from './user-repository';
 
 vi.mock('../prisma', () => ({

@@ -3,7 +3,9 @@
  * View system activity and changes
  */
 
+import type { JSX } from 'react';
 import { Suspense } from 'react';
+
 import { AuditLogViewer } from '@/components/features/admin/audit-log-viewer';
 
 export default function AuditLogPage(): JSX.Element {

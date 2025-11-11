@@ -3,8 +3,8 @@
  * Revenue-based percentage calculations
  */
 
-import { Decimal, roundCurrency } from './decimal';
 import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
+import { Decimal, roundCurrency } from './decimal';
 
 export interface OpExCategory {
   id: string;

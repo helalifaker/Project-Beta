@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import { calculateNPV, calculatePV, calculateFV } from './npv';
 
 describe('calculateNPV', () => {

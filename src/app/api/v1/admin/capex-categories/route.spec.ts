@@ -3,9 +3,11 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GET, POST } from './route';
+
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { capexCategoryRepository } from '@/lib/db/repositories/capex-category-repository';
+
+import { GET, POST } from './route';
 
 vi.mock('@/lib/api/middleware', () => {
   const applyApiMiddleware = vi.fn();

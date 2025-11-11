@@ -6,12 +6,13 @@
  */
 
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
+
+import { NotFoundError, ForbiddenError } from '@/lib/api/errors';
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse } from '@/lib/api/response';
 import { idParamSchema } from '@/lib/api/schemas';
 import { versionRepository } from '@/lib/db/repositories/version-repository';
-import { NotFoundError, ForbiddenError } from '@/lib/api/errors';
-import { z } from 'zod';
 
 const updateVersionSchema = z.object({
   name: z.string().min(1).max(200).optional(),

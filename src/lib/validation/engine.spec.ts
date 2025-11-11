@@ -3,15 +3,17 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  validateFinancialStatements,
-  type ValidationInputs,
-} from './engine';
+
 import type {
   ProfitLossStatement,
   BalanceSheet,
   CashFlowStatement,
 } from '@/lib/finance/statements';
+
+import {
+  validateFinancialStatements,
+  type ValidationInputs,
+} from './engine';
 
 describe('validateFinancialStatements', () => {
   const createMockStatements = (): {

@@ -4,8 +4,8 @@
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-import { getSupabaseClient } from '@/lib/supabase/client';
 import { prisma } from '@/lib/db/prisma';
+import { getSupabaseClient } from '@/lib/supabase/client';
 
 import {
   loginWithPassword,

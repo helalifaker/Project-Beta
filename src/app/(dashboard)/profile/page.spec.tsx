@@ -2,11 +2,14 @@
  * Tests for profile page
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { redirect } from 'next/navigation';
-import ProfilePage from './page';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { getServerUser } from '@/lib/auth/session';
+
+import ProfilePage from './page';
+
 
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(),

@@ -1,8 +1,9 @@
 import { Menu, Settings2 } from 'lucide-react';
+import type { JSX, ReactNode } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
-import type { JSX, ReactNode } from 'react';
 
 export interface AppHeaderProps {
   title: string;

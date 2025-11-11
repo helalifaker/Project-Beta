@@ -5,10 +5,11 @@
  */
 
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
+
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse } from '@/lib/api/response';
 import { rentTemplateRepository } from '@/lib/db/repositories/rent-template-repository';
-import { z } from 'zod';
 
 const createRentTemplateSchema = z.object({
   name: z.string().min(1).max(200),

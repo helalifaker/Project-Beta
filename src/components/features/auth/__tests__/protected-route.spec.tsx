@@ -2,12 +2,13 @@
  * Tests for ProtectedRoute component
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+
+import { getSupabaseClient } from '@/lib/supabase/client';
 
 import { ProtectedRoute } from '../protected-route';
-import { getSupabaseClient } from '@/lib/supabase/client';
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),

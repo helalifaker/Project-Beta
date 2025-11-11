@@ -22,7 +22,9 @@ vi.mock('@/lib/auth/utils', () => ({
 
 const mockPush = vi.fn();
 const mockRefresh = vi.fn();
-const mockGet = vi.fn((key: string) => (key === 'redirect' ? null : null));
+const mockGet = vi.fn<(key: string) => string | null>((key: string) =>
+  key === 'redirect' ? null : null
+);
 const mockSearchParams = {
   get: mockGet,
 };

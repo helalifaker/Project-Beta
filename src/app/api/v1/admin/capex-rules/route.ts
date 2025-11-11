@@ -5,10 +5,11 @@
  */
 
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
+
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse } from '@/lib/api/response';
 import { capexRuleRepository } from '@/lib/db/repositories/capex-rule-repository';
-import { z } from 'zod';
 
 const createCapexRuleSchema = z.object({
   categoryId: z.string().uuid(),

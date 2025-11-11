@@ -3,14 +3,14 @@
  * Handles curriculum-specific capacity, ramp profiles, and enrollment projections
  */
 
-import { Decimal, roundCurrency } from './decimal';
-import { calculateCpiAdjustedAmount, type CpiFrequency } from './cpi';
 import {
   MODEL_START_YEAR,
   MODEL_END_YEAR,
   RELOCATION_YEAR,
   RAMP_YEARS,
 } from './constants';
+import { calculateCpiAdjustedAmount, type CpiFrequency } from './cpi';
+import { Decimal, roundCurrency } from './decimal';
 
 export interface CurriculumRampStep {
   yearOffset: number; // Years from launch year (0, 1, 2, 3, 4)

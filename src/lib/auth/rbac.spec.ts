@@ -3,13 +3,15 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
+import type { UserRole } from '@/types/auth';
+
 import {
   hasRole,
   canPerformAction,
   canAccessResource,
   getAllowedActions,
 } from './rbac';
-import type { UserRole } from '@/types/auth';
 
 describe('hasRole', () => {
   it('should return true if user role is higher than required', () => {

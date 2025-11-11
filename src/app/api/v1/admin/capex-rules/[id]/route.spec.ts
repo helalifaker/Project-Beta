@@ -2,14 +2,14 @@
  * Integration tests for capex rule detail API routes
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { capexRuleRepository } from '@/lib/db/repositories/capex-rule-repository';
 
 import { GET, PUT, DELETE } from './route';
 
-import { NotFoundError } from '@/lib/api/errors';
 
 vi.mock('@/lib/api/middleware', () => ({
   applyApiMiddleware: vi.fn(),

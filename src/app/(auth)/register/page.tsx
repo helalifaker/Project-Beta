@@ -5,12 +5,12 @@
 
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { registerUser } from '@/lib/auth/utils';
+import { useState } from 'react';
+import type { JSX } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Card,
   CardContent,
@@ -18,9 +18,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { registerUser } from '@/lib/auth/utils';
 import type { UserRole } from '@/types/auth';
-import type { JSX } from 'react';
+
 
 export default function RegisterPage(): JSX.Element {
   const router = useRouter();
@@ -101,11 +103,9 @@ export default function RegisterPage(): JSX.Element {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
+          {error ? <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+            </Alert> : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">

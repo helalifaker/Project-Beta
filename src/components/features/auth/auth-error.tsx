@@ -3,8 +3,9 @@
  * Displays user-friendly error messages for auth failures
  */
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { JSX } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AuthErrorProps {
   error: string | Error | null;

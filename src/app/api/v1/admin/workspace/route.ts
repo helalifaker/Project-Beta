@@ -5,10 +5,11 @@
  */
 
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
+
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse } from '@/lib/api/response';
 import { workspaceRepository } from '@/lib/db/repositories/workspace-repository';
-import { z } from 'zod';
 
 const updateWorkspaceSchema = z.object({
   name: z.string().min(1).max(200).optional(),

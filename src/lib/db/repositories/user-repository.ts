@@ -7,8 +7,8 @@ import type { Profile } from '@prisma/client';
 
 import type { UserRole } from '@/types/auth';
 
-import { BaseRepository } from '../repository';
 import { prisma } from '../prisma';
+import { BaseRepository } from '../repository';
 
 export interface CreateUserInput {
   email: string;

@@ -3,9 +3,9 @@
  * Category-based rules: Cycle-based, Utilization-based, Custom date
  */
 
+import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
 import { Decimal, roundCurrency } from './decimal';
 import { calculateEscalatedAmount } from './escalation';
-import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
 
 export type CapexRuleType = 'CYCLE' | 'UTILIZATION' | 'CUSTOM_DATE';
 

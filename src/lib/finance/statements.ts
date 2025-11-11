@@ -3,8 +3,8 @@
  * P&L, Balance Sheet, and Cash Flow statements
  */
 
-import { Decimal, roundCurrency, sum } from './decimal';
 import { MODEL_START_YEAR, MODEL_END_YEAR, BALANCE_TOLERANCE } from './constants';
+import { Decimal, roundCurrency, sum } from './decimal';
 
 export interface ProfitLossStatement {
   year: number;

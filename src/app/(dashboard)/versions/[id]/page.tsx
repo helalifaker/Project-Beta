@@ -4,6 +4,7 @@
  */
 
 import { Suspense } from 'react';
+
 import { VersionDetail } from '@/components/features/versions/version-detail';
 
 export default function VersionDetailPage({

@@ -4,12 +4,14 @@
  */
 
 import { NextRequest } from 'next/server';
+
+import { getOrSetCached } from '@/lib/cache/kv';
+import { generateCacheKey } from '@/lib/cache/react-cache';
+import { userRepository } from '@/lib/db/repositories/user-repository';
+
 import { applyApiMiddleware, withErrorHandling } from './middleware';
 import { successResponse, paginatedResponse } from './response';
 import { paginationSchema, filterSchema } from './schemas';
-import { userRepository } from '@/lib/db/repositories/user-repository';
-import { getOrSetCached } from '@/lib/cache/kv';
-import { generateCacheKey } from '@/lib/cache/react-cache';
 
 /**
  * Example GET handler with middleware

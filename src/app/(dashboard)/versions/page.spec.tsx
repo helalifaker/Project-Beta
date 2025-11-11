@@ -2,8 +2,9 @@
  * Tests for versions page
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
 import VersionsPage from './page';
 
 vi.mock('@/components/features/versions/version-list', () => ({

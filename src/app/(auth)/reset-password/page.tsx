@@ -5,12 +5,12 @@
 
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { sendPasswordReset } from '@/lib/auth/utils';
+import { useState } from 'react';
+import type { JSX } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Card,
   CardContent,
@@ -18,8 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import type { JSX } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { sendPasswordReset } from '@/lib/auth/utils';
+
 
 export default function ResetPasswordPage(): JSX.Element {
   const [email, setEmail] = useState('');
@@ -81,11 +83,9 @@ export default function ResetPasswordPage(): JSX.Element {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
+          {error ? <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+            </Alert> : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">

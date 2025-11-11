@@ -6,9 +6,10 @@
 'use client';
 
 import { useMemo } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { MODEL_START_YEAR, MODEL_END_YEAR, RAMP_YEARS } from '@/lib/finance/constants';
-import { Badge } from '@/components/ui/badge';
 
 interface EnrollmentProjectionsTableProps {
   versionId: string;

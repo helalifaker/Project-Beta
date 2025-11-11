@@ -4,6 +4,7 @@
  */
 
 import { Suspense } from 'react';
+
 import { ComparisonView } from '@/components/features/compare/comparison-view';
 
 export default function ComparePage(): JSX.Element {

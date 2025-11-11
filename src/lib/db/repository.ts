@@ -3,8 +3,9 @@
  * Provides base CRUD operations for database entities
  */
 
-import { prisma } from './prisma';
 import type { Prisma } from '@prisma/client';
+
+import { prisma } from './prisma';
 
 export interface RepositoryOptions {
   includeDeleted?: boolean;

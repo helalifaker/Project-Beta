@@ -5,10 +5,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -18,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { EnrollmentProjectionsTable } from './enrollment-projections-table';
 import { useDebouncedCallback } from '@/lib/utils/debounce';
+
+import { EnrollmentProjectionsTable } from './enrollment-projections-table';
 
 interface CurriculumFormProps {
   versionId: string;
@@ -116,8 +118,7 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
           </div>
 
           {/* Custom Capacity Override */}
-          {selectedCurriculum && (
-            <>
+          {selectedCurriculum ? <>
               <div>
                 <Label htmlFor="customCapacity">Custom Capacity (optional override)</Label>
                 <Input
@@ -137,8 +138,7 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
                 curriculumId={selectedCurriculum}
                 customCapacity={customCapacity}
               />
-            </>
-          )}
+            </> : null}
         </CardContent>
       </Card>
     </div>

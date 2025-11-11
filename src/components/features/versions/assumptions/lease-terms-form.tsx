@@ -5,10 +5,12 @@
 
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,9 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RentSchedulePreview } from './rent-schedule-preview';
-import { useMutation } from '@tanstack/react-query';
 import { useDebouncedCallback } from '@/lib/utils/debounce';
+
+import { RentSchedulePreview } from './rent-schedule-preview';
 
 const leaseTermsSchema = z.object({
   rentModelType: z.enum(['FIXED_ESC', 'REV_SHARE', 'PARTNER']),
@@ -141,9 +143,7 @@ export function LeaseTermsForm({ versionId }: LeaseTermsFormProps): JSX.Element 
                     type="number"
                     {...register('baseAmount', { valueAsNumber: true })}
                   />
-                  {errors.baseAmount && (
-                    <p className="text-sm text-destructive">{errors.baseAmount.message}</p>
-                  )}
+                  {errors.baseAmount ? <p className="text-sm text-destructive">{errors.baseAmount.message}</p> : null}
                 </div>
 
                 <div>
@@ -293,9 +293,7 @@ export function LeaseTermsForm({ versionId }: LeaseTermsFormProps): JSX.Element 
             <Button type="submit" disabled={saveMutation.isPending}>
               {saveMutation.isPending ? 'Saving...' : 'Save Lease Terms'}
             </Button>
-            {saveMutation.isSuccess && (
-              <p className="text-sm text-green-600">Saved successfully</p>
-            )}
+            {saveMutation.isSuccess ? <p className="text-sm text-green-600">Saved successfully</p> : null}
           </form>
         </CardContent>
       </Card>

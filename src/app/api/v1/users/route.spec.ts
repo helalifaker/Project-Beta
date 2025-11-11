@@ -3,10 +3,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET, POST } from './route';
+
 import { requireRole } from '@/lib/auth/session';
 import { registerUser } from '@/lib/auth/utils';
 import { prisma } from '@/lib/db/prisma';
+
+import { GET, POST } from './route';
 type PrismaProfileMock = {
   findMany: ReturnType<typeof vi.fn>;
   count: ReturnType<typeof vi.fn>;

@@ -4,6 +4,7 @@
  */
 
 import { Suspense } from 'react';
+
 import { VersionList } from '@/components/features/versions/version-list';
 
 export default function VersionsPage(): JSX.Element {

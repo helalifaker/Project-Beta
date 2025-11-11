@@ -5,11 +5,12 @@
 
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/lib/utils/format';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart } from '@tremor/react';
 import type React from 'react';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils/format';
 
 interface NPVComparisonProps {
   versionIds: string[];

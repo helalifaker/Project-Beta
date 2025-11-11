@@ -4,9 +4,9 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { versionRepository } from '@/lib/db/repositories/version-repository';
-import { NotFoundError } from '@/lib/api/errors';
 
 import { POST } from './route';
 

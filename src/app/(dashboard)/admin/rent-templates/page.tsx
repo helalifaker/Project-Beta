@@ -4,6 +4,7 @@
  */
 
 import { Suspense } from 'react';
+
 import { RentTemplatesList } from '@/components/features/admin/rent-templates-list';
 
 export default function RentTemplatesPage(): JSX.Element {

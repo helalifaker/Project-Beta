@@ -7,6 +7,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { LineChart } from '@tremor/react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface RentLoadChartProps {

@@ -12,8 +12,10 @@ import {
   Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
+import Link from 'next/link';
 import type { JSX } from 'react';
+
+import { cn } from '@/lib/utils/cn';
 
 export interface SidebarNavItem {
   label: string;
@@ -37,36 +39,54 @@ const defaultSections: SidebarSection[] = [
   {
     title: 'Overview',
     items: [
-      { label: 'Home', href: '/', icon: Home, isActive: true },
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { label: 'Reports', href: '/reports', icon: BarChart3 },
+      { label: 'Home', href: '/', icon: Home },
+      { label: 'Versions', href: '/versions', icon: LayoutDashboard },
+      { label: 'Compare', href: '/compare', icon: BarChart3 },
     ],
   },
   {
     title: 'Planning',
     items: [
-      { label: 'Assumptions', href: '/assumptions', icon: Calculator },
-      { label: 'Curriculum', href: '/curriculum', icon: BookOpenCheck },
-      { label: 'Staffing', href: '/staff', icon: Users },
-      { label: 'Capex', href: '/capex', icon: Building2 },
-    ],
-  },
-  {
-    title: 'Statements',
-    items: [
-      { label: 'P&L', href: '/statements/pnl', icon: FileSpreadsheet },
-      { label: 'Balance Sheet', href: '/statements/bs', icon: LineChart },
-      { label: 'Cash Flow', href: '/statements/cf', icon: TrendingUp },
+      { label: 'Profile', href: '/profile', icon: Users },
     ],
   },
   {
     title: 'Administration',
     items: [
-      { label: 'Templates', href: '/admin/templates', icon: Settings },
       {
-        label: 'Workspaces',
-        href: '/admin/workspaces',
+        label: 'Users',
+        href: '/admin/users',
+        icon: Users,
+        badge: 'Admin',
+      },
+      {
+        label: 'Workspace',
+        href: '/admin/workspace',
         icon: Building2,
+        badge: 'Admin',
+      },
+      {
+        label: 'Curriculum Templates',
+        href: '/admin/curriculum-templates',
+        icon: BookOpenCheck,
+        badge: 'Admin',
+      },
+      {
+        label: 'Rent Templates',
+        href: '/admin/rent-templates',
+        icon: FileSpreadsheet,
+        badge: 'Admin',
+      },
+      {
+        label: 'Capex',
+        href: '/admin/capex',
+        icon: Building2,
+        badge: 'Admin',
+      },
+      {
+        label: 'Audit Log',
+        href: '/admin/audit-log',
+        icon: BarChart3,
         badge: 'Admin',
       },
     ],
@@ -77,6 +97,8 @@ export function AppSidebar({
   sections = defaultSections,
   className,
 }: AppSidebarProps): JSX.Element {
+  // Note: usePathname requires 'use client' directive
+  // For server components, we'll use href matching instead
   return (
     <aside
       className={cn(
@@ -104,7 +126,7 @@ export function AppSidebar({
             <ul className="space-y-1">
               {section.items.map((item) => (
                 <li key={item.href}>
-                  <a
+                  <Link
                     href={item.href}
                     className={cn(
                       'flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium transition-colors',
@@ -121,7 +143,7 @@ export function AppSidebar({
                         {item.badge}
                       </span>
                     ) : null}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

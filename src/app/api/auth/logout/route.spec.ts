@@ -3,8 +3,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from './route';
+
 import { logout } from '@/lib/auth/utils';
+
+import { POST } from './route';
 
 vi.mock('@/lib/auth/utils', () => ({
   logout: vi.fn(),

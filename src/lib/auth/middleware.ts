@@ -5,6 +5,7 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+
 import type { UserRole } from '@/types/auth';
 
 /**

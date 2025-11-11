@@ -4,13 +4,15 @@
  */
 
 import { z } from 'zod';
+
 import { getServerSession, requireAuth, requireRole } from '@/lib/auth/session';
+import type { UserRole } from '@/types/auth';
+
 import {
   ValidationError,
   UnauthorizedError,
   ForbiddenError,
 } from './errors';
-import type { UserRole } from '@/types/auth';
 
 /**
  * Middleware options

@@ -5,11 +5,12 @@
  */
 
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
+
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse } from '@/lib/api/response';
 import { curriculumTemplateRepository } from '@/lib/db/repositories/curriculum-template-repository';
 import { workspaceRepository } from '@/lib/db/repositories/workspace-repository';
-import { z } from 'zod';
 
 const createCurriculumTemplateSchema = z.object({
   name: z.string().min(1).max(200),

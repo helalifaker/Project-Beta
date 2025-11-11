@@ -3,8 +3,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET } from './route';
+
 import { getServerSession } from '@/lib/auth/session';
+
+import { GET } from './route';
 
 vi.mock('@/lib/auth/session', () => ({
   getServerSession: vi.fn(),

@@ -5,6 +5,11 @@
 
 'use client';
 
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import type { JSX } from 'react';
+import { useState } from 'react';
+
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,15 +23,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { loginWithMagicLink, loginWithPassword } from '@/lib/auth/utils';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import type { JSX } from 'react';
-import { useState } from 'react';
 
 export default function LoginPage(): JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/overview';
+  const redirect = searchParams.get('redirect') || '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -64,11 +65,22 @@ export default function LoginPage(): JSX.Element {
     setIsLoading(true);
 
     try {
+      // Magic link redirect URL - Supabase will append token and type
       const redirectTo = `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`;
       const { error: magicLinkError } = await loginWithMagicLink(email, redirectTo);
 
       if (magicLinkError) {
-        setError(magicLinkError.message || 'Failed to send magic link.');
+        // Show more detailed error messages
+        let errorMessage = magicLinkError.message || 'Failed to send magic link.';
+        
+        // Handle specific Supabase errors
+        if (magicLinkError.message?.includes('rate limit')) {
+          errorMessage = 'Too many requests. Please wait a moment and try again.';
+        } else if (magicLinkError.message?.includes('email')) {
+          errorMessage = 'Invalid email address. Please check and try again.';
+        }
+        
+        setError(errorMessage);
         setIsLoading(false);
         return;
       }
@@ -118,11 +130,9 @@ export default function LoginPage(): JSX.Element {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
+          {error ? <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+            </Alert> : null}
 
           {isMagicLink ? (
             <form onSubmit={handleMagicLinkLogin} className="space-y-4">

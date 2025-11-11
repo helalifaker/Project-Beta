@@ -6,9 +6,10 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ProfitLossTable } from './statements/profit-loss-table';
+
 import { BalanceSheetTable } from './statements/balance-sheet-table';
 import { CashFlowTable } from './statements/cash-flow-table';
+import { ProfitLossTable } from './statements/profit-loss-table';
 
 interface StatementsTabProps {
   versionId: string;

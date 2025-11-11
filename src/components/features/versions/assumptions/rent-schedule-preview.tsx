@@ -6,14 +6,15 @@
 'use client';
 
 import { useMemo } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MODEL_START_YEAR, MODEL_END_YEAR } from '@/lib/finance/constants';
 import {
   generateFixedEscRentSchedule,
   generateRevenueShareRentSchedule,
   generatePartnerRentSchedule,
   type RentModelType,
 } from '@/lib/finance/rent';
-import { MODEL_START_YEAR, MODEL_END_YEAR } from '@/lib/finance/constants';
 
 interface RentSchedulePreviewProps {
   versionId: string;

@@ -2,8 +2,9 @@
  * Tests for AssumptionsTab component
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
 import { AssumptionsTab } from './assumptions-tab';
 
 // Mock child components

@@ -2,8 +2,8 @@
  * Tests for AuthError component
  */
 
-import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 import { AuthError } from '../auth-error';
 

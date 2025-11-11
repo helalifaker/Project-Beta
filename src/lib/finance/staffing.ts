@@ -3,9 +3,9 @@
  * Ratio-based staffing with separate teacher and non-teacher costs
  */
 
+import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
 import { Decimal, roundCurrency } from './decimal';
 import { calculateEscalatedAmount } from './escalation';
-import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
 
 export interface StaffingConfig {
   teacherRatio: number; // Students per teacher (e.g., 20)

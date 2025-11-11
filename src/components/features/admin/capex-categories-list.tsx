@@ -5,11 +5,13 @@
 
 'use client';
 
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Trash2 } from 'lucide-react';
+
 
 async function fetchCapexCategories(): Promise<Array<{
   id: string;
@@ -83,11 +85,9 @@ export function CapexCategoriesList(): JSX.Element {
                 <CardTitle>{category.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                {category.description && (
-                  <p className="text-sm text-muted-foreground mb-4">
+                {category.description ? <p className="text-sm text-muted-foreground mb-4">
                     {category.description}
-                  </p>
-                )}
+                  </p> : null}
                 <Button
                   variant="outline"
                   size="sm"

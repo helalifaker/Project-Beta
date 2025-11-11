@@ -2,11 +2,11 @@
  * Integration tests for rent template detail API routes
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { rentTemplateRepository } from '@/lib/db/repositories/rent-template-repository';
-import { NotFoundError } from '@/lib/api/errors';
 
 import { GET, PUT, DELETE } from './route';
 

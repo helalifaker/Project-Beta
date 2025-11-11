@@ -4,10 +4,11 @@
  */
 
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
+
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { paginatedResponse } from '@/lib/api/response';
 import { paginationSchema } from '@/lib/api/schemas';
-import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
 
 const auditLogQuerySchema = paginationSchema.extend({
@@ -16,7 +17,7 @@ const auditLogQuerySchema = paginationSchema.extend({
 });
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { session, query } = await applyApiMiddleware(request, {
+  const { query } = await applyApiMiddleware(request, {
     requireAuth: true,
     requireRole: 'ADMIN',
     validateQuery: auditLogQuerySchema,
@@ -60,6 +61,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     prisma.auditLog.count({ where }),
   ]);
 
+  const requestId = request.headers.get('x-request-id');
   return paginatedResponse(
     entries,
     {
@@ -70,9 +72,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
       hasNext: page * limit < total,
       hasPrev: page > 1,
     },
-    {
-      requestId: request.headers.get('x-request-id') || undefined,
-    }
+    requestId ? { requestId } : undefined
   );
 });
 

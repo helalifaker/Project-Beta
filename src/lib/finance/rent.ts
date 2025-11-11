@@ -3,6 +3,7 @@
  * Implements all 3 rent models: Fixed+Escalation, Revenue Share, Partner
  */
 
+import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
 import { Decimal, roundCurrency } from './decimal';
 import {
   calculateEscalatedAmount,
@@ -10,7 +11,6 @@ import {
   type EscalationFrequency,
 } from './escalation';
 import { calculateNPV } from './npv';
-import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
 
 export type RentModelType = 'FIXED_ESC' | 'REV_SHARE' | 'PARTNER';
 

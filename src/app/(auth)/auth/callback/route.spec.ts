@@ -4,6 +4,8 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { NextRequest } from 'next/server';
+import type { Mock } from 'vitest';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { GET } from './route';
@@ -29,7 +31,7 @@ const originalEnv = { ...process.env };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  (cookies as unknown as vi.Mock).mockResolvedValue(mockCookieStore);
+  (cookies as unknown as Mock).mockResolvedValue(mockCookieStore);
   mockCookieStore.getAll.mockReturnValue([]);
   mockCookieStore.set.mockImplementation(() => undefined);
 });
@@ -48,11 +50,11 @@ describe('GET /auth/callback', () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://supabase.test';
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon';
 
-    const request = new Request(
+    const request = new NextRequest(
       'https://example.com/auth/callback?code=abc123&redirect=%2Fdashboard'
     );
 
-    const response = await GET(request as unknown as Request);
+    const response = await GET(request);
 
     expect(exchangeCodeForSession).toHaveBeenCalledWith('abc123');
     expect(response.headers.get('location')).toBe('https://example.com/dashboard');
@@ -62,9 +64,9 @@ describe('GET /auth/callback', () => {
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    const request = new Request('https://example.com/auth/callback?code=abc123');
+    const request = new NextRequest('https://example.com/auth/callback?code=abc123');
 
-    const response = await GET(request as unknown as Request);
+    const response = await GET(request);
 
     expect(response.headers.get('location')).toBe(
       'https://example.com/login?error=config'
@@ -73,9 +75,9 @@ describe('GET /auth/callback', () => {
   });
 
   it('should redirect to login when code is missing', async () => {
-    const request = new Request('https://example.com/auth/callback');
+    const request = new NextRequest('https://example.com/auth/callback');
 
-    const response = await GET(request as unknown as Request);
+    const response = await GET(request);
 
     expect(response.headers.get('location')).toBe('https://example.com/login');
   });

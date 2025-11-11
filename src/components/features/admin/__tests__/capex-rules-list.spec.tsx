@@ -2,9 +2,9 @@
  * Tests for CapexRulesList component
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { CapexRulesList } from '../capex-rules-list';
 

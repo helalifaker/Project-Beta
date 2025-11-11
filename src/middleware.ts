@@ -3,11 +3,18 @@
  * Handles authentication and route protection
  */
 
-import { authMiddleware } from '@/lib/auth/middleware';
 import type { NextRequest } from 'next/server';
 
+import { authMiddleware } from '@/lib/auth/middleware';
+
 export async function middleware(request: NextRequest) {
-  return authMiddleware(request);
+  const response = await authMiddleware(request);
+  
+  // Set pathname header for layout to check
+  const pathname = request.nextUrl.pathname;
+  response.headers.set('x-pathname', pathname);
+  
+  return response;
 }
 
 export const config = {

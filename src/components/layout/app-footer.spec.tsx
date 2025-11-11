@@ -2,8 +2,8 @@
  * Tests for AppFooter component
  */
 
-import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 import { AppFooter } from './app-footer';
 

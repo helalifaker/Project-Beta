@@ -2,8 +2,8 @@
  * Tests for AppHeader component
  */
 
-import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 import { AppHeader } from './app-header';
 

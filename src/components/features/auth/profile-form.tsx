@@ -5,14 +5,15 @@
 
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { User } from '@/types/auth';
+import { useState } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import type { User } from '@/types/auth';
 
 interface ProfileFormProps {
   user: User;
@@ -42,17 +43,13 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
 
   return (
     <div className="space-y-6">
-      {error && (
-        <Alert variant="destructive">
+      {error ? <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        </Alert> : null}
 
-      {success && (
-        <Alert>
+      {success ? <Alert>
           <AlertDescription>Profile updated successfully</AlertDescription>
-        </Alert>
-      )}
+        </Alert> : null}
 
       <div className="space-y-4">
         <div className="space-y-2">

@@ -2,8 +2,8 @@
  * Tests for auth middleware
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { authMiddleware } from './middleware';
 

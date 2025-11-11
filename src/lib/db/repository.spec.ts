@@ -3,8 +3,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BaseRepository } from './repository';
+
 import { prisma } from './prisma';
+import { BaseRepository } from './repository';
 
 vi.mock('./prisma', () => ({
   prisma: {

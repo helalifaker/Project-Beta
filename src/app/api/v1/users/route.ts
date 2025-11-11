@@ -5,6 +5,7 @@
  */
 
 import { z } from 'zod';
+
 import { requireRole } from '@/lib/auth/session';
 import { registerUser } from '@/lib/auth/utils';
 import { prisma } from '@/lib/db/prisma';

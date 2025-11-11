@@ -2,11 +2,14 @@
  * Tests for admin users page
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { redirect } from 'next/navigation';
-import AdminUsersPage from './page';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { requireRole, getServerUser } from '@/lib/auth/session';
+
+import AdminUsersPage from './page';
+
 
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(),

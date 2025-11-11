@@ -5,8 +5,9 @@
 
 'use client';
 
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -16,8 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ComparisonTable } from './comparison-table';
+
 import { ComparisonCharts } from './comparison-charts';
+import { ComparisonTable } from './comparison-table';
 import { NPVComparison } from './npv-comparison';
 
 async function fetchVersions(): Promise<Array<{

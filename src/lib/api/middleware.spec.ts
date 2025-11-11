@@ -3,14 +3,17 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { applyApiMiddleware } from './middleware';
+import { z } from 'zod';
+
+import { requireAuth, requireRole } from '@/lib/auth/session';
+
 import {
   ValidationError,
   UnauthorizedError,
   ForbiddenError,
 } from './errors';
-import { requireAuth, requireRole } from '@/lib/auth/session';
-import { z } from 'zod';
+import { applyApiMiddleware } from './middleware';
+
 
 vi.mock('@/lib/auth/session');
 

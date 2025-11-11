@@ -6,13 +6,14 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Download } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MODEL_START_YEAR, MODEL_END_YEAR, RAMP_YEARS, HISTORY_YEARS } from '@/lib/finance/constants';
-import { formatCurrency } from '@/lib/utils/format';
 import { exportToCsv, exportToExcel } from '@/lib/utils/export';
+import { formatCurrency } from '@/lib/utils/format';
 
 interface ProfitLossTableProps {
   versionId: string;

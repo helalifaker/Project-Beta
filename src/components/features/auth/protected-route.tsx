@@ -5,11 +5,13 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import type { ReactNode, JSX } from 'react';
+
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { UserRole } from '@/types/auth';
-import type { ReactNode, JSX } from 'react';
+
 
 interface ProtectedRouteProps {
   children: ReactNode;

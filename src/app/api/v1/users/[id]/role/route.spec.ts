@@ -3,7 +3,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { PUT } from './route';
+
 import { requireRole } from '@/lib/auth/session';
 import { updateUserRole } from '@/lib/auth/utils';
 import { prisma } from '@/lib/db/prisma';

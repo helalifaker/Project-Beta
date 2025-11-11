@@ -3,7 +3,9 @@
  * Manage curriculum templates
  */
 
+import type { JSX } from 'react';
 import { Suspense } from 'react';
+
 import { CurriculumTemplatesList } from '@/components/features/admin/curriculum-templates-list';
 
 export default function CurriculumTemplatesPage(): JSX.Element {

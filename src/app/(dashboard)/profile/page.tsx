@@ -3,8 +3,9 @@
  * Displays and allows editing of user profile information
  */
 
-import { getServerUser } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
+import type { JSX } from 'react';
+
 import { ProfileForm } from '@/components/features/auth/profile-form';
 import {
   Card,
@@ -13,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import type { JSX } from 'react';
+import { getServerUser } from '@/lib/auth/session';
 
 export default async function ProfilePage(): Promise<JSX.Element> {
   const user = await getServerUser();

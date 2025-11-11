@@ -5,16 +5,18 @@
 
 'use client';
 
-import { useState } from 'react';
+import type { VersionStatus } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { AssumptionsTab } from './assumptions-tab';
-import { StatementsTab } from './statements-tab';
 import { OverviewTab } from './overview-tab';
-import type { VersionStatus } from '@prisma/client';
+import { StatementsTab } from './statements-tab';
 
 async function fetchVersion(id: string): Promise<{
   id: string;
@@ -61,15 +63,11 @@ export function VersionDetail({ versionId }: VersionDetailProps): JSX.Element {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">{version.name}</h1>
-          {version.description && (
-            <p className="text-muted-foreground">{version.description}</p>
-          )}
+          {version.description ? <p className="text-muted-foreground">{version.description}</p> : null}
         </div>
         <div className="flex items-center gap-2">
           <Badge>{version.status}</Badge>
-          {version.lockedAt && (
-            <Badge variant="muted">Locked</Badge>
-          )}
+          {version.lockedAt ? <Badge variant="muted">Locked</Badge> : null}
         </div>
       </div>
 

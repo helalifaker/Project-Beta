@@ -2,11 +2,11 @@
  * Integration tests for capex category detail API routes
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { NotFoundError } from '@/lib/api/errors';
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { capexCategoryRepository } from '@/lib/db/repositories/capex-category-repository';
-import { NotFoundError } from '@/lib/api/errors';
 
 import { GET, PUT, DELETE } from './route';
 

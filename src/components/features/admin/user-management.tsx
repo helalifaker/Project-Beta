@@ -5,6 +5,10 @@
 
 'use client';
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { JSX } from 'react';
+import { useState } from 'react';
+
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,9 +19,6 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import type { UserRole } from '@/types/auth';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { JSX } from 'react';
-import { useState } from 'react';
 
 interface User {
   id: string;
@@ -206,8 +207,7 @@ export function UserManagement(): JSX.Element {
       </div>
 
       {/* Pagination */}
-      {data && data.pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
+      {data && data.pagination.totalPages > 1 ? <div className="flex items-center justify-between">
           <Button
             variant="outline"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -225,8 +225,7 @@ export function UserManagement(): JSX.Element {
           >
             Next
           </Button>
-        </div>
-      )}
+        </div> : null}
     </div>
   );
 }

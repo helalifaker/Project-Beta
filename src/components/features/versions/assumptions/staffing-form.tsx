@@ -5,16 +5,18 @@
 
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useMutation } from '@tanstack/react-query';
 import { useDebouncedCallback } from '@/lib/utils/debounce';
+
 import { StaffingProjectionsTable } from './staffing-projections-table';
 
 const staffingSchema = z.object({
@@ -110,9 +112,7 @@ export function StaffingForm({ versionId }: StaffingFormProps): JSX.Element {
                     type="number"
                     {...register('teacherRatio', { valueAsNumber: true })}
                   />
-                  {errors.teacherRatio && (
-                    <p className="text-sm text-destructive">{errors.teacherRatio.message}</p>
-                  )}
+                  {errors.teacherRatio ? <p className="text-sm text-destructive">{errors.teacherRatio.message}</p> : null}
                 </div>
 
                 <div>

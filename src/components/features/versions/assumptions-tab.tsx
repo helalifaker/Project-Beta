@@ -6,11 +6,12 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LeaseTermsForm } from './assumptions/lease-terms-form';
-import { CurriculumForm } from './assumptions/curriculum-form';
-import { StaffingForm } from './assumptions/staffing-form';
-import { OpExForm } from './assumptions/opex-form';
+
 import { CapexForm } from './assumptions/capex-form';
+import { CurriculumForm } from './assumptions/curriculum-form';
+import { LeaseTermsForm } from './assumptions/lease-terms-form';
+import { OpExForm } from './assumptions/opex-form';
+import { StaffingForm } from './assumptions/staffing-form';
 
 interface AssumptionsTabProps {
   versionId: string;

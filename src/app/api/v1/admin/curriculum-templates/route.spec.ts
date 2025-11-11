@@ -3,10 +3,12 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GET, POST } from './route';
+
 import { applyApiMiddleware } from '@/lib/api/middleware';
 import { curriculumTemplateRepository } from '@/lib/db/repositories/curriculum-template-repository';
 import { workspaceRepository } from '@/lib/db/repositories/workspace-repository';
+
+import { GET, POST } from './route';
 
 vi.mock('@/lib/api/middleware', () => {
   const applyApiMiddleware = vi.fn();

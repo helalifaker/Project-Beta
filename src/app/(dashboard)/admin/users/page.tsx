@@ -3,8 +3,9 @@
  * Lists all users and allows CRUD operations
  */
 
-import { getServerUser, requireRole } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
+import type { JSX } from 'react';
+
 import { UserManagement } from '@/components/features/admin/user-management';
 import {
   Card,
@@ -13,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import type { JSX } from 'react';
+import { getServerUser, requireRole } from '@/lib/auth/session';
 
 export default async function AdminUsersPage(): Promise<JSX.Element> {
   try {

@@ -16,7 +16,7 @@ const UpdateUserSchema = z.object({
 });
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
@@ -122,10 +122,7 @@ export async function PUT(
 
     // Update role if provided
     if (validatedData.role) {
-      const { error: updateError } = await updateUserRole(
-        id,
-        validatedData.role
-      );
+      const { error: updateError } = await updateUserRole(id, validatedData.role);
 
       if (updateError) {
         return Response.json(
@@ -200,7 +197,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
@@ -287,4 +284,3 @@ export async function DELETE(
     );
   }
 }
-

@@ -7,19 +7,22 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
+import type { JSX } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-async function fetchCapexRules(): Promise<Array<{
-  id: string;
-  name: string;
-  triggerType: string;
-  category: {
+async function fetchCapexRules(): Promise<
+  Array<{
+    id: string;
     name: string;
-  };
-}>> {
+    triggerType: string;
+    category: {
+      name: string;
+    };
+  }>
+> {
   const response = await fetch('/api/v1/admin/capex-rules');
   if (!response.ok) {
     throw new Error('Failed to fetch capex rules');
@@ -72,9 +75,7 @@ export function CapexRulesList(): JSX.Element {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-muted-foreground">
-                  Category: {rule.category.name}
-                </div>
+                <div className="text-sm text-muted-foreground">Category: {rule.category.name}</div>
               </CardContent>
             </Card>
           ))}
@@ -83,4 +84,3 @@ export function CapexRulesList(): JSX.Element {
     </div>
   );
 }
-

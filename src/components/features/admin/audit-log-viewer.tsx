@@ -7,6 +7,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
+import type { JSX } from 'react';
 import { useState } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
 
 interface AuditLogEntry {
   id: string;
@@ -68,15 +68,28 @@ export function AuditLogViewer(): JSX.Element {
   const entityTypeLabelId = 'audit-log-entity-type-label';
   const actionLabelId = 'audit-log-action-label';
 
+  // Build params object, filtering out undefined values for exactOptionalPropertyTypes
+  const fetchParams: {
+    page: number;
+    limit: number;
+    entityType?: string;
+    action?: string;
+  } = {
+    page,
+    limit: 50,
+  };
+
+  if (entityTypeFilter !== 'all') {
+    fetchParams.entityType = entityTypeFilter;
+  }
+
+  if (actionFilter !== 'all') {
+    fetchParams.action = actionFilter;
+  }
+
   const { data, isLoading } = useQuery({
     queryKey: ['audit-log', page, entityTypeFilter, actionFilter],
-    queryFn: () =>
-      fetchAuditLog({
-        page,
-        limit: 50,
-        entityType: entityTypeFilter !== 'all' ? entityTypeFilter : undefined,
-        action: actionFilter !== 'all' ? actionFilter : undefined,
-      }),
+    queryFn: () => fetchAuditLog(fetchParams),
   });
 
   if (isLoading) {
@@ -94,10 +107,7 @@ export function AuditLogViewer(): JSX.Element {
             <div>
               <Label id={entityTypeLabelId}>Entity Type</Label>
               <Select value={entityTypeFilter} onValueChange={setEntityTypeFilter}>
-                <SelectTrigger
-                  id="entityType"
-                  aria-labelledby={entityTypeLabelId}
-                >
+                <SelectTrigger id="entityType" aria-labelledby={entityTypeLabelId}>
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -137,10 +147,7 @@ export function AuditLogViewer(): JSX.Element {
               </div>
             ) : (
               entries.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="border-b pb-4 last:border-b-0 last:pb-0"
-                >
+                <div key={entry.id} className="border-b pb-4 last:border-b-0 last:pb-0">
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="font-medium">
@@ -165,4 +172,3 @@ export function AuditLogViewer(): JSX.Element {
     </div>
   );
 }
-

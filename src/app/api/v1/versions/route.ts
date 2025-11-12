@@ -79,9 +79,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
       hasNext: endIndex < total,
       hasPrev: page > 1,
     },
-    {
-      requestId: request.headers.get('x-request-id') || undefined,
-    },
+    request.headers.get('x-request-id')
+      ? { requestId: request.headers.get('x-request-id')! }
+      : undefined,
     { revalidate: 60 } // Cache for 60 seconds
   );
 });
@@ -115,11 +115,25 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
 
   // Create new version
-  const version = await versionRepository.create({
+  // Filter out undefined values to satisfy exactOptionalPropertyTypes
+  const createData: {
+    name: string;
+    description?: string;
+    ownerId: string;
+    baseVersionId?: string;
+  } = {
     name,
-    description,
     ownerId: session.user.id,
-  });
+  };
+
+  if (description !== undefined) {
+    createData.description = description;
+  }
+  if (baseVersionId !== undefined) {
+    createData.baseVersionId = baseVersionId;
+  }
+
+  const version = await versionRepository.create(createData);
 
   // Invalidate versions cache
   await invalidateCacheByPrefix('versions:').catch(() => {

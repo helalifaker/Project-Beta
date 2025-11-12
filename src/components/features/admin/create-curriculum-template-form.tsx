@@ -8,6 +8,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import type { JSX } from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -25,7 +26,11 @@ import {
 
 const createTemplateSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
-  slug: z.string().min(1, 'Slug is required').max(100).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens only'),
+  slug: z
+    .string()
+    .min(1, 'Slug is required')
+    .max(100)
+    .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens only'),
   capacity: z.number().int().positive('Capacity must be positive'),
   launchYear: z.number().int().min(2023).max(2052).optional(),
   tuitionBase: z.number().positive('Tuition base must be positive'),
@@ -119,7 +124,9 @@ export function CreateCurriculumTemplateForm(): JSX.Element {
           placeholder="e.g., French Curriculum"
           className={errors.name ? 'border-destructive' : ''}
         />
-        {errors.name ? <p className="text-sm text-destructive mt-1">{errors.name.message}</p> : null}
+        {errors.name ? (
+          <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+        ) : null}
       </div>
 
       <div>
@@ -130,7 +137,9 @@ export function CreateCurriculumTemplateForm(): JSX.Element {
           placeholder="e.g., french-curriculum"
           className={errors.slug ? 'border-destructive' : ''}
         />
-        {errors.slug ? <p className="text-sm text-destructive mt-1">{errors.slug.message}</p> : null}
+        {errors.slug ? (
+          <p className="text-sm text-destructive mt-1">{errors.slug.message}</p>
+        ) : null}
         <p className="text-xs text-muted-foreground mt-1">
           URL-friendly identifier (auto-generated from name)
         </p>
@@ -146,7 +155,9 @@ export function CreateCurriculumTemplateForm(): JSX.Element {
             placeholder="e.g., 1200"
             className={errors.capacity ? 'border-destructive' : ''}
           />
-          {errors.capacity ? <p className="text-sm text-destructive mt-1">{errors.capacity.message}</p> : null}
+          {errors.capacity ? (
+            <p className="text-sm text-destructive mt-1">{errors.capacity.message}</p>
+          ) : null}
         </div>
 
         <div>
@@ -158,7 +169,9 @@ export function CreateCurriculumTemplateForm(): JSX.Element {
             placeholder="2028"
             className={errors.launchYear ? 'border-destructive' : ''}
           />
-          {errors.launchYear ? <p className="text-sm text-destructive mt-1">{errors.launchYear.message}</p> : null}
+          {errors.launchYear ? (
+            <p className="text-sm text-destructive mt-1">{errors.launchYear.message}</p>
+          ) : null}
         </div>
       </div>
 
@@ -172,7 +185,9 @@ export function CreateCurriculumTemplateForm(): JSX.Element {
           placeholder="e.g., 58000"
           className={errors.tuitionBase ? 'border-destructive' : ''}
         />
-        {errors.tuitionBase ? <p className="text-sm text-destructive mt-1">{errors.tuitionBase.message}</p> : null}
+        {errors.tuitionBase ? (
+          <p className="text-sm text-destructive mt-1">{errors.tuitionBase.message}</p>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -186,14 +201,18 @@ export function CreateCurriculumTemplateForm(): JSX.Element {
             placeholder="e.g., 0.025 (2.5%)"
             className={errors.cpiRate ? 'border-destructive' : ''}
           />
-          {errors.cpiRate ? <p className="text-sm text-destructive mt-1">{errors.cpiRate.message}</p> : null}
+          {errors.cpiRate ? (
+            <p className="text-sm text-destructive mt-1">{errors.cpiRate.message}</p>
+          ) : null}
         </div>
 
         <div>
           <Label htmlFor="cpiFrequency">CPI Frequency *</Label>
           <Select
             value={cpiFrequency}
-            onValueChange={(value) => setValue('cpiFrequency', value as CreateTemplateFormData['cpiFrequency'])}
+            onValueChange={(value) =>
+              setValue('cpiFrequency', value as CreateTemplateFormData['cpiFrequency'])
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Select frequency" />
@@ -204,7 +223,9 @@ export function CreateCurriculumTemplateForm(): JSX.Element {
               <SelectItem value="EVERY_3_YEARS">Every 3 Years</SelectItem>
             </SelectContent>
           </Select>
-          {errors.cpiFrequency ? <p className="text-sm text-destructive mt-1">{errors.cpiFrequency.message}</p> : null}
+          {errors.cpiFrequency ? (
+            <p className="text-sm text-destructive mt-1">{errors.cpiFrequency.message}</p>
+          ) : null}
         </div>
       </div>
 
@@ -212,15 +233,10 @@ export function CreateCurriculumTemplateForm(): JSX.Element {
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Creating...' : 'Create Template'}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-        >
+        <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel
         </Button>
       </div>
     </form>
   );
 }
-

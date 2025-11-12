@@ -151,12 +151,13 @@ export async function POST(
     }
 
     // Handle different assumption sections
-    if (body.section === 'CURRICULUM') {
+    const bodyData = body as { section?: string };
+    if (bodyData.section === 'CURRICULUM') {
       // TODO: Implement curriculum assumption updates
       // For now, return success (will be implemented when forms are connected)
       return successResponse({
         success: true,
-        section: body.section,
+        section: bodyData.section,
         message: 'Assumptions updated (curriculum updates pending implementation)',
       });
     }
@@ -166,9 +167,8 @@ export async function POST(
 
     return successResponse({
       success: true,
-      section: body.section,
+      section: bodyData.section,
       message: 'Assumptions updated',
     });
   })();
 }
-

@@ -5,15 +5,9 @@
 
 'use client';
 
-import {
-  Settings,
-  BookOpen,
-  Building2,
-  Users,
-  FileText,
-  DollarSign,
-} from 'lucide-react';
+import { Settings, BookOpen, Building2, Users, FileText, DollarSign } from 'lucide-react';
 import Link from 'next/link';
+import type { JSX } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,4 +76,3 @@ export function AdminDashboard(): JSX.Element {
     </div>
   );
 }
-

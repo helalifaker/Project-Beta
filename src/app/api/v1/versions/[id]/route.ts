@@ -89,10 +89,11 @@ export async function PUT(
     }
 
     // Handle status update separately (has validation)
-    if (body && 'status' in body && body.status) {
+    const bodyData = body as Record<string, unknown> | null;
+    if (bodyData && typeof bodyData === 'object' && 'status' in bodyData && bodyData.status) {
       const updated = await versionRepository.updateStatus(
         validated.id,
-        body.status as 'DRAFT' | 'READY' | 'LOCKED' | 'ARCHIVED',
+        bodyData.status as 'DRAFT' | 'READY' | 'LOCKED' | 'ARCHIVED',
         session.user.id
       );
 
@@ -108,20 +109,36 @@ export async function PUT(
     }
 
     // Regular update
-    const updated = await versionRepository.update(
-      { id: validated.id },
-      body as z.infer<typeof updateVersionSchema>
-    );
+    // Body is already validated by middleware with updateVersionSchema
+    // Filter out undefined values to satisfy exactOptionalPropertyTypes
+    const validatedBody = body as z.infer<typeof updateVersionSchema>;
+    const updateData: {
+      name?: string;
+      description?: string;
+      status?: 'DRAFT' | 'READY' | 'LOCKED' | 'ARCHIVED';
+    } = {};
 
-      // Invalidate cache
-      await Promise.all([
-        invalidateCacheKey(`version:${validated.id}`),
-        invalidateCacheByPrefix('versions:'),
-      ]).catch(() => {
-        // Ignore cache invalidation errors
-      });
+    if (validatedBody.name !== undefined) {
+      updateData.name = validatedBody.name;
+    }
+    if (validatedBody.description !== undefined) {
+      updateData.description = validatedBody.description;
+    }
+    if (validatedBody.status !== undefined) {
+      updateData.status = validatedBody.status;
+    }
 
-      return successResponse(updated);
+    const updated = await versionRepository.update({ id: validated.id }, updateData);
+
+    // Invalidate cache
+    await Promise.all([
+      invalidateCacheKey(`version:${validated.id}`),
+      invalidateCacheByPrefix('versions:'),
+    ]).catch(() => {
+      // Ignore cache invalidation errors
+    });
+
+    return successResponse(updated);
   })();
 }
 
@@ -151,4 +168,3 @@ export async function DELETE(
     return successResponse(version);
   })();
 }
-

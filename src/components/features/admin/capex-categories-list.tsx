@@ -7,16 +7,18 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
+import type { JSX } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-
-async function fetchCapexCategories(): Promise<Array<{
-  id: string;
-  name: string;
-  description?: string | null;
-}>> {
+async function fetchCapexCategories(): Promise<
+  Array<{
+    id: string;
+    name: string;
+    description?: string | null;
+  }>
+> {
   const response = await fetch('/api/v1/admin/capex-categories');
   if (!response.ok) {
     throw new Error('Failed to fetch capex categories');
@@ -84,9 +86,9 @@ export function CapexCategoriesList(): JSX.Element {
                 <CardTitle>{category.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                {category.description ? <p className="text-sm text-muted-foreground mb-4">
-                    {category.description}
-                  </p> : null}
+                {category.description ? (
+                  <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
+                ) : null}
                 <Button
                   variant="outline"
                   size="sm"
@@ -104,4 +106,3 @@ export function CapexCategoriesList(): JSX.Element {
     </div>
   );
 }
-

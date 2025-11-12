@@ -13,11 +13,7 @@ import { getOrSetCached } from '@/lib/cache/kv';
 import { prisma } from '@/lib/db/prisma';
 import { versionRepository } from '@/lib/db/repositories/version-repository';
 import { MODEL_START_YEAR, MODEL_END_YEAR } from '@/lib/finance/constants';
-import { calculateRevenue } from '@/lib/finance/curriculum';
-import {
-  generateFinancialStatements,
-  type StatementInputs,
-} from '@/lib/finance/statements';
+import { generateFinancialStatements, type StatementInputs } from '@/lib/finance/statements';
 
 // Note: Cannot use edge runtime with Prisma (requires Node.js)
 // Using caching instead for performance
@@ -79,8 +75,10 @@ export async function GET(
     const years = MODEL_END_YEAR - MODEL_START_YEAR + 1;
     const yearArray = Array.from({ length: years }, (_, i) => MODEL_START_YEAR + i);
 
-    // Calculate revenue from curriculum
-    const revenue = calculateRevenue(versionData.curricula, yearArray);
+    // TODO: Calculate revenue from curriculum properly
+    // For now, use placeholder revenue calculation
+    // This needs to be implemented with proper curriculum enrollment projections
+    const revenue = yearArray.map(() => 10_000_000); // Placeholder: 10M SAR per year
 
     // TODO: Calculate rent from rent assumptions (placeholder for now)
     const rent = yearArray.map(() => 5_000_000); // Placeholder
@@ -89,7 +87,7 @@ export async function GET(
     const staffCosts = yearArray.map(() => 10_000_000); // Placeholder
 
     // TODO: Calculate OpEx from OpEx assumptions (placeholder for now)
-    const opex = yearArray.map((_, i) => revenue[i] * 0.10); // 10% of revenue placeholder
+    const opex = yearArray.map((_, i) => (revenue[i] ?? 0) * 0.1); // 10% of revenue placeholder
 
     // TODO: Calculate capex from capex rules (placeholder for now)
     const capex = yearArray.map(() => 0); // Placeholder
@@ -114,7 +112,7 @@ export async function GET(
     // Generate statements with caching
     const result = await getOrSetCached(
       cacheKey,
-      () => generateFinancialStatements(inputs),
+      async () => generateFinancialStatements(inputs),
       { ttl: 300 } // Cache for 5 minutes (statements are expensive to compute)
     );
 
@@ -191,4 +189,3 @@ export async function GET(
     });
   })();
 }
-

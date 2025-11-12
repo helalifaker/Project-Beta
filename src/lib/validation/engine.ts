@@ -279,7 +279,7 @@ function validateUtilization(inputs: ValidationInputs, issues: ValidationIssue[]
         message: `Utilization exceeds 100% in ${year}`,
         year,
         field: 'utilization',
-        value: utilization,
+        ...(utilization !== undefined ? { value: utilization } : {}),
         expected: 1.0,
         deepLink: `/versions/:id/assumptions?section=curriculum&year=${year}`,
       });

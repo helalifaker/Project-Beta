@@ -10,10 +10,7 @@ import type {
   CashFlowStatement,
 } from '@/lib/finance/statements';
 
-import {
-  validateFinancialStatements,
-  type ValidationInputs,
-} from './engine';
+import { validateFinancialStatements } from './engine';
 
 describe('validateFinancialStatements', () => {
   const createMockStatements = (): {
@@ -94,14 +91,16 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.critical.length).toBeGreaterThan(0);
-      expect(result.critical[0].code).toBe('RENT_LOAD_EXCEEDED');
+      expect(result.critical[0]?.code).toBe('RENT_LOAD_EXCEEDED');
       expect(result.canApprove).toBe(false);
     });
 
     it('should flag EBITDA margin < 12% after 2027', () => {
       const { pl, bs, cf, revenue, rent } = createMockStatements();
-      pl[0].year = 2028;
-      pl[0].revenue = 10_000_000;
+      if (pl[0]) {
+        pl[0].year = 2028;
+        pl[0].revenue = 10_000_000;
+      }
       pl[0].ebitda = 1_000_000; // 10% margin
 
       const result = validateFinancialStatements({
@@ -456,9 +455,7 @@ describe('validateFinancialStatements', () => {
       });
 
       // Should not flag rent load when revenue is zero
-      const rentLoadIssues = result.critical.filter(
-        (issue) => issue.code === 'RENT_LOAD_EXCEEDED'
-      );
+      const rentLoadIssues = result.critical.filter((issue) => issue.code === 'RENT_LOAD_EXCEEDED');
       expect(rentLoadIssues.length).toBe(0);
     });
 
@@ -614,9 +611,7 @@ describe('validateFinancialStatements', () => {
       expect(result.summary.warnings).toBeGreaterThan(0);
       expect(result.summary.info).toBeGreaterThan(0);
       expect(result.summary.total).toBe(
-        result.summary.critical +
-          result.summary.warnings +
-          result.summary.info
+        result.summary.critical + result.summary.warnings + result.summary.info
       );
     });
 
@@ -636,4 +631,3 @@ describe('validateFinancialStatements', () => {
     });
   });
 });
-

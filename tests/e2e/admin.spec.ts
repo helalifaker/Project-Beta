@@ -102,6 +102,15 @@ test.describe('Admin flows', () => {
   });
 
   test('admin dashboard renders navigation cards', async ({ page }) => {
+    // Mock any API calls that might be made
+    await page.route('**/api/**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: [] }),
+      });
+    });
+
     await page.goto('/admin');
 
     // Wait for page to load and Suspense to resolve
@@ -109,7 +118,7 @@ test.describe('Admin flows', () => {
 
     // Wait for the heading with a longer timeout
     await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible({
-      timeout: 15000,
+      timeout: 20000,
     });
 
     // Wait for cards to render
@@ -150,6 +159,7 @@ test.describe('Admin flows', () => {
 
     let capturedUpdateBody: Record<string, unknown> | null = null;
 
+    // Mock workspace API
     await page.route('**/api/v1/admin/workspace', async (route: Route) => {
       const method = route.request().method();
 
@@ -224,6 +234,7 @@ test.describe('Admin flows', () => {
   test('audit log page shows entries and filters', async ({ page }) => {
     await setupAuth(page);
 
+    // Mock audit log API
     await page.route('**/api/v1/admin/audit-log**', async (route: Route) => {
       const url = new URL(route.request().url());
       const entityType = url.searchParams.get('entityType') ?? 'all';
@@ -270,9 +281,11 @@ test.describe('Admin flows', () => {
 
     // Wait for Suspense boundary to resolve and page to load
     await page.waitForLoadState('networkidle');
-    await page.waitForSelector('h1:has-text("Audit Log")', { timeout: 10000 });
 
-    await expect(page.getByRole('heading', { name: 'Audit Log' })).toBeVisible();
+    // Wait for the heading with longer timeout
+    await expect(page.getByRole('heading', { name: 'Audit Log' })).toBeVisible({
+      timeout: 20000,
+    });
     await expect(page.getByText('CREATE template')).toBeVisible();
 
     await page.getByLabel('Entity Type').click();

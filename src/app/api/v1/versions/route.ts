@@ -50,11 +50,21 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   const cacheKey = `versions:${status || 'all'}:${search || ''}:${page}:${limit}`;
 
   // Get versions with caching and database pagination
-  const { data: paginatedVersions, total } = await getOrSetCached(
+  const result = await getOrSetCached(
     cacheKey,
     () => versionRepository.findWithFilters(filters, { page, limit }),
     { ttl: 60 } // Cache for 60 seconds
   );
+
+  // Handle both array (old cache) and object (new format) responses
+  // Type guard to ensure we have the correct format
+  const paginatedVersions = Array.isArray(result) ? result : (result?.data ?? []);
+  const total = Array.isArray(result) ? result.length : (result?.total ?? 0);
+
+  // Ensure paginatedVersions is an array
+  if (!Array.isArray(paginatedVersions)) {
+    throw new Error('Invalid cache format: expected array or object with data array');
+  }
 
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + paginatedVersions.length;

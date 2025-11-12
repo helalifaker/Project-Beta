@@ -59,9 +59,10 @@ describe('GET /api/v1/versions', () => {
       session: mockSession,
       query: { page: 1, limit: 20 },
     });
-    vi.mocked(versionRepository.findWithFilters).mockResolvedValue(
-      mockVersions as Awaited<ReturnType<typeof versionRepository.findWithFilters>>
-    );
+    vi.mocked(versionRepository.findWithFilters).mockResolvedValue({
+      data: mockVersions,
+      total: 2,
+    });
 
     const response = await GET(new Request('http://localhost/api/v1/versions?page=1&limit=20'));
 
@@ -77,16 +78,20 @@ describe('GET /api/v1/versions', () => {
       session: mockSession,
       query: { page: 1, limit: 20, status: 'DRAFT' },
     });
-    vi.mocked(versionRepository.findWithFilters).mockResolvedValue([mockVersions[0]!] as Awaited<
-      ReturnType<typeof versionRepository.findWithFilters>
-    >);
+    vi.mocked(versionRepository.findWithFilters).mockResolvedValue({
+      data: [mockVersions[0]!],
+      total: 1,
+    });
 
     const response = await GET(new Request('http://localhost/api/v1/versions?status=DRAFT'));
 
     expect(response.status).toBe(200);
-    expect(versionRepository.findWithFilters).toHaveBeenCalledWith({
-      status: 'DRAFT',
-    });
+    expect(versionRepository.findWithFilters).toHaveBeenCalledWith(
+      {
+        status: 'DRAFT',
+      },
+      { page: 1, limit: 20 }
+    );
   });
 
   it('should filter by search query', async () => {
@@ -94,16 +99,20 @@ describe('GET /api/v1/versions', () => {
       session: mockSession,
       query: { page: 1, limit: 20, search: 'Version 1' },
     });
-    vi.mocked(versionRepository.findWithFilters).mockResolvedValue([mockVersions[0]!] as Awaited<
-      ReturnType<typeof versionRepository.findWithFilters>
-    >);
+    vi.mocked(versionRepository.findWithFilters).mockResolvedValue({
+      data: [mockVersions[0]!],
+      total: 1,
+    });
 
     const response = await GET(new Request('http://localhost/api/v1/versions?search=Version%201'));
 
     expect(response.status).toBe(200);
-    expect(versionRepository.findWithFilters).toHaveBeenCalledWith({
-      search: 'Version 1',
-    });
+    expect(versionRepository.findWithFilters).toHaveBeenCalledWith(
+      {
+        search: 'Version 1',
+      },
+      { page: 1, limit: 20 }
+    );
   });
 
   it('should require authentication', async () => {

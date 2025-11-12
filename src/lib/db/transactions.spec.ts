@@ -22,29 +22,30 @@ describe('withTransaction', () => {
     const mockResult = { id: '1', name: 'Test' };
     const mockFn = vi.fn().mockResolvedValue(mockResult);
 
-    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
-      return fn(prisma);
-    });
+    vi.mocked(prisma.$transaction).mockImplementation(
+      async (fn: Parameters<typeof prisma.$transaction>[0]) => {
+        return fn(prisma);
+      }
+    );
 
     const result = await withTransaction(mockFn);
 
     expect(result).toEqual(mockResult);
     expect(mockFn).toHaveBeenCalledWith(prisma);
-    expect(prisma.$transaction).toHaveBeenCalledWith(
-      expect.any(Function),
-      {
-        maxWait: 5000,
-        timeout: 10000,
-      },
-    );
+    expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function), {
+      maxWait: 5000,
+      timeout: 10000,
+    });
   });
 
   it('should handle transaction errors', async () => {
     const mockFn = vi.fn().mockRejectedValue(new Error('Transaction failed'));
 
-    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
-      return fn(prisma);
-    });
+    vi.mocked(prisma.$transaction).mockImplementation(
+      async (fn: Parameters<typeof prisma.$transaction>[0]) => {
+        return fn(prisma);
+      }
+    );
 
     await expect(withTransaction(mockFn)).rejects.toThrow('Transaction failed');
   });
@@ -60,9 +61,11 @@ describe('parallelTransaction', () => {
     const op2 = vi.fn().mockResolvedValue('result2');
     const op3 = vi.fn().mockResolvedValue('result3');
 
-    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
-      return fn(prisma);
-    });
+    vi.mocked(prisma.$transaction).mockImplementation(
+      async (fn: Parameters<typeof prisma.$transaction>[0]) => {
+        return fn(prisma);
+      }
+    );
 
     const results = await parallelTransaction([op1, op2, op3]);
 
@@ -73,13 +76,14 @@ describe('parallelTransaction', () => {
   });
 
   it('should handle empty operations array', async () => {
-    vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
-      return fn(prisma);
-    });
+    vi.mocked(prisma.$transaction).mockImplementation(
+      async (fn: Parameters<typeof prisma.$transaction>[0]) => {
+        return fn(prisma);
+      }
+    );
 
     const results = await parallelTransaction([]);
 
     expect(results).toEqual([]);
   });
 });
-

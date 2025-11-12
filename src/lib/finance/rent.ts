@@ -5,11 +5,7 @@
 
 import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
 import { Decimal, roundCurrency } from './decimal';
-import {
-  calculateEscalatedAmount,
-  shouldApplyEscalation,
-  type EscalationFrequency,
-} from './escalation';
+import { calculateEscalatedAmount, type EscalationFrequency } from './escalation';
 import { calculateNPV } from './npv';
 
 export type RentModelType = 'FIXED_ESC' | 'REV_SHARE' | 'PARTNER';
@@ -43,17 +39,14 @@ export interface PartnerRentParams {
 
 /**
  * Calculate Fixed+Escalation rent
- * 
+ *
  * Formula: baseAmount × (1 + escalationRate)^years × indexation
- * 
+ *
  * @param params - Fixed+Escalation rent parameters
  * @param year - Target year
  * @returns Rent amount rounded to 2 decimal places
  */
-export function calculateFixedEscRent(
-  params: FixedEscRentParams,
-  year: number
-): number {
+export function calculateFixedEscRent(params: FixedEscRentParams, year: number): number {
   const { baseAmount, escalationRate, startYear } = params;
   const yearsFromStart = year - startYear;
 
@@ -62,12 +55,7 @@ export function calculateFixedEscRent(
   }
 
   // Calculate base escalation
-  let amount = calculateEscalatedAmount(
-    baseAmount,
-    escalationRate,
-    yearsFromStart,
-    'ANNUAL'
-  );
+  let amount = calculateEscalatedAmount(baseAmount, escalationRate, yearsFromStart, 'ANNUAL');
 
   // Apply indexation if provided
   if (params.indexationRate && params.indexationFrequency) {
@@ -90,15 +78,13 @@ export function calculateFixedEscRent(
 
 /**
  * Calculate Revenue Share rent
- * 
+ *
  * Formula: max(floor, min(cap, revenue × percentage))
- * 
+ *
  * @param params - Revenue Share rent parameters
  * @returns Rent amount rounded to 2 decimal places
  */
-export function calculateRevenueShareRent(
-  params: RevenueShareRentParams
-): number {
+export function calculateRevenueShareRent(params: RevenueShareRentParams): number {
   const { revenuePercentage, revenue, floor, cap } = params;
 
   if (revenuePercentage < 0 || revenuePercentage > 1) {
@@ -123,9 +109,9 @@ export function calculateRevenueShareRent(
 
 /**
  * Calculate Partner model rent
- * 
+ *
  * Formula: ((land_sqm × land_cost) + (bua_sqm × bua_cost)) × yield × indexation
- * 
+ *
  * @param params - Partner model rent parameters
  * @returns Rent amount rounded to 2 decimal places
  */
@@ -149,10 +135,7 @@ export function calculatePartnerRent(params: PartnerRentParams): number {
   let yieldAmount = totalInvestment.times(yieldRate);
 
   // Apply yield indexation if provided
-  if (
-    params.yieldIndexationRate &&
-    params.yieldIndexationFrequency
-  ) {
+  if (params.yieldIndexationRate && params.yieldIndexationFrequency) {
     const yearsFromStart = currentYear - startYear;
     const indexationFactor = calculateEscalatedAmount(
       1, // Base factor
@@ -169,7 +152,7 @@ export function calculatePartnerRent(params: PartnerRentParams): number {
 
 /**
  * Generate rent schedule for Fixed+Escalation model
- * 
+ *
  * @param params - Fixed+Escalation rent parameters
  * @param startYear - Start year for schedule
  * @param endYear - End year for schedule (inclusive)
@@ -196,7 +179,7 @@ export function generateFixedEscRentSchedule(
 
 /**
  * Generate rent schedule for Revenue Share model
- * 
+ *
  * @param params - Revenue Share rent parameters (without revenue)
  * @param revenueSchedule - Array of annual revenues by year
  * @param startYear - Start year for schedule
@@ -226,7 +209,7 @@ export function generateRevenueShareRentSchedule(
 
 /**
  * Generate rent schedule for Partner model
- * 
+ *
  * @param params - Partner model rent parameters
  * @param startYear - Start year for schedule
  * @param endYear - End year for schedule (inclusive)
@@ -256,7 +239,7 @@ export function generatePartnerRentSchedule(
 
 /**
  * Calculate rent NPV
- * 
+ *
  * @param rentSchedule - Array of annual rent amounts
  * @param discountRate - Annual discount rate
  * @param startYear - First year of schedule
@@ -280,4 +263,3 @@ export function calculateRentNPV(
 
   return calculateNPV(nonZeroSchedule, discountRate, actualStartYear);
 }
-

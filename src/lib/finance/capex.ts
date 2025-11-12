@@ -4,7 +4,7 @@
  */
 
 import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
-import { Decimal, roundCurrency } from './decimal';
+import { roundCurrency } from './decimal';
 import { calculateEscalatedAmount } from './escalation';
 
 export type CapexRuleType = 'CYCLE' | 'UTILIZATION' | 'CUSTOM_DATE';
@@ -86,22 +86,15 @@ function shouldTriggerUtilization(
 /**
  * Check if custom date capex should trigger
  */
-function shouldTriggerCustomDate(
-  rule: CustomDateRule,
-  year: number
-): boolean {
+function shouldTriggerCustomDate(rule: CustomDateRule, year: number): boolean {
   return rule.triggerYears.includes(year);
 }
 
 /**
  * Calculate cycle-based capex amount
  */
-function calculateCycleCapex(
-  rule: CycleBasedRule,
-  year: number,
-  students: number
-): number {
-  const { periodsElapsed } = shouldTriggerCycle(rule, year);
+function calculateCycleCapex(rule: CycleBasedRule, year: number, students: number): number {
+  shouldTriggerCycle(rule, year);
 
   let baseAmount = rule.baseCost;
   if (rule.costPerStudent) {
@@ -110,12 +103,7 @@ function calculateCycleCapex(
 
   const yearsFromBase = year - rule.baseYear;
   return roundCurrency(
-    calculateEscalatedAmount(
-      baseAmount,
-      rule.escalationRate,
-      yearsFromBase,
-      'ANNUAL'
-    )
+    calculateEscalatedAmount(baseAmount, rule.escalationRate, yearsFromBase, 'ANNUAL')
   );
 }
 
@@ -141,30 +129,17 @@ function calculateUtilizationCapex(
 
   const yearsFromBase = year - rule.baseYear;
   return roundCurrency(
-    calculateEscalatedAmount(
-      baseAmount,
-      rule.escalationRate,
-      yearsFromBase,
-      'ANNUAL'
-    )
+    calculateEscalatedAmount(baseAmount, rule.escalationRate, yearsFromBase, 'ANNUAL')
   );
 }
 
 /**
  * Calculate custom date capex amount
  */
-function calculateCustomDateCapex(
-  rule: CustomDateRule,
-  year: number
-): number {
+function calculateCustomDateCapex(rule: CustomDateRule, year: number): number {
   const yearsFromBase = year - rule.baseYear;
   return roundCurrency(
-    calculateEscalatedAmount(
-      rule.baseCost,
-      rule.escalationRate,
-      yearsFromBase,
-      'ANNUAL'
-    )
+    calculateEscalatedAmount(rule.baseCost, rule.escalationRate, yearsFromBase, 'ANNUAL')
   );
 }
 
@@ -199,12 +174,7 @@ export function calculateCapex(
       }
       shouldTrigger = shouldTriggerUtilization(rule, year, utilization);
       if (shouldTrigger) {
-        amount = calculateUtilizationCapex(
-          rule,
-          year,
-          students || 0,
-          capacity || 0
-        );
+        amount = calculateUtilizationCapex(rule, year, students || 0, capacity || 0);
         triggerDetail = `Utilization-based reinvestment (threshold: ${rule.threshold * 100}%)`;
       }
       break;
@@ -273,13 +243,7 @@ export function generateCapexSchedule(
 
     // Check each rule
     for (const rule of rules) {
-      const result = calculateCapex(
-        rule,
-        year,
-        students,
-        capacity,
-        utilization
-      );
+      const result = calculateCapex(rule, year, students, capacity, utilization);
 
       if (result) {
         schedule.push(result);
@@ -289,4 +253,3 @@ export function generateCapexSchedule(
 
   return schedule;
 }
-

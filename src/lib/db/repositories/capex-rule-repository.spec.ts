@@ -32,7 +32,9 @@ describe('CapexRuleRepository', () => {
         },
       ];
 
-      vi.mocked(prisma.capexRule.findMany).mockResolvedValue(mockRules as any);
+      vi.mocked(prisma.capexRule.findMany).mockResolvedValue(
+        mockRules as Awaited<ReturnType<typeof prisma.capexRule.findMany>>
+      );
 
       const result = await capexRuleRepository.findByCategory('cat-1');
 
@@ -55,7 +57,9 @@ describe('CapexRuleRepository', () => {
         },
       ];
 
-      vi.mocked(prisma.capexRule.findMany).mockResolvedValue(mockRules as any);
+      vi.mocked(prisma.capexRule.findMany).mockResolvedValue(
+        mockRules as Awaited<ReturnType<typeof prisma.capexRule.findMany>>
+      );
 
       const result = await capexRuleRepository.findAllWithCategories();
 
@@ -71,4 +75,3 @@ describe('CapexRuleRepository', () => {
     });
   });
 });
-

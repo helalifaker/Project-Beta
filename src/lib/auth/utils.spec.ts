@@ -2,6 +2,7 @@
  * Tests for authentication utility functions
  */
 
+import type { AuthError, User } from '@supabase/supabase-js';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { prisma } from '@/lib/db/prisma';
@@ -26,26 +27,54 @@ vi.mock('@/lib/db/prisma', () => ({
   },
 }));
 
+interface MockSignInPasswordResponse {
+  data: { user: Partial<User> | null; session: Record<string, unknown> | null };
+  error: AuthError | null;
+}
+
+interface MockAuthResponse {
+  data: Record<string, unknown>;
+  error: AuthError | null;
+}
+
+interface MockSignOutResponse {
+  error: AuthError | null;
+}
+
+interface MockUpdateUserResponse {
+  data: { user: Partial<User> | null };
+  error: AuthError | null;
+}
+
 const mockSupabaseClient = {
   auth: {
-    signInWithPassword: vi.fn(),
-    signInWithOtp: vi.fn(),
-    signOut: vi.fn(),
-    resetPasswordForEmail: vi.fn(),
-    updateUser: vi.fn(),
+    signInWithPassword: vi.fn<
+      [{ email: string; password: string }],
+      Promise<MockSignInPasswordResponse>
+    >(),
+    signInWithOtp: vi.fn<
+      [{ email: string; options?: { emailRedirectTo?: string; shouldCreateUser?: boolean } }],
+      Promise<MockAuthResponse>
+    >(),
+    signOut: vi.fn<[], Promise<MockSignOutResponse>>(),
+    resetPasswordForEmail: vi.fn<[string, { redirectTo?: string }], Promise<MockAuthResponse>>(),
+    updateUser: vi.fn<[{ password: string }], Promise<MockUpdateUserResponse>>(),
   },
-};
+} as unknown as ReturnType<typeof getSupabaseClient>;
 
 describe('loginWithPassword', () => {
   beforeEach(() => {
-    vi.mocked(getSupabaseClient).mockReturnValue(mockSupabaseClient as any);
+    vi.mocked(getSupabaseClient).mockReturnValue(
+      mockSupabaseClient as unknown as ReturnType<typeof getSupabaseClient>
+    );
   });
 
   it('should login successfully', async () => {
-    vi.mocked(mockSupabaseClient.auth.signInWithPassword).mockResolvedValue({
-      data: { user: { id: 'user-1' }, session: {} },
+    const mockResponse: MockSignInPasswordResponse = {
+      data: { user: { id: 'user-1' } as Partial<User>, session: {} },
       error: null,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.signInWithPassword).mockResolvedValue(mockResponse);
 
     const result = await loginWithPassword('test@example.com', 'password123');
 
@@ -57,11 +86,12 @@ describe('loginWithPassword', () => {
   });
 
   it('should return error on failure', async () => {
-    const error = new Error('Invalid credentials');
-    vi.mocked(mockSupabaseClient.auth.signInWithPassword).mockResolvedValue({
+    const error = new Error('Invalid credentials') as AuthError;
+    const mockResponse: MockSignInPasswordResponse = {
       data: { user: null, session: null },
       error,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.signInWithPassword).mockResolvedValue(mockResponse);
 
     const result = await loginWithPassword('test@example.com', 'wrong');
 
@@ -70,7 +100,7 @@ describe('loginWithPassword', () => {
 
   it('should handle exceptions', async () => {
     vi.mocked(mockSupabaseClient.auth.signInWithPassword).mockRejectedValue(
-      new Error('Network error'),
+      new Error('Network error')
     );
 
     const result = await loginWithPassword('test@example.com', 'password');
@@ -82,14 +112,17 @@ describe('loginWithPassword', () => {
 
 describe('loginWithMagicLink', () => {
   beforeEach(() => {
-    vi.mocked(getSupabaseClient).mockReturnValue(mockSupabaseClient as any);
+    vi.mocked(getSupabaseClient).mockReturnValue(
+      mockSupabaseClient as unknown as ReturnType<typeof getSupabaseClient>
+    );
   });
 
   it('should send magic link successfully', async () => {
-    vi.mocked(mockSupabaseClient.auth.signInWithOtp).mockResolvedValue({
+    const mockResponse: MockAuthResponse = {
       data: {},
       error: null,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.signInWithOtp).mockResolvedValue(mockResponse);
 
     const result = await loginWithMagicLink('test@example.com');
 
@@ -104,10 +137,11 @@ describe('loginWithMagicLink', () => {
   });
 
   it('should include redirect URL when provided', async () => {
-    vi.mocked(mockSupabaseClient.auth.signInWithOtp).mockResolvedValue({
+    const mockResponse: MockAuthResponse = {
       data: {},
       error: null,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.signInWithOtp).mockResolvedValue(mockResponse);
 
     await loginWithMagicLink('test@example.com', '/dashboard');
 
@@ -121,11 +155,12 @@ describe('loginWithMagicLink', () => {
   });
 
   it('should return error on failure', async () => {
-    const error = new Error('Failed to send');
-    vi.mocked(mockSupabaseClient.auth.signInWithOtp).mockResolvedValue({
+    const error = new Error('Failed to send') as AuthError;
+    const mockResponse: MockAuthResponse = {
       data: {},
       error,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.signInWithOtp).mockResolvedValue(mockResponse);
 
     const result = await loginWithMagicLink('test@example.com');
 
@@ -133,9 +168,7 @@ describe('loginWithMagicLink', () => {
   });
 
   it('should catch and return error when signInWithOtp throws', async () => {
-    vi.mocked(mockSupabaseClient.auth.signInWithOtp).mockRejectedValue(
-      new Error('Network error')
-    );
+    vi.mocked(mockSupabaseClient.auth.signInWithOtp).mockRejectedValue(new Error('Network error'));
 
     const result = await loginWithMagicLink('test@example.com');
 
@@ -155,13 +188,16 @@ describe('loginWithMagicLink', () => {
 
 describe('logout', () => {
   beforeEach(() => {
-    vi.mocked(getSupabaseClient).mockReturnValue(mockSupabaseClient as any);
+    vi.mocked(getSupabaseClient).mockReturnValue(
+      mockSupabaseClient as unknown as ReturnType<typeof getSupabaseClient>
+    );
   });
 
   it('should logout successfully', async () => {
-    vi.mocked(mockSupabaseClient.auth.signOut).mockResolvedValue({
+    const mockResponse: MockSignOutResponse = {
       error: null,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.signOut).mockResolvedValue(mockResponse);
 
     const result = await logout();
 
@@ -170,10 +206,11 @@ describe('logout', () => {
   });
 
   it('should return error on failure', async () => {
-    const error = new Error('Logout failed');
-    vi.mocked(mockSupabaseClient.auth.signOut).mockResolvedValue({
+    const error = new Error('Logout failed') as AuthError;
+    const mockResponse: MockSignOutResponse = {
       error,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.signOut).mockResolvedValue(mockResponse);
 
     const result = await logout();
 
@@ -211,10 +248,15 @@ describe('registerUser', () => {
 
 describe('updateUserRole', () => {
   it('should update user role successfully', async () => {
-    vi.mocked(prisma.profile.update).mockResolvedValue({
+    const mockProfile = {
       id: 'user-1',
-      role: 'ADMIN',
-    } as any);
+      role: 'ADMIN' as const,
+      externalId: 'ext-1',
+      email: 'user@example.com',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    vi.mocked(prisma.profile.update).mockResolvedValue(mockProfile);
 
     const result = await updateUserRole('user-1', 'ADMIN');
 
@@ -238,44 +280,47 @@ describe('updateUserRole', () => {
 
 describe('sendPasswordReset', () => {
   beforeEach(() => {
-    vi.mocked(getSupabaseClient).mockReturnValue(mockSupabaseClient as any);
+    vi.mocked(getSupabaseClient).mockReturnValue(
+      mockSupabaseClient as unknown as ReturnType<typeof getSupabaseClient>
+    );
   });
 
   it('should send password reset email successfully', async () => {
-    vi.mocked(mockSupabaseClient.auth.resetPasswordForEmail).mockResolvedValue({
+    const mockResponse: MockAuthResponse = {
       data: {},
       error: null,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.resetPasswordForEmail).mockResolvedValue(mockResponse);
 
     const result = await sendPasswordReset('test@example.com');
 
     expect(result.error).toBeNull();
-    expect(mockSupabaseClient.auth.resetPasswordForEmail).toHaveBeenCalledWith(
-      'test@example.com',
-      { redirectTo: undefined },
-    );
+    expect(mockSupabaseClient.auth.resetPasswordForEmail).toHaveBeenCalledWith('test@example.com', {
+      redirectTo: undefined,
+    });
   });
 
   it('should include redirect URL when provided', async () => {
-    vi.mocked(mockSupabaseClient.auth.resetPasswordForEmail).mockResolvedValue({
+    const mockResponse: MockAuthResponse = {
       data: {},
       error: null,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.resetPasswordForEmail).mockResolvedValue(mockResponse);
 
     await sendPasswordReset('test@example.com', '/reset-password/confirm');
 
-    expect(mockSupabaseClient.auth.resetPasswordForEmail).toHaveBeenCalledWith(
-      'test@example.com',
-      { redirectTo: '/reset-password/confirm' },
-    );
+    expect(mockSupabaseClient.auth.resetPasswordForEmail).toHaveBeenCalledWith('test@example.com', {
+      redirectTo: '/reset-password/confirm',
+    });
   });
 
   it('should return error on failure', async () => {
-    const error = new Error('Failed to send');
-    vi.mocked(mockSupabaseClient.auth.resetPasswordForEmail).mockResolvedValue({
+    const error = new Error('Failed to send') as AuthError;
+    const mockResponse: MockAuthResponse = {
       data: {},
       error,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.resetPasswordForEmail).mockResolvedValue(mockResponse);
 
     const result = await sendPasswordReset('test@example.com');
 
@@ -294,14 +339,17 @@ describe('sendPasswordReset', () => {
 
 describe('updatePassword', () => {
   beforeEach(() => {
-    vi.mocked(getSupabaseClient).mockReturnValue(mockSupabaseClient as any);
+    vi.mocked(getSupabaseClient).mockReturnValue(
+      mockSupabaseClient as unknown as ReturnType<typeof getSupabaseClient>
+    );
   });
 
   it('should update password successfully', async () => {
-    vi.mocked(mockSupabaseClient.auth.updateUser).mockResolvedValue({
-      data: { user: {} },
+    const mockResponse: MockUpdateUserResponse = {
+      data: { user: {} as Partial<User> },
       error: null,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.updateUser).mockResolvedValue(mockResponse);
 
     const result = await updatePassword('newPassword123');
 
@@ -312,11 +360,12 @@ describe('updatePassword', () => {
   });
 
   it('should return error on failure', async () => {
-    const error = new Error('Password too weak');
-    vi.mocked(mockSupabaseClient.auth.updateUser).mockResolvedValue({
+    const error = new Error('Password too weak') as AuthError;
+    const mockResponse: MockUpdateUserResponse = {
       data: { user: null },
       error,
-    } as any);
+    };
+    vi.mocked(mockSupabaseClient.auth.updateUser).mockResolvedValue(mockResponse);
 
     const result = await updatePassword('weak');
 
@@ -332,4 +381,3 @@ describe('updatePassword', () => {
     expect(result.error?.message).toBe('Password update failed');
   });
 });
-

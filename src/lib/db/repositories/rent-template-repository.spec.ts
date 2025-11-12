@@ -32,7 +32,9 @@ describe('RentTemplateRepository', () => {
         },
       ];
 
-      vi.mocked(prisma.rentModelTemplate.findMany).mockResolvedValue(mockTemplates as any);
+      vi.mocked(prisma.rentModelTemplate.findMany).mockResolvedValue(
+        mockTemplates as Awaited<ReturnType<typeof prisma.rentModelTemplate.findMany>>
+      );
 
       const result = await rentTemplateRepository.findByType('FIXED_ESC');
 
@@ -66,4 +68,3 @@ describe('RentTemplateRepository', () => {
     });
   });
 });
-

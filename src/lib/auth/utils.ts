@@ -5,7 +5,6 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { UserRole } from '@/types/auth';
 
 /**
@@ -89,7 +88,7 @@ export async function logout(): Promise<{ error: Error | null }> {
 
 /**
  * Register new user (server-side, admin only)
- * 
+ *
  * Note: This requires SUPABASE_SERVICE_ROLE_KEY for admin.createUser()
  * For production, use Supabase Admin API with service role key
  */
@@ -121,12 +120,11 @@ export async function registerUser(
     });
 
     // Create user in Supabase Auth
-    const { data: authUser, error: authError } =
-      await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true, // Auto-confirm email for admin-created users
-      });
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Auto-confirm email for admin-created users
+    });
 
     if (authError || !authUser.user) {
       return {
@@ -199,8 +197,7 @@ export async function sendPasswordReset(
     return { error: null };
   } catch (error) {
     return {
-      error:
-        error instanceof Error ? error : new Error('Password reset failed'),
+      error: error instanceof Error ? error : new Error('Password reset failed'),
     };
   }
 }
@@ -208,9 +205,7 @@ export async function sendPasswordReset(
 /**
  * Update password (client-side)
  */
-export async function updatePassword(
-  newPassword: string
-): Promise<{ error: Error | null }> {
+export async function updatePassword(newPassword: string): Promise<{ error: Error | null }> {
   try {
     const supabase = getSupabaseClient();
 
@@ -225,9 +220,7 @@ export async function updatePassword(
     return { error: null };
   } catch (error) {
     return {
-      error:
-        error instanceof Error ? error : new Error('Password update failed'),
+      error: error instanceof Error ? error : new Error('Password update failed'),
     };
   }
 }
-

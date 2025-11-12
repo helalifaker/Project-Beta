@@ -12,8 +12,6 @@ import {
   isRampYear,
   isFrozenYear,
   MODEL_START_YEAR,
-  MODEL_END_YEAR,
-  RELOCATION_YEAR,
 } from './constants';
 
 describe('getAllModelYears', () => {
@@ -99,4 +97,3 @@ describe('isFrozenYear', () => {
     expect(isFrozenYear(2032)).toBe(false);
   });
 });
-

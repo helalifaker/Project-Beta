@@ -11,7 +11,7 @@ import { cache } from 'react';
  */
 export function createCachedFunction<T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
-  keyFn?: (...args: T) => string
+  _keyFn?: (...args: T) => string
 ): (...args: T) => Promise<R> {
   return cache(async (...args: T): Promise<R> => {
     return fn(...args);
@@ -24,4 +24,3 @@ export function createCachedFunction<T extends unknown[], R>(
 export function generateCacheKey(prefix: string, ...parts: unknown[]): string {
   return `${prefix}:${parts.join(':')}`;
 }
-

@@ -34,14 +34,13 @@ describe('getSupabaseClient', () => {
   it('should create client with environment variables', async () => {
     const { createBrowserClient } = await import('@supabase/ssr');
     const mockClient = { auth: {} };
-    vi.mocked(createBrowserClient).mockReturnValue(mockClient as any);
+    vi.mocked(createBrowserClient).mockReturnValue(
+      mockClient as unknown as ReturnType<typeof createBrowserClient>
+    );
 
     const client = getSupabaseClient();
 
-    expect(createBrowserClient).toHaveBeenCalledWith(
-      'https://test.supabase.co',
-      'test-anon-key',
-    );
+    expect(createBrowserClient).toHaveBeenCalledWith('https://test.supabase.co', 'test-anon-key');
     expect(client).toBe(mockClient);
   });
 
@@ -49,7 +48,9 @@ describe('getSupabaseClient', () => {
     vi.resetModules();
     const { createBrowserClient } = await import('@supabase/ssr');
     const mockClient = { auth: {} };
-    vi.mocked(createBrowserClient).mockReturnValue(mockClient as any);
+    vi.mocked(createBrowserClient).mockReturnValue(
+      mockClient as unknown as ReturnType<typeof createBrowserClient>
+    );
 
     const { getSupabaseClient: getClient } = await import('./client');
     const client1 = getClient();
@@ -75,4 +76,3 @@ describe('getSupabaseClient', () => {
     expect(() => getClient()).toThrow('Missing Supabase environment variables');
   });
 });
-

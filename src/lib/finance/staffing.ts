@@ -4,7 +4,7 @@
  */
 
 import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
-import { Decimal, roundCurrency } from './decimal';
+import { Decimal, roundCurrency, sum } from './decimal';
 import { calculateEscalatedAmount } from './escalation';
 
 export interface StaffingConfig {
@@ -29,7 +29,7 @@ export interface StaffingResult {
 
 /**
  * Calculate staffing costs for a given year
- * 
+ *
  * @param config - Staffing configuration
  * @param year - Target year
  * @param totalStudents - Total number of students across all curricula
@@ -49,32 +49,28 @@ export function calculateStaffingCost(
 
   // Calculate escalated costs
   const teacherCost = roundCurrency(
-    new Decimal(teacherHeadcount)
-      .times(
-        calculateEscalatedAmount(
-          config.teacherAvgCost,
-          config.teacherEscalationRate,
-          yearsFromBase,
-          'ANNUAL'
-        )
+    new Decimal(teacherHeadcount).times(
+      calculateEscalatedAmount(
+        config.teacherAvgCost,
+        config.teacherEscalationRate,
+        yearsFromBase,
+        'ANNUAL'
       )
+    )
   );
 
   const nonTeacherCost = roundCurrency(
-    new Decimal(nonTeacherHeadcount)
-      .times(
-        calculateEscalatedAmount(
-          config.nonTeacherAvgCost,
-          config.nonTeacherEscalationRate,
-          yearsFromBase,
-          'ANNUAL'
-        )
+    new Decimal(nonTeacherHeadcount).times(
+      calculateEscalatedAmount(
+        config.nonTeacherAvgCost,
+        config.nonTeacherEscalationRate,
+        yearsFromBase,
+        'ANNUAL'
       )
+    )
   );
 
-  const totalCost = roundCurrency(
-    sum([teacherCost, nonTeacherCost])
-  );
+  const totalCost = roundCurrency(sum([teacherCost, nonTeacherCost]));
 
   return {
     year,
@@ -89,7 +85,7 @@ export function calculateStaffingCost(
 
 /**
  * Generate staffing cost schedule
- * 
+ *
  * @param config - Staffing configuration
  * @param studentSchedule - Array of total students by year
  * @param startYear - Start year for schedule
@@ -114,7 +110,3 @@ export function generateStaffingSchedule(
 
   return schedule;
 }
-
-// Import sum
-import { sum } from './decimal';
-

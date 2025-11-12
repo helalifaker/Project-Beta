@@ -28,7 +28,9 @@ describe('CapexCategoryRepository', () => {
         { id: 'cat-2', name: 'Technology', description: 'IT equipment' },
       ];
 
-      vi.mocked(prisma.capexCategory.findMany).mockResolvedValue(mockCategories as any);
+      vi.mocked(prisma.capexCategory.findMany).mockResolvedValue(
+        mockCategories as Awaited<ReturnType<typeof prisma.capexCategory.findMany>>
+      );
 
       const result = await capexCategoryRepository.findAllOrdered();
 
@@ -39,4 +41,3 @@ describe('CapexCategoryRepository', () => {
     });
   });
 });
-

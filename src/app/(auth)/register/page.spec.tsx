@@ -2,21 +2,16 @@
  * Tests for register page
  */
 
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-import { registerUser } from '@/lib/auth/utils';
 import { getSupabaseClient } from '@/lib/supabase/client';
 
 import RegisterPage from './page';
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
-}));
-
-vi.mock('@/lib/auth/utils', () => ({
-  registerUser: vi.fn(),
 }));
 
 vi.mock('@/lib/supabase/client', () => ({
@@ -33,7 +28,6 @@ const mockSupabaseClient = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.useFakeTimers();
   vi.mocked(useRouter).mockReturnValue({
     push: mockPush,
     replace: vi.fn(),
@@ -44,10 +38,21 @@ beforeEach(() => {
   } as unknown as ReturnType<typeof useRouter>);
 
   // Mock Supabase client to return authenticated admin session
-  vi.mocked(getSupabaseClient).mockReturnValue(
-    mockSupabaseClient as ReturnType<typeof getSupabaseClient>
-  );
-  vi.mocked(mockSupabaseClient.auth.getSession).mockResolvedValue({
+  const mockSelect = vi.fn().mockReturnThis();
+  const mockEq = vi.fn().mockReturnThis();
+  const mockSingle = vi.fn().mockResolvedValue({
+    data: { role: 'ADMIN' },
+    error: null,
+  });
+
+  const mockFrom = vi.fn(() => ({
+    select: mockSelect,
+    eq: mockEq,
+    single: mockSingle,
+  }));
+
+  mockSupabaseClient.from = mockFrom as unknown as ReturnType<typeof mockSupabaseClient.from>;
+  mockSupabaseClient.auth.getSession = vi.fn().mockResolvedValue({
     data: {
       session: {
         user: { id: 'admin-user-id' },
@@ -56,115 +61,134 @@ beforeEach(() => {
     error: null,
   });
 
-  // Mock profile query to return admin role
-  const mockSelect = vi.fn().mockReturnThis();
-  const mockEq = vi.fn().mockReturnThis();
-  const mockSingle = vi.fn().mockResolvedValue({
-    data: { role: 'ADMIN' },
-    error: null,
-  });
-
-  mockSupabaseClient.from = vi.fn(() => ({
-    select: mockSelect,
-    eq: mockEq,
-    single: mockSingle,
-  })) as unknown as ReturnType<typeof mockSupabaseClient.from>;
-});
-
-afterEach(() => {
-  vi.useRealTimers();
-  mockPush.mockReset();
+  vi.mocked(getSupabaseClient).mockReturnValue(
+    mockSupabaseClient as ReturnType<typeof getSupabaseClient>
+  );
 });
 
 describe('RegisterPage', () => {
-  const fillBaseFields = (): void => {
-    fireEvent.change(screen.getByLabelText('Email'), {
-      target: { value: 'new-user@example.com' },
-    });
-    fireEvent.change(screen.getByLabelText('Password'), {
-      target: { value: 'password123' },
-    });
-  };
-
-  it('should display validation error when passwords do not match', () => {
+  it('should display validation error when passwords do not match', async () => {
     render(<RegisterPage />);
 
-    fillBaseFields();
-    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+    // Wait for form to appear after auth check
+    const emailInput = await screen.findByLabelText('Email');
+    const passwordInput = await screen.findByLabelText('Password');
+    const confirmPasswordInput = await screen.findByLabelText('Confirm Password');
+    const submitButton = await screen.findByRole('button', { name: 'Create user' });
+
+    fireEvent.change(emailInput, {
+      target: { value: 'new-user@example.com' },
+    });
+    fireEvent.change(passwordInput, {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(confirmPasswordInput, {
       target: { value: 'different' },
     });
 
-    fireEvent.submit(screen.getByRole('button', { name: 'Create user' }));
+    fireEvent.submit(submitButton);
 
-    expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
-    expect(registerUser).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+    });
   });
 
-  it('should show error when password is too short', () => {
+  it('should show error when password is too short', async () => {
     render(<RegisterPage />);
 
-    fireEvent.change(screen.getByLabelText('Email'), {
+    // Wait for form to appear after auth check
+    const emailInput = await screen.findByLabelText('Email');
+    const passwordInput = await screen.findByLabelText('Password');
+    const confirmPasswordInput = await screen.findByLabelText('Confirm Password');
+    const submitButton = await screen.findByRole('button', { name: 'Create user' });
+
+    fireEvent.change(emailInput, {
       target: { value: 'short@example.com' },
     });
-    fireEvent.change(screen.getByLabelText('Password'), {
+    fireEvent.change(passwordInput, {
       target: { value: 'short' },
     });
-    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+    fireEvent.change(confirmPasswordInput, {
       target: { value: 'short' },
     });
 
-    fireEvent.submit(screen.getByRole('button', { name: 'Create user' }));
+    fireEvent.submit(submitButton);
 
-    expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
-    expect(registerUser).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
+    });
   });
 
   it('should handle registration error from server', async () => {
-    vi.mocked(registerUser).mockResolvedValue({
-      userId: null,
-      error: { name: 'AuthError', message: 'Not authorized' },
+    // Mock fetch to return error
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({ message: 'Not authorized' }),
     });
 
     render(<RegisterPage />);
 
-    fillBaseFields();
-    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+    // Wait for form to appear after auth check
+    const emailInput = await screen.findByLabelText('Email');
+    const passwordInput = await screen.findByLabelText('Password');
+    const confirmPasswordInput = await screen.findByLabelText('Confirm Password');
+    const submitButton = await screen.findByRole('button', { name: 'Create user' });
+
+    fireEvent.change(emailInput, {
+      target: { value: 'new-user@example.com' },
+    });
+    fireEvent.change(passwordInput, {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(confirmPasswordInput, {
       target: { value: 'password123' },
     });
 
-    fireEvent.submit(screen.getByRole('button', { name: 'Create user' }));
+    fireEvent.submit(submitButton);
 
-    await act(async () => {
-      await Promise.resolve();
+    await waitFor(() => {
+      expect(screen.getByText('Not authorized')).toBeInTheDocument();
     });
-
-    expect(screen.getByText('Not authorized')).toBeInTheDocument();
 
     expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('should create user and redirect on success', async () => {
-    vi.mocked(registerUser).mockResolvedValue({ userId: 'user-1', error: null });
+    // Mock fetch to return success
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: { id: 'user-1' } }),
+    });
 
     render(<RegisterPage />);
 
-    fillBaseFields();
-    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+    // Wait for form to appear after auth check
+    const emailInput = await screen.findByLabelText('Email');
+    const passwordInput = await screen.findByLabelText('Password');
+    const confirmPasswordInput = await screen.findByLabelText('Confirm Password');
+    const submitButton = await screen.findByRole('button', { name: 'Create user' });
+
+    fireEvent.change(emailInput, {
+      target: { value: 'new-user@example.com' },
+    });
+    fireEvent.change(passwordInput, {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(confirmPasswordInput, {
       target: { value: 'password123' },
     });
 
-    fireEvent.submit(screen.getByRole('button', { name: 'Create user' }));
+    fireEvent.submit(submitButton);
 
-    await act(async () => {
-      await Promise.resolve();
+    await waitFor(() => {
+      expect(screen.getByText('User created successfully')).toBeInTheDocument();
     });
 
-    act(() => {
-      vi.advanceTimersByTime(2000);
-    });
-
-    expect(screen.getByText('User created successfully')).toBeInTheDocument();
-
-    expect(mockPush).toHaveBeenCalledWith('/admin/users');
+    await waitFor(
+      () => {
+        expect(mockPush).toHaveBeenCalledWith('/admin/users');
+      },
+      { timeout: 3000 }
+    );
   });
 });

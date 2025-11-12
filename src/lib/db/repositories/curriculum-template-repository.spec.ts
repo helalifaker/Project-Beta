@@ -41,7 +41,9 @@ describe('CurriculumTemplateRepository', () => {
         },
       ];
 
-      vi.mocked(prisma.curriculumTemplate.findMany).mockResolvedValue(mockTemplates as any);
+      vi.mocked(prisma.curriculumTemplate.findMany).mockResolvedValue(
+        mockTemplates as Awaited<ReturnType<typeof prisma.curriculumTemplate.findMany>>
+      );
 
       const result = await curriculumTemplateRepository.findByWorkspace('ws-1');
 
@@ -71,7 +73,9 @@ describe('CurriculumTemplateRepository', () => {
         tuitionAdjustments: [],
       };
 
-      vi.mocked(prisma.curriculumTemplate.findUnique).mockResolvedValue(mockTemplate as any);
+      vi.mocked(prisma.curriculumTemplate.findUnique).mockResolvedValue(
+        mockTemplate as Awaited<ReturnType<typeof prisma.curriculumTemplate.findUnique>>
+      );
 
       const result = await curriculumTemplateRepository.findBySlug('elementary');
 
@@ -98,4 +102,3 @@ describe('CurriculumTemplateRepository', () => {
     });
   });
 });
-

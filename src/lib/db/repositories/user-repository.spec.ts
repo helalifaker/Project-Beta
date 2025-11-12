@@ -31,7 +31,9 @@ describe('UserRepository', () => {
         role: 'ANALYST' as const,
       };
 
-      vi.mocked(prisma.profile.findUnique).mockResolvedValue(mockUser as any);
+      vi.mocked(prisma.profile.findUnique).mockResolvedValue(
+        mockUser as Awaited<ReturnType<typeof prisma.profile.findUnique>>
+      );
 
       const result = await userRepository.findByEmail('test@example.com');
 
@@ -58,7 +60,9 @@ describe('UserRepository', () => {
         email: 'test@example.com',
       };
 
-      vi.mocked(prisma.profile.findUnique).mockResolvedValue(mockUser as any);
+      vi.mocked(prisma.profile.findUnique).mockResolvedValue(
+        mockUser as Awaited<ReturnType<typeof prisma.profile.findUnique>>
+      );
 
       const result = await userRepository.findByExternalId('ext-123');
 
@@ -76,7 +80,9 @@ describe('UserRepository', () => {
         { id: 'user-2', email: 'admin2@example.com', role: 'ADMIN' as const },
       ];
 
-      vi.mocked(prisma.profile.findMany).mockResolvedValue(mockUsers as any);
+      vi.mocked(prisma.profile.findMany).mockResolvedValue(
+        mockUsers as Awaited<ReturnType<typeof prisma.profile.findMany>>
+      );
 
       const result = await userRepository.findByRole('ADMIN');
 
@@ -96,7 +102,9 @@ describe('UserRepository', () => {
         role: 'ADMIN' as const,
       };
 
-      vi.mocked(prisma.profile.update).mockResolvedValue(updatedUser as any);
+      vi.mocked(prisma.profile.update).mockResolvedValue(
+        updatedUser as Awaited<ReturnType<typeof prisma.profile.update>>
+      );
 
       const result = await userRepository.updateRole('user-1', 'ADMIN');
 
@@ -108,4 +116,3 @@ describe('UserRepository', () => {
     });
   });
 });
-

@@ -37,7 +37,9 @@ describe('WorkspaceRepository', () => {
         updatedAt: new Date(),
       };
 
-      vi.mocked(prisma.workspaceSetting.findFirst).mockResolvedValue(mockWorkspace as any);
+      vi.mocked(prisma.workspaceSetting.findFirst).mockResolvedValue(
+        mockWorkspace as Awaited<ReturnType<typeof prisma.workspaceSetting.findFirst>>
+      );
 
       const result = await workspaceRepository.getOrCreateDefault();
 
@@ -59,7 +61,9 @@ describe('WorkspaceRepository', () => {
       };
 
       vi.mocked(prisma.workspaceSetting.findFirst).mockResolvedValue(null);
-      vi.mocked(prisma.workspaceSetting.create).mockResolvedValue(mockWorkspace as any);
+      vi.mocked(prisma.workspaceSetting.create).mockResolvedValue(
+        mockWorkspace as Awaited<ReturnType<typeof prisma.workspaceSetting.create>>
+      );
 
       const result = await workspaceRepository.getOrCreateDefault();
 
@@ -91,7 +95,9 @@ describe('WorkspaceRepository', () => {
         updatedAt: new Date(),
       };
 
-      vi.mocked(prisma.workspaceSetting.update).mockResolvedValue(mockWorkspace as any);
+      vi.mocked(prisma.workspaceSetting.update).mockResolvedValue(
+        mockWorkspace as Awaited<ReturnType<typeof prisma.workspaceSetting.update>>
+      );
 
       const result = await workspaceRepository.updateSettings('ws-1', {
         name: 'Updated Workspace',
@@ -129,7 +135,9 @@ describe('WorkspaceRepository', () => {
         updatedAt: new Date(),
       };
 
-      vi.mocked(prisma.workspaceSetting.update).mockResolvedValue(mockWorkspace as any);
+      vi.mocked(prisma.workspaceSetting.update).mockResolvedValue(
+        mockWorkspace as Awaited<ReturnType<typeof prisma.workspaceSetting.update>>
+      );
 
       await workspaceRepository.updateSettings('ws-1', {
         discountRate: 0.1,
@@ -144,4 +152,3 @@ describe('WorkspaceRepository', () => {
     });
   });
 });
-

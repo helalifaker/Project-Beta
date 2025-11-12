@@ -3,7 +3,7 @@
  * P&L, Balance Sheet, and Cash Flow statements
  */
 
-import { MODEL_START_YEAR, MODEL_END_YEAR, BALANCE_TOLERANCE } from './constants';
+import { MODEL_START_YEAR, BALANCE_TOLERANCE } from './constants';
 import { Decimal, roundCurrency, sum } from './decimal';
 
 export interface ProfitLossStatement {
@@ -78,9 +78,7 @@ export interface StatementInputs {
 /**
  * Generate P&L statement
  */
-export function generateProfitLossStatement(
-  inputs: StatementInputs
-): ProfitLossStatement[] {
+export function generateProfitLossStatement(inputs: StatementInputs): ProfitLossStatement[] {
   const statements: ProfitLossStatement[] = [];
   const years = inputs.revenue.length;
 
@@ -92,49 +90,35 @@ export function generateProfitLossStatement(
     const opex = inputs.opex[i] || 0;
 
     // COGS = Staff Costs + Rent + OpEx
-    const cogs = roundCurrency(
-      sum([staffCosts, rent, opex])
-    );
+    const cogs = roundCurrency(sum([staffCosts, rent, opex]));
 
     // Gross Profit = Revenue - COGS
-    const grossProfit = roundCurrency(
-      new Decimal(revenue).minus(cogs)
-    );
+    const grossProfit = roundCurrency(new Decimal(revenue).minus(cogs));
 
     // Operating Expenses (non-COGS items - for now, assume 0)
     const operatingExpenses = 0;
 
     // EBITDA = Gross Profit - Operating Expenses
-    const ebitda = roundCurrency(
-      new Decimal(grossProfit).minus(operatingExpenses)
-    );
+    const ebitda = roundCurrency(new Decimal(grossProfit).minus(operatingExpenses));
 
     // Depreciation
     const depreciation = inputs.depreciation[i] || 0;
 
     // EBIT = EBITDA - Depreciation
-    const ebit = roundCurrency(
-      new Decimal(ebitda).minus(depreciation)
-    );
+    const ebit = roundCurrency(new Decimal(ebitda).minus(depreciation));
 
     // Interest
     const interest = inputs.interest?.[i] || 0;
 
     // EBT = EBIT - Interest
-    const ebt = roundCurrency(
-      new Decimal(ebit).minus(interest)
-    );
+    const ebt = roundCurrency(new Decimal(ebit).minus(interest));
 
     // Taxes
     const taxRate = inputs.taxRate || 0;
-    const taxes = roundCurrency(
-      new Decimal(ebt).times(taxRate)
-    );
+    const taxes = roundCurrency(new Decimal(ebt).times(taxRate));
 
     // Net Income = EBT - Taxes
-    const netIncome = roundCurrency(
-      new Decimal(ebt).minus(taxes)
-    );
+    const netIncome = roundCurrency(new Decimal(ebt).minus(taxes));
 
     statements.push({
       year,
@@ -184,16 +168,12 @@ export function generateBalanceSheet(
     cumulativeFixedAssets = roundCurrency(
       new Decimal(cumulativeFixedAssets).plus(capex).minus(depreciation)
     );
-    cumulativeDepreciation = roundCurrency(
-      new Decimal(cumulativeDepreciation).plus(depreciation)
-    );
+    cumulativeDepreciation = roundCurrency(new Decimal(cumulativeDepreciation).plus(depreciation));
 
     // Assets
     const cash = endingCash;
     const fixedAssets = Math.max(0, cumulativeFixedAssets); // Can't be negative
-    const totalAssets = roundCurrency(
-      sum([cash, fixedAssets])
-    );
+    const totalAssets = roundCurrency(sum([cash, fixedAssets]));
 
     // Liabilities
     const deferredRevenue = 0; // TODO: Calculate deferred revenue if needed
@@ -204,13 +184,9 @@ export function generateBalanceSheet(
     const totalEquity = retainedEarnings;
 
     // Balance check
-    const totalLiabilitiesAndEquity = roundCurrency(
-      sum([totalLiabilities, totalEquity])
-    );
+    const totalLiabilitiesAndEquity = roundCurrency(sum([totalLiabilities, totalEquity]));
 
-    const balanceDifference = Math.abs(
-      totalAssets - totalLiabilitiesAndEquity
-    );
+    const balanceDifference = Math.abs(totalAssets - totalLiabilitiesAndEquity);
     const isBalanced = balanceDifference <= BALANCE_TOLERANCE;
 
     statements.push({
@@ -269,9 +245,7 @@ export function generateCashFlowStatement(
     );
 
     // Ending Cash
-    const endingCash = roundCurrency(
-      new Decimal(beginningCash).plus(netCashChange)
-    );
+    const endingCash = roundCurrency(new Decimal(beginningCash).plus(netCashChange));
 
     statements.push({
       year,
@@ -296,7 +270,7 @@ export function generateCashFlowStatement(
 
 /**
  * Generate all financial statements with iterative convergence
- * 
+ *
  * @param inputs - Statement inputs
  * @param maxPasses - Maximum number of convergence passes (default: 3)
  * @returns Financial statements with convergence info
@@ -340,4 +314,3 @@ export function generateFinancialStatements(
     },
   };
 }
-

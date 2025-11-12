@@ -3,12 +3,7 @@
  * Handles curriculum-specific capacity, ramp profiles, and enrollment projections
  */
 
-import {
-  MODEL_START_YEAR,
-  MODEL_END_YEAR,
-  RELOCATION_YEAR,
-  RAMP_YEARS,
-} from './constants';
+import { MODEL_START_YEAR, MODEL_END_YEAR } from './constants';
 import { calculateCpiAdjustedAmount, type CpiFrequency } from './cpi';
 import { Decimal, roundCurrency } from './decimal';
 
@@ -44,7 +39,7 @@ export interface CurriculumEnrollmentResult {
 
 /**
  * Calculate enrollment for a curriculum in a given year
- * 
+ *
  * @param config - Curriculum configuration
  * @param year - Target year
  * @param rampOverrides - Optional ramp overrides by year
@@ -105,7 +100,7 @@ export function calculateCurriculumEnrollment(
 
 /**
  * Generate enrollment projections for a curriculum
- * 
+ *
  * @param config - Curriculum configuration
  * @param startYear - Start year for projections
  * @param endYear - End year for projections (inclusive)
@@ -121,11 +116,7 @@ export function generateCurriculumEnrollmentProjections(
   const projections: EnrollmentProjection[] = [];
 
   for (let year = startYear; year <= endYear; year++) {
-    const projection = calculateCurriculumEnrollment(
-      config,
-      year,
-      rampOverrides
-    );
+    const projection = calculateCurriculumEnrollment(config, year, rampOverrides);
     projections.push(projection);
   }
 
@@ -134,7 +125,7 @@ export function generateCurriculumEnrollmentProjections(
 
 /**
  * Calculate overall capacity utilization
- * 
+ *
  * @param curriculumEnrollments - Enrollment projections per curriculum
  * @param year - Target year
  * @returns Overall utilization (total enrollment / total capacity)
@@ -163,7 +154,7 @@ export function calculateOverallUtilization(
 
 /**
  * Calculate tuition for a curriculum in a given year
- * 
+ *
  * @param config - Curriculum configuration
  * @param year - Target year
  * @param tuitionOverrides - Optional tuition overrides by year
@@ -191,7 +182,7 @@ export function calculateCurriculumTuition(
 
 /**
  * Generate tuition ladder for a curriculum
- * 
+ *
  * @param config - Curriculum configuration
  * @param startYear - Start year for ladder
  * @param endYear - End year for ladder (inclusive)
@@ -216,7 +207,7 @@ export function generateTuitionLadder(
 
 /**
  * Calculate revenue for a curriculum in a given year
- * 
+ *
  * @param config - Curriculum configuration
  * @param year - Target year
  * @param enrollment - Number of students enrolled
@@ -240,7 +231,7 @@ export function calculateCurriculumRevenue(
 
 /**
  * Calculate total revenue across all curricula for a given year
- * 
+ *
  * @param curriculumEnrollments - Enrollment projections per curriculum
  * @param curriculumConfigs - Curriculum configurations (indexed by curriculumId)
  * @param year - Target year
@@ -261,16 +252,12 @@ export function calculateTotalRevenue(
       continue;
     }
 
-    const projection = curriculumEnrollment.projections.find(
-      (p) => p.year === year
-    );
+    const projection = curriculumEnrollment.projections.find((p) => p.year === year);
     if (!projection) {
       continue;
     }
 
-    const tuitionOverrides = tuitionOverridesMap?.get(
-      curriculumEnrollment.curriculumId
-    );
+    const tuitionOverrides = tuitionOverridesMap?.get(curriculumEnrollment.curriculumId);
     const revenue = calculateCurriculumRevenue(
       config,
       year,
@@ -286,7 +273,7 @@ export function calculateTotalRevenue(
 
 /**
  * Generate revenue schedule across all curricula
- * 
+ *
  * @param curriculumEnrollments - Enrollment projections per curriculum
  * @param curriculumConfigs - Curriculum configurations
  * @param startYear - Start year for schedule
@@ -315,4 +302,3 @@ export function generateRevenueSchedule(
 
   return schedule;
 }
-

@@ -190,9 +190,7 @@ describe('generateBalanceSheet', () => {
 
     // Operating cash flow should subtract working capital change
     expect(cf[0].workingCapitalChange).toBe(200_000);
-    expect(cf[0].operatingCashFlow).toBeLessThan(
-      pl[0].netIncome + pl[0].depreciation
-    );
+    expect(cf[0].operatingCashFlow).toBeLessThan(pl[0].netIncome + pl[0].depreciation);
   });
 
   it('should handle negative working capital changes', () => {
@@ -212,9 +210,7 @@ describe('generateBalanceSheet', () => {
 
     // Operating cash flow should add back working capital change
     expect(cf[0].workingCapitalChange).toBe(-200_000);
-    expect(cf[0].operatingCashFlow).toBeGreaterThan(
-      pl[0].netIncome + pl[0].depreciation
-    );
+    expect(cf[0].operatingCashFlow).toBeGreaterThan(pl[0].netIncome + pl[0].depreciation);
   });
 });
 
@@ -305,10 +301,10 @@ describe('generateFinancialStatements', () => {
     const pl = generateProfitLossStatement(inputs);
     // Create cash flow with missing entry for second year
     const cf = generateCashFlowStatement(inputs, pl);
-    
+
     // Generate balance sheet - should handle missing cashFlow entries
     const bs = generateBalanceSheet(inputs, pl, cf);
-    
+
     // Should still generate balance sheet even with missing entries
     expect(bs).toHaveLength(2);
     expect(bs[0]).toBeDefined();
@@ -327,14 +323,13 @@ describe('generateFinancialStatements', () => {
     };
 
     const pl = generateProfitLossStatement(inputs);
-    const cf = generateCashFlowStatement(inputs, pl);
-    const bs: any[] = []; // Empty balance sheet
+    const _cf = generateCashFlowStatement(inputs, pl);
+    const _bs: BalanceSheet[] = []; // Empty balance sheet
 
     // When generating statements with empty BS, should fallback to beginningCash
     const result = generateFinancialStatements(inputs, 1);
-    
+
     // Should use beginningCash as fallback
     expect(result.cf[0].beginningCash).toBe(5_000_000);
   });
 });
-

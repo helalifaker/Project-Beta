@@ -44,8 +44,12 @@ describe('getSupabaseServerClient', () => {
       set: vi.fn(),
     };
 
-    vi.mocked(cookies).mockResolvedValue(mockCookieStore as any);
-    vi.mocked(createServerClient).mockReturnValue(mockClient as any);
+    vi.mocked(cookies).mockResolvedValue(
+      mockCookieStore as unknown as Awaited<ReturnType<typeof cookies>>
+    );
+    vi.mocked(createServerClient).mockReturnValue(
+      mockClient as unknown as ReturnType<typeof createServerClient>
+    );
 
     const client = await getSupabaseServerClient();
 
@@ -57,7 +61,7 @@ describe('getSupabaseServerClient', () => {
           getAll: expect.any(Function),
           setAll: expect.any(Function),
         }),
-      }),
+      })
     );
     expect(client).toBe(mockClient);
   });
@@ -66,7 +70,7 @@ describe('getSupabaseServerClient', () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = '';
 
     await expect(getSupabaseServerClient()).rejects.toThrow(
-      'Missing Supabase environment variables',
+      'Missing Supabase environment variables'
     );
   });
 
@@ -74,7 +78,7 @@ describe('getSupabaseServerClient', () => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = '';
 
     await expect(getSupabaseServerClient()).rejects.toThrow(
-      'Missing Supabase environment variables',
+      'Missing Supabase environment variables'
     );
   });
 
@@ -86,12 +90,16 @@ describe('getSupabaseServerClient', () => {
       set: vi.fn(),
     };
 
-    vi.mocked(cookies).mockResolvedValue(mockCookieStore as any);
-    vi.mocked(createServerClient).mockImplementation((url, key, options) => {
-      const getAllResult = options.cookies.getAll();
-      expect(getAllResult).toEqual([{ name: 'test', value: 'cookie' }]);
-      return mockClient as any;
-    });
+    vi.mocked(cookies).mockResolvedValue(
+      mockCookieStore as unknown as Awaited<ReturnType<typeof cookies>>
+    );
+    vi.mocked(createServerClient).mockImplementation(
+      (url: string, key: string, options: Parameters<typeof createServerClient>[2]) => {
+        const getAllResult = options.cookies.getAll();
+        expect(getAllResult).toEqual([{ name: 'test', value: 'cookie' }]);
+        return mockClient as unknown as ReturnType<typeof createServerClient>;
+      }
+    );
 
     await getSupabaseServerClient();
 
@@ -108,16 +116,19 @@ describe('getSupabaseServerClient', () => {
       }),
     };
 
-    vi.mocked(cookies).mockResolvedValue(mockCookieStore as any);
-    vi.mocked(createServerClient).mockImplementation((url, key, options) => {
-      // Call setAll to trigger the catch block
-      options.cookies.setAll([{ name: 'test', value: 'cookie', options: {} }]);
-      return mockClient as any;
-    });
+    vi.mocked(cookies).mockResolvedValue(
+      mockCookieStore as unknown as Awaited<ReturnType<typeof cookies>>
+    );
+    vi.mocked(createServerClient).mockImplementation(
+      (url: string, key: string, options: Parameters<typeof createServerClient>[2]) => {
+        // Call setAll to trigger the catch block
+        options.cookies.setAll([{ name: 'test', value: 'cookie', options: {} }]);
+        return mockClient as unknown as ReturnType<typeof createServerClient>;
+      }
+    );
 
     // Should not throw - catch block handles it
     const client = await getSupabaseServerClient();
     expect(client).toBe(mockClient);
   });
 });
-

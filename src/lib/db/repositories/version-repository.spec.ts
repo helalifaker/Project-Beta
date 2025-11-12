@@ -17,6 +17,7 @@ vi.mock('../prisma', () => ({
       update: vi.fn(),
       count: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
 }));
 
@@ -72,36 +73,51 @@ describe('VersionRepository', () => {
     it('should find versions with status filter', async () => {
       const mockVersions = [mockVersion];
       vi.mocked(prisma.version.findMany).mockResolvedValue(mockVersions);
+      vi.mocked(prisma.version.count).mockResolvedValue(1);
 
       const result = await versionRepository.findWithFilters({ status: 'DRAFT' });
 
-      expect(result).toEqual(mockVersions);
+      expect(result).toEqual({ data: mockVersions, total: 1 });
       expect(prisma.version.findMany).toHaveBeenCalledWith({
         where: { status: 'DRAFT' },
         orderBy: { updatedAt: 'desc' },
+        skip: undefined,
+        take: undefined,
+        select: expect.any(Object),
+      });
+      expect(prisma.version.count).toHaveBeenCalledWith({
+        where: { status: 'DRAFT' },
       });
     });
 
     it('should find versions with ownerId filter', async () => {
       const mockVersions = [mockVersion];
       vi.mocked(prisma.version.findMany).mockResolvedValue(mockVersions);
+      vi.mocked(prisma.version.count).mockResolvedValue(1);
 
       const result = await versionRepository.findWithFilters({ ownerId: 'user-1' });
 
-      expect(result).toEqual(mockVersions);
+      expect(result).toEqual({ data: mockVersions, total: 1 });
       expect(prisma.version.findMany).toHaveBeenCalledWith({
         where: { ownerId: 'user-1' },
         orderBy: { updatedAt: 'desc' },
+        skip: undefined,
+        take: undefined,
+        select: expect.any(Object),
+      });
+      expect(prisma.version.count).toHaveBeenCalledWith({
+        where: { ownerId: 'user-1' },
       });
     });
 
     it('should find versions with search filter', async () => {
       const mockVersions = [mockVersion];
       vi.mocked(prisma.version.findMany).mockResolvedValue(mockVersions);
+      vi.mocked(prisma.version.count).mockResolvedValue(1);
 
       const result = await versionRepository.findWithFilters({ search: 'Test' });
 
-      expect(result).toEqual(mockVersions);
+      expect(result).toEqual({ data: mockVersions, total: 1 });
       expect(prisma.version.findMany).toHaveBeenCalledWith({
         where: {
           OR: [
@@ -110,12 +126,24 @@ describe('VersionRepository', () => {
           ],
         },
         orderBy: { updatedAt: 'desc' },
+        skip: undefined,
+        take: undefined,
+        select: expect.any(Object),
+      });
+      expect(prisma.version.count).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { name: { contains: 'Test', mode: 'insensitive' } },
+            { description: { contains: 'Test', mode: 'insensitive' } },
+          ],
+        },
       });
     });
 
     it('should combine multiple filters', async () => {
       const mockVersions = [mockVersion];
       vi.mocked(prisma.version.findMany).mockResolvedValue(mockVersions);
+      vi.mocked(prisma.version.count).mockResolvedValue(1);
 
       const result = await versionRepository.findWithFilters({
         status: 'DRAFT',
@@ -123,7 +151,7 @@ describe('VersionRepository', () => {
         search: 'Test',
       });
 
-      expect(result).toEqual(mockVersions);
+      expect(result).toEqual({ data: mockVersions, total: 1 });
       expect(prisma.version.findMany).toHaveBeenCalledWith({
         where: {
           status: 'DRAFT',
@@ -134,6 +162,19 @@ describe('VersionRepository', () => {
           ],
         },
         orderBy: { updatedAt: 'desc' },
+        skip: undefined,
+        take: undefined,
+        select: expect.any(Object),
+      });
+      expect(prisma.version.count).toHaveBeenCalledWith({
+        where: {
+          status: 'DRAFT',
+          ownerId: 'user-1',
+          OR: [
+            { name: { contains: 'Test', mode: 'insensitive' } },
+            { description: { contains: 'Test', mode: 'insensitive' } },
+          ],
+        },
       });
     });
   });

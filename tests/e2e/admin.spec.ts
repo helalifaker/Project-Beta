@@ -6,7 +6,8 @@ import { expect, test } from '@playwright/test';
  * Mocks Supabase session and profile API calls
  */
 async function setupAuth(page: Page): Promise<void> {
-  // Mock Supabase auth session API (used by middleware)
+  // Mock Supabase auth session API (used by middleware and server components)
+  // Match various Supabase URL patterns
   await page.route('**/auth/v1/session**', async (route: Route) => {
     await route.fulfill({
       status: 200,
@@ -27,23 +28,32 @@ async function setupAuth(page: Page): Promise<void> {
     });
   });
 
-  // Mock Supabase profile query (used by middleware to check role)
+  // Mock Supabase profile query (used by middleware and server components to check role)
+  // Match various URL patterns including query parameters
   await page.route('**/rest/v1/profile**', async (route: Route) => {
+    const url = new URL(route.request().url());
+    const externalIdFilter = url.searchParams.get('external_id');
+
     // Handle select query
     if (route.request().method() === 'GET') {
+      // Return array for list queries, single object for .single() queries
+      const isSingleQuery =
+        url.searchParams.has('select') &&
+        (externalIdFilter === 'mock-user-id' || !externalIdFilter);
+
+      const profileData = {
+        id: 'profile-id',
+        external_id: 'mock-user-id',
+        email: 'admin@example.com',
+        role: 'ADMIN',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([
-          {
-            id: 'profile-id',
-            external_id: 'mock-user-id',
-            email: 'admin@example.com',
-            role: 'ADMIN',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        ]),
+        body: JSON.stringify(isSingleQuery ? profileData : [profileData]),
       });
     } else {
       await route.continue();
@@ -71,8 +81,35 @@ async function setupAuth(page: Page): Promise<void> {
   });
 
   // Set auth cookies to simulate authenticated session
-  // Supabase SSR uses specific cookie names
+  // Supabase SSR uses cookie names based on the project URL
+  // Format: sb-<project-ref>-auth-token
+  // For testing, we'll use a generic pattern that should work
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://test.supabase.co';
+  const projectRef = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1] || 'test';
+
   const cookies = [
+    {
+      name: `sb-${projectRef}-auth-token`,
+      value: JSON.stringify({
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: {
+          id: 'mock-user-id',
+          email: 'admin@example.com',
+          aud: 'authenticated',
+          role: 'authenticated',
+        },
+      }),
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
+      secure: false,
+      sameSite: 'Lax' as const,
+    },
+    // Also set the legacy cookie names for compatibility
     {
       name: 'sb-access-token',
       value: 'mock-access-token',
@@ -111,10 +148,23 @@ test.describe('Admin flows', () => {
       });
     });
 
-    await page.goto('/admin');
+    // Navigate and wait for either the page to load or a redirect
+    const response = await page.goto('/admin', { waitUntil: 'domcontentloaded' });
+
+    // Check if we were redirected (status 307/308)
+    if (response && (response.status() === 307 || response.status() === 308)) {
+      // Wait for the redirect to complete
+      await page.waitForURL('**/admin', { timeout: 10000 });
+    }
 
     // Wait for page to load and Suspense to resolve
     await page.waitForLoadState('networkidle');
+
+    // Check if we're on the unauthorized page
+    const currentUrl = page.url();
+    if (currentUrl.includes('/unauthorized') || currentUrl.includes('/login')) {
+      throw new Error(`Unexpected redirect to ${currentUrl}. Auth setup may be incorrect.`);
+    }
 
     // Wait for the heading with a longer timeout
     await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible({
@@ -192,10 +242,22 @@ test.describe('Admin flows', () => {
       await route.fallback();
     });
 
-    await page.goto('/admin/workspace');
+    // Navigate and wait for either the page to load or a redirect
+    const response = await page.goto('/admin/workspace', { waitUntil: 'domcontentloaded' });
+
+    // Check if we were redirected
+    if (response && (response.status() === 307 || response.status() === 308)) {
+      await page.waitForURL('**/admin/workspace', { timeout: 10000 });
+    }
 
     // Wait for Suspense boundary to resolve and form to load
     await page.waitForLoadState('networkidle');
+
+    // Check if we're on the unauthorized page
+    const currentUrl = page.url();
+    if (currentUrl.includes('/unauthorized') || currentUrl.includes('/login')) {
+      throw new Error(`Unexpected redirect to ${currentUrl}. Auth setup may be incorrect.`);
+    }
 
     // Wait for the page heading first
     await expect(page.getByRole('heading', { name: 'Workspace Settings' })).toBeVisible({
@@ -282,10 +344,22 @@ test.describe('Admin flows', () => {
       });
     });
 
-    await page.goto('/admin/audit-log');
+    // Navigate and wait for either the page to load or a redirect
+    const response = await page.goto('/admin/audit-log', { waitUntil: 'domcontentloaded' });
+
+    // Check if we were redirected
+    if (response && (response.status() === 307 || response.status() === 308)) {
+      await page.waitForURL('**/admin/audit-log', { timeout: 10000 });
+    }
 
     // Wait for Suspense boundary to resolve and page to load
     await page.waitForLoadState('networkidle');
+
+    // Check if we're on the unauthorized page
+    const currentUrl = page.url();
+    if (currentUrl.includes('/unauthorized') || currentUrl.includes('/login')) {
+      throw new Error(`Unexpected redirect to ${currentUrl}. Auth setup may be incorrect.`);
+    }
 
     // Wait for the heading with longer timeout
     await expect(page.getByRole('heading', { name: 'Audit Log' })).toBeVisible({

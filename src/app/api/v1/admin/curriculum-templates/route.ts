@@ -22,32 +22,36 @@ const createCurriculumTemplateSchema = z.object({
   cpiFrequency: z.enum(['ANNUAL', 'EVERY_2_YEARS', 'EVERY_3_YEARS']),
 });
 
-export const GET = withErrorHandling(async (request: NextRequest) => {
-  await applyApiMiddleware(request, {
-    requireAuth: true,
-  });
+export async function GET(request: NextRequest): Promise<Response> {
+  return withErrorHandling(async () => {
+    await applyApiMiddleware(request, {
+      requireAuth: true,
+    });
 
-  const workspace = await workspaceRepository.getOrCreateDefault();
-  const templates = await curriculumTemplateRepository.findByWorkspace(workspace.id);
+    const workspace = await workspaceRepository.getOrCreateDefault();
+    const templates = await curriculumTemplateRepository.findByWorkspace(workspace.id);
 
-  return successResponse(templates);
-});
+    return successResponse(templates);
+  })();
+}
 
-export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { body } = await applyApiMiddleware(request, {
-    requireAuth: true,
-    requireRole: 'ADMIN',
-    validateBody: createCurriculumTemplateSchema,
-  });
+export async function POST(request: NextRequest): Promise<Response> {
+  return withErrorHandling(async () => {
+    const { body } = await applyApiMiddleware(request, {
+      requireAuth: true,
+      requireRole: 'ADMIN',
+      validateBody: createCurriculumTemplateSchema,
+    });
 
-  const workspace = await workspaceRepository.getOrCreateDefault();
-  const createData = body as z.infer<typeof createCurriculumTemplateSchema>;
-  const template = await curriculumTemplateRepository.create({
-    ...createData,
-    workspaceId: workspace.id,
-    launchYear: createData.launchYear || 2028,
-  });
+    const workspace = await workspaceRepository.getOrCreateDefault();
+    const createData = body as z.infer<typeof createCurriculumTemplateSchema>;
+    const template = await curriculumTemplateRepository.create({
+      ...createData,
+      workspaceId: workspace.id,
+      launchYear: createData.launchYear || 2028,
+    });
 
-  return successResponse(template, 201);
-});
+    return successResponse(template, 201);
+  })();
+}
 

@@ -2,13 +2,10 @@ import {
   BarChart3,
   BookOpenCheck,
   Building2,
-  Calculator,
   FileSpreadsheet,
+  FileText,
   Home,
   LayoutDashboard,
-  LineChart,
-  Settings,
-  TrendingUp,
   Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -39,9 +36,10 @@ const defaultSections: SidebarSection[] = [
   {
     title: 'Overview',
     items: [
-      { label: 'Home', href: '/', icon: Home },
+      { label: 'Dashboard', href: '/overview', icon: Home },
       { label: 'Versions', href: '/versions', icon: LayoutDashboard },
       { label: 'Compare', href: '/compare', icon: BarChart3 },
+      { label: 'Reports', href: '/reports', icon: FileText },
     ],
   },
   {

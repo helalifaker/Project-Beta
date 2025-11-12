@@ -30,13 +30,28 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 }
 
 /**
- * Create success response
+ * Create success response with cache headers
  */
 export function successResponse<T>(
   data: T,
   statusCode: number = 200,
-  meta?: ApiResponse['meta']
+  meta?: ApiResponse['meta'],
+  cacheOptions?: { revalidate?: number; maxAge?: number }
 ): Response {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add cache headers for GET requests
+  if (statusCode === 200 && cacheOptions) {
+    if (cacheOptions.revalidate) {
+      headers['Cache-Control'] = `public, s-maxage=${cacheOptions.revalidate}, stale-while-revalidate=${cacheOptions.revalidate * 2}`;
+    }
+    if (cacheOptions.maxAge) {
+      headers['Cache-Control'] = `public, max-age=${cacheOptions.maxAge}`;
+    }
+  }
+
   return Response.json(
     {
       data,
@@ -45,7 +60,7 @@ export function successResponse<T>(
         ...meta,
       },
     },
-    { status: statusCode }
+    { status: statusCode, headers }
   );
 }
 
@@ -87,13 +102,28 @@ export function errorResponse(
 }
 
 /**
- * Create paginated response
+ * Create paginated response with cache headers
  */
 export function paginatedResponse<T>(
   data: T[],
   pagination: PaginatedResponse<T>['pagination'],
-  meta?: ApiResponse['meta']
+  meta?: ApiResponse['meta'],
+  cacheOptions?: { revalidate?: number; maxAge?: number }
 ): Response {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add cache headers
+  if (cacheOptions) {
+    if (cacheOptions.revalidate) {
+      headers['Cache-Control'] = `public, s-maxage=${cacheOptions.revalidate}, stale-while-revalidate=${cacheOptions.revalidate * 2}`;
+    }
+    if (cacheOptions.maxAge) {
+      headers['Cache-Control'] = `public, max-age=${cacheOptions.maxAge}`;
+    }
+  }
+
   return Response.json(
     {
       data,
@@ -103,7 +133,7 @@ export function paginatedResponse<T>(
         ...meta,
       },
     },
-    { status: 200 }
+    { status: 200, headers }
   );
 }
 

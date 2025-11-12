@@ -151,20 +151,15 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
             )}
           </div>
 
-          {passwordSuccess && (
-            <Alert>
+          {passwordSuccess ? <Alert>
               <AlertDescription>Password updated successfully!</AlertDescription>
-            </Alert>
-          )}
+            </Alert> : null}
 
-          {passwordError && (
-            <Alert variant="destructive">
+          {passwordError ? <Alert variant="destructive">
               <AlertDescription>{passwordError}</AlertDescription>
-            </Alert>
-          )}
+            </Alert> : null}
 
-          {showPasswordForm && (
-            <form onSubmit={handlePasswordChange} className="space-y-4">
+          {showPasswordForm ? <form onSubmit={handlePasswordChange} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
                 <Input
@@ -217,8 +212,7 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
                   Cancel
                 </Button>
               </div>
-            </form>
-          )}
+            </form> : null}
         </div>
       </div>
     </div>

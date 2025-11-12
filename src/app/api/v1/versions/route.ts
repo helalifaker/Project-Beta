@@ -11,7 +11,12 @@ import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse, paginatedResponse } from '@/lib/api/response';
 import { paginationSchema, filterSchema } from '@/lib/api/schemas';
 import { canPerformAction } from '@/lib/auth/rbac';
+import { getOrSetCached, invalidateCacheByPrefix } from '@/lib/cache/kv';
 import { versionRepository } from '@/lib/db/repositories/version-repository';
+
+// Note: Cannot use edge runtime with Prisma (requires Node.js)
+// Using caching instead for performance
+export const revalidate = 60; // Cache for 60 seconds
 
 const createVersionSchema = z.object({
   name: z.string().min(1).max(200),
@@ -41,14 +46,15 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     filters.search = search;
   }
 
-  // Get versions
-  const allVersions = await versionRepository.findWithFilters(filters);
-  const total = allVersions.length;
+  // Generate cache key
+  const cacheKey = `versions:${status || 'all'}:${search || ''}:${page}:${limit}`;
 
-  // Paginate
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  const paginatedVersions = allVersions.slice(startIndex, endIndex);
+  // Get versions with caching and database pagination
+  const { data: paginatedVersions, total } = await getOrSetCached(
+    cacheKey,
+    () => versionRepository.findWithFilters(filters, { page, limit }),
+    { ttl: 60 } // Cache for 60 seconds
+  );
 
   return paginatedResponse(
     paginatedVersions,
@@ -62,7 +68,8 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     },
     {
       requestId: request.headers.get('x-request-id') || undefined,
-    }
+    },
+    { revalidate: 60 } // Cache for 60 seconds
   );
 });
 
@@ -101,6 +108,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     name,
     description,
     ownerId: session.user.id,
+  });
+
+  // Invalidate versions cache
+  await invalidateCacheByPrefix('versions:').catch(() => {
+    // Ignore errors - cache invalidation is best effort
   });
 
   return successResponse(version, 201);

@@ -4,6 +4,7 @@
  */
 
 import type { Prisma, Version, VersionStatus } from '@prisma/client';
+import { cache } from 'react';
 
 import { prisma } from '../prisma';
 import { BaseRepository } from '../repository';
@@ -49,13 +50,21 @@ export class VersionRepository extends BaseRepository<
   }
 
   /**
-   * Find versions with filters
+   * Find versions with filters and pagination
+   * Uses React Cache for request deduplication
+   * Uses database pagination for performance
    */
-  async findWithFilters(filters: {
-    status?: VersionStatus;
-    ownerId?: string;
-    search?: string;
-  }): Promise<Version[]> {
+  findWithFilters = cache(async (
+    filters: {
+      status?: VersionStatus;
+      ownerId?: string;
+      search?: string;
+    },
+    pagination?: {
+      page: number;
+      limit: number;
+    }
+  ): Promise<{ data: Version[]; total: number }> => {
     const where: Prisma.VersionWhereInput = {};
 
     if (filters.status) {
@@ -73,16 +82,44 @@ export class VersionRepository extends BaseRepository<
       ];
     }
 
-    return prisma.version.findMany({
-      where,
-      orderBy: { updatedAt: 'desc' },
-    });
-  }
+    const skip = pagination ? (pagination.page - 1) * pagination.limit : undefined;
+    const take = pagination?.limit;
+
+    // Use Promise.all for parallel queries
+    const [data, total] = await Promise.all([
+      prisma.version.findMany({
+        where,
+        orderBy: { updatedAt: 'desc' },
+        skip,
+        take,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          status: true,
+          ownerId: true,
+          createdAt: true,
+          updatedAt: true,
+          lockedAt: true,
+          approvedAt: true,
+          owner: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
+        },
+      }),
+      prisma.version.count({ where }),
+    ]);
+
+    return { data, total };
+  });
 
   /**
    * Lock version
    */
-  async lockVersion(versionId: string, userId: string): Promise<Version> {
+  async lockVersion(versionId: string, _userId: string): Promise<Version> {
     return prisma.version.update({
       where: { id: versionId },
       data: {
@@ -111,7 +148,7 @@ export class VersionRepository extends BaseRepository<
   async updateStatus(
     versionId: string,
     newStatus: VersionStatus,
-    userId: string
+    _userId: string
   ): Promise<Version> {
     const version = await this.findUnique({ id: versionId });
     if (!version) {

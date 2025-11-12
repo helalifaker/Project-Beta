@@ -8,7 +8,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,12 +32,42 @@ async function fetchCurriculumTemplates(): Promise<Array<{
   capacity: number;
   launchYear: number;
 }>> {
-  const response = await fetch('/api/v1/admin/curriculum-templates');
-  if (!response.ok) {
-    throw new Error('Failed to fetch curriculum templates');
+  try {
+    const response = await fetch('/api/v1/admin/curriculum-templates', {
+      credentials: 'include', // Include cookies for authentication
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Failed to fetch curriculum templates:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+      throw new Error(`Failed to fetch curriculum templates: ${response.status} ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    
+    // Handle both { data: [...] } and direct array responses
+    const templates = result.data || result || [];
+    
+    // Transform Prisma Decimal fields to numbers if needed
+    return templates.map((template: {
+      id: string;
+      name: string;
+      capacity: number | string;
+      launchYear: number | string;
+    }) => ({
+      id: template.id,
+      name: template.name,
+      capacity: typeof template.capacity === 'number' ? template.capacity : Number(template.capacity),
+      launchYear: typeof template.launchYear === 'number' ? template.launchYear : Number(template.launchYear),
+    }));
+  } catch (error) {
+    console.error('Error fetching curriculum templates:', error);
+    throw error;
   }
-  const data = await response.json();
-  return data.data || [];
 }
 
 async function saveCurriculumConfig(
@@ -68,9 +97,11 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
   const [selectedCurriculum, setSelectedCurriculum] = useState<string>('');
   const [customCapacity, setCustomCapacity] = useState<number | undefined>();
 
-  const { data: templates = [] } = useQuery({
+  const { data: templates = [], isLoading, error } = useQuery({
     queryKey: ['curriculum-templates'],
     queryFn: fetchCurriculumTemplates,
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   const saveMutation = useMutation({
@@ -103,18 +134,30 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
           {/* Curriculum Selection */}
           <div>
             <Label htmlFor="curriculum">Select Curriculum</Label>
-            <Select value={selectedCurriculum} onValueChange={setSelectedCurriculum}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a curriculum" />
-              </SelectTrigger>
-              <SelectContent>
-                {templates.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
-                    {template.name} (Capacity: {template.capacity})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {isLoading ? (
+              <div className="text-sm text-muted-foreground">Loading curricula...</div>
+            ) : error ? (
+              <div className="text-sm text-destructive">
+                Error loading curricula: {error instanceof Error ? error.message : 'Unknown error'}
+              </div>
+            ) : templates.length === 0 ? (
+              <div className="text-sm text-muted-foreground">
+                No curriculum templates available. Please create templates in Admin → Curriculum Templates.
+              </div>
+            ) : (
+              <Select value={selectedCurriculum} onValueChange={setSelectedCurriculum}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a curriculum" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name} (Capacity: {template.capacity})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {/* Custom Capacity Override */}

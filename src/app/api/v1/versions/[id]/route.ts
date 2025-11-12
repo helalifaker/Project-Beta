@@ -12,7 +12,12 @@ import { NotFoundError, ForbiddenError } from '@/lib/api/errors';
 import { applyApiMiddleware, withErrorHandling } from '@/lib/api/middleware';
 import { successResponse } from '@/lib/api/response';
 import { idParamSchema } from '@/lib/api/schemas';
+import { getOrSetCached, invalidateCacheByPrefix, invalidateCacheKey } from '@/lib/cache/kv';
 import { versionRepository } from '@/lib/db/repositories/version-repository';
+
+// Note: Cannot use edge runtime with Prisma (requires Node.js)
+// Using caching instead for performance
+export const revalidate = 60; // Cache for 60 seconds
 
 const updateVersionSchema = z.object({
   name: z.string().min(1).max(200).optional(),
@@ -32,15 +37,21 @@ export async function GET(
     const { id } = await params;
     const validated = idParamSchema.parse({ id });
 
-    const version = await versionRepository.findUnique({
-      id: validated.id,
-    });
+    // Cache key for version
+    const cacheKey = `version:${validated.id}`;
+
+    // Get version with caching
+    const version = await getOrSetCached(
+      cacheKey,
+      () => versionRepository.findUnique({ id: validated.id }),
+      { ttl: 60 } // Cache for 60 seconds
+    );
 
     if (!version) {
       throw new NotFoundError('Version', validated.id);
     }
 
-    return successResponse(version);
+    return successResponse(version, 200, undefined, { revalidate: 60 });
   })();
 }
 
@@ -84,6 +95,15 @@ export async function PUT(
         body.status as 'DRAFT' | 'READY' | 'LOCKED' | 'ARCHIVED',
         session.user.id
       );
+
+      // Invalidate cache
+      await Promise.all([
+        invalidateCacheKey(`version:${validated.id}`),
+        invalidateCacheByPrefix('versions:'),
+      ]).catch(() => {
+        // Ignore cache invalidation errors
+      });
+
       return successResponse(updated);
     }
 
@@ -93,7 +113,15 @@ export async function PUT(
       body as z.infer<typeof updateVersionSchema>
     );
 
-    return successResponse(updated);
+      // Invalidate cache
+      await Promise.all([
+        invalidateCacheKey(`version:${validated.id}`),
+        invalidateCacheByPrefix('versions:'),
+      ]).catch(() => {
+        // Ignore cache invalidation errors
+      });
+
+      return successResponse(updated);
   })();
 }
 
@@ -111,6 +139,14 @@ export async function DELETE(
     const validated = idParamSchema.parse({ id });
 
     const version = await versionRepository.softDelete(validated.id);
+
+    // Invalidate cache
+    await Promise.all([
+      invalidateCacheKey(`version:${validated.id}`),
+      invalidateCacheByPrefix('versions:'),
+    ]).catch(() => {
+      // Ignore cache invalidation errors
+    });
 
     return successResponse(version);
   })();

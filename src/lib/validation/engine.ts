@@ -364,8 +364,8 @@ function validateCpiBounds(
  * (Placeholder - would need template data)
  */
 function validateStaffingRatios(
-  inputs: ValidationInputs,
-  issues: ValidationIssue[]
+  _inputs: ValidationInputs,
+  _issues: ValidationIssue[]
 ): void {
   // TODO: Implement when template data is available
   // Check if staffing ratios deviate significantly from template defaults
@@ -427,5 +427,94 @@ function validateBaseVersionLocked(
       deepLink: `/versions/:id`,
     });
   }
+}
+
+/**
+ * Validate a version by ID
+ * Fetches version data, generates statements, and validates them
+ */
+export async function validateVersion(versionId: string): Promise<ValidationIssue[]> {
+  // Import here to avoid circular dependencies
+  const { prisma } = await import('@/lib/db/prisma');
+  const { versionRepository } = await import('@/lib/db/repositories/version-repository');
+  const financeStatements = await import('@/lib/finance/statements');
+  const { calculateRevenue } = await import('@/lib/finance/curriculum');
+  const { MODEL_START_YEAR, MODEL_END_YEAR } = await import('@/lib/finance/constants');
+  
+  type StatementInputs = financeStatements.StatementInputs;
+  const { generateFinancialStatements } = financeStatements;
+
+  // Fetch version
+  const version = await versionRepository.findUnique({ id: versionId });
+  if (!version) {
+    throw new Error(`Version ${versionId} not found`);
+  }
+
+  // Fetch version data with assumptions
+  const versionData = await prisma.version.findUnique({
+    where: { id: versionId },
+    include: {
+      curricula: {
+        include: {
+          curriculumTemplate: {
+            include: {
+              rampSteps: { orderBy: { sortOrder: 'asc' } },
+              tuitionAdjustments: true,
+            },
+          },
+          rampOverrides: true,
+          tuitionOverrides: true,
+        },
+      },
+    },
+  });
+
+  if (!versionData) {
+    throw new Error(`Version ${versionId} not found`);
+  }
+
+  // Generate statements (simplified - using placeholders for missing assumptions)
+  const years = MODEL_END_YEAR - MODEL_START_YEAR + 1;
+  const yearArray = Array.from({ length: years }, (_, i) => MODEL_START_YEAR + i);
+
+  const revenue = calculateRevenue(versionData.curricula, yearArray);
+  const rent = yearArray.map(() => 5_000_000); // Placeholder
+  const staffCosts = yearArray.map(() => 10_000_000); // Placeholder
+  const opex = yearArray.map((_, i) => revenue[i] * 0.10); // Placeholder
+  const capex = yearArray.map(() => 0); // Placeholder
+  const depreciation = yearArray.map(() => 0); // Placeholder
+
+  const inputs: StatementInputs = {
+    revenue,
+    staffCosts,
+    rent,
+    opex,
+    capex,
+    depreciation,
+    beginningCash: 0,
+  };
+
+  const statements = generateFinancialStatements(inputs);
+
+  // Prepare validation inputs
+  const validationInputs: ValidationInputs = {
+    pl: statements.pl,
+    bs: statements.bs,
+    cf: statements.cf,
+    revenue,
+    rent,
+    versionUpdatedAt: version.updatedAt,
+    versionDescription: version.description || undefined,
+  };
+
+  // Run validation
+  const result = validateFinancialStatements(validationInputs);
+
+  // Flatten results into array
+  return [
+    ...result.critical,
+    ...result.warnings,
+    ...result.info,
+  ];
 }
 

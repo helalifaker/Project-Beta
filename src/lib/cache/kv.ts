@@ -65,20 +65,60 @@ export async function getOrSetCached<T>(
 
   const value = await fetcher();
   await setCached(key, value, options);
+  // Track key for invalidation
+  await trackCacheKey(key);
   return value;
 }
 
 /**
- * Invalidate cache by pattern
+ * Invalidate cache by prefix
+ * Note: Vercel KV doesn't support pattern matching, so we track keys in a set
  */
-export async function invalidateCache(pattern: string): Promise<void> {
+const CACHE_KEYS_SET = 'cache:keys';
+
+/**
+ * Track a cache key for later invalidation
+ */
+async function trackCacheKey(key: string): Promise<void> {
   try {
-    // Vercel KV doesn't support pattern matching directly
-    // For now, we'll need to track keys manually or use a prefix strategy
-    // This is a placeholder - implement based on your key naming strategy
-    console.warn('Pattern-based cache invalidation not fully implemented');
-  } catch (error) {
-    console.error('Cache invalidation error:', error);
+    await kv.sadd(CACHE_KEYS_SET, key);
+  } catch {
+    // Ignore tracking errors
+  }
+}
+
+/**
+ * Invalidate all cache keys with a prefix
+ */
+export async function invalidateCacheByPrefix(prefix: string): Promise<void> {
+  try {
+    // Get all tracked keys
+    const allKeys = await kv.smembers<string[]>(CACHE_KEYS_SET);
+    const keysToDelete = allKeys.filter((key) => key.startsWith(prefix));
+    
+    if (keysToDelete.length > 0) {
+      await Promise.all([
+        ...keysToDelete.map((key) => kv.del(key)),
+        // Remove tracked keys
+        ...keysToDelete.map((key) => kv.srem(CACHE_KEYS_SET, key)),
+      ]);
+    }
+  } catch {
+    // Best effort - ignore errors
+  }
+}
+
+/**
+ * Invalidate a specific cache key
+ */
+export async function invalidateCacheKey(key: string): Promise<void> {
+  try {
+    await Promise.all([
+      kv.del(key),
+      kv.srem(CACHE_KEYS_SET, key),
+    ]);
+  } catch {
+    // Best effort - ignore errors
   }
 }
 

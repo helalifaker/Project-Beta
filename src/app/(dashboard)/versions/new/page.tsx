@@ -79,11 +79,9 @@ export default function NewVersionPage(): JSX.Element {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
+          {error ? <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+            </Alert> : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">

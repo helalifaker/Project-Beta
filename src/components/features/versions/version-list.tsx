@@ -11,7 +11,6 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -21,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useDebounce } from '@/lib/hooks/use-debounce';
 
 import { VersionCard } from './version-card';
 
@@ -54,13 +54,16 @@ async function fetchVersions(params: {
 export function VersionList(): JSX.Element {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Debounce search query to reduce API calls
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const { data: versions = [], isLoading } = useQuery({
-    queryKey: ['versions', { status: statusFilter !== 'all' ? statusFilter : undefined, search: searchQuery || undefined }],
+    queryKey: ['versions', { status: statusFilter !== 'all' ? statusFilter : undefined, search: debouncedSearchQuery || undefined }],
     queryFn: () =>
       fetchVersions({
         status: statusFilter !== 'all' ? statusFilter : undefined,
-        search: searchQuery || undefined,
+        search: debouncedSearchQuery || undefined,
       }),
   });
 

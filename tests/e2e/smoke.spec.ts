@@ -88,7 +88,6 @@ test.describe('Smoke Tests', () => {
 
     // Allow some non-critical errors but log them
     if (consoleErrors.length > 0) {
-       
       console.warn('Console errors found:', consoleErrors);
     }
 

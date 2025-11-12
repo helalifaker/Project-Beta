@@ -22,7 +22,7 @@ export function ProtectedRoute({
   children,
   requiredRole,
   fallback,
-}: ProtectedRouteProps): JSX.Element {
+}: ProtectedRouteProps): JSX.Element | null {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
@@ -47,7 +47,7 @@ export function ProtectedRoute({
           .from('profile')
           .select('role')
           .eq('external_id', session.user.id)
-          .single();
+          .single<{ role: UserRole }>();
 
         if (profileError || !profile) {
           router.push('/unauthorized');
@@ -74,14 +74,15 @@ export function ProtectedRoute({
   }, [router, requiredRole]);
 
   if (isAuthorized === null) {
+    if (fallback) {
+      return fallback as JSX.Element;
+    }
     return (
-      fallback || (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="text-center">
-            <p className="text-[--color-muted-foreground]">Loading...</p>
-          </div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="text-[--color-muted-foreground]">Loading...</p>
         </div>
-      )
+      </div>
     );
   }
 
@@ -89,5 +90,5 @@ export function ProtectedRoute({
     return null;
   }
 
-  return <>{children}</>;
+  return (<>{children}</>) as JSX.Element;
 }

@@ -193,7 +193,7 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
               <EnrollmentProjectionsTable
                 versionId={versionId}
                 curriculumId={selectedCurriculum}
-                customCapacity={customCapacity}
+                {...(customCapacity !== undefined ? { customCapacity } : {})}
               />
             </>
           ) : null}

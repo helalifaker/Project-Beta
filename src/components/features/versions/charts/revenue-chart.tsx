@@ -14,15 +14,17 @@ interface RevenueChartProps {
   versionId: string;
 }
 
-async function fetchRevenueData(versionId: string): Promise<Array<{
-  year: number;
-  revenue: number;
-}>> {
+async function fetchRevenueData(versionId: string): Promise<
+  Array<{
+    year: number;
+    revenue: number;
+  }>
+> {
   const response = await fetch(`/api/v1/versions/${versionId}/statements/pl`);
   if (!response.ok) {
     throw new Error('Failed to fetch revenue data');
   }
-  const data = await response.json();
+  const _data = await response.json();
   // TODO: Extract revenue from P&L data
   return [];
 }
@@ -61,4 +63,3 @@ export function RevenueChart({ versionId }: RevenueChartProps): JSX.Element {
     </Card>
   );
 }
-

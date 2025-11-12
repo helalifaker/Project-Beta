@@ -10,8 +10,7 @@ import { generateCacheKey } from '@/lib/cache/react-cache';
 import { userRepository } from '@/lib/db/repositories/user-repository';
 
 import { GET } from './example-route';
-import { applyApiMiddleware } from './middleware';
-
+import { applyApiMiddleware, type ApiMiddlewareResult } from './middleware';
 
 vi.mock('./middleware', () => ({
   applyApiMiddleware: vi.fn(),
@@ -63,7 +62,7 @@ describe('GET /api/example', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
       query: { page: 1, limit: 10 },
-    } as any);
+    } as ApiMiddlewareResult);
 
     vi.mocked(generateCacheKey).mockReturnValue('cache-key-1');
     vi.mocked(getOrSetCached).mockResolvedValue({
@@ -93,13 +92,11 @@ describe('GET /api/example', () => {
   });
 
   it('should return paginated users with role filter', async () => {
-    const request = new NextRequest(
-      'https://example.com/api/example?page=1&limit=10&role=ADMIN'
-    );
+    const request = new NextRequest('https://example.com/api/example?page=1&limit=10&role=ADMIN');
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
       query: { page: 1, limit: 10, role: 'ADMIN' },
-    } as any);
+    } as ApiMiddlewareResult);
 
     vi.mocked(generateCacheKey).mockReturnValue('cache-key-2');
     vi.mocked(getOrSetCached).mockResolvedValue({
@@ -118,11 +115,7 @@ describe('GET /api/example', () => {
       }))
     );
     expect(generateCacheKey).toHaveBeenCalledWith('users', 1, 10, 'ADMIN');
-    expect(getOrSetCached).toHaveBeenCalledWith(
-      'cache-key-2',
-      expect.any(Function),
-      { ttl: 60 }
-    );
+    expect(getOrSetCached).toHaveBeenCalledWith('cache-key-2', expect.any(Function), { ttl: 60 });
   });
 
   it('should fetch users from repository when cache miss', async () => {
@@ -130,7 +123,7 @@ describe('GET /api/example', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
       query: { page: 1, limit: 10 },
-    } as any);
+    } as ApiMiddlewareResult);
 
     vi.mocked(generateCacheKey).mockReturnValue('cache-key-3');
     vi.mocked(getOrSetCached).mockImplementation(async (key, fetcher) => {
@@ -154,13 +147,11 @@ describe('GET /api/example', () => {
   });
 
   it('should fetch filtered users when role provided', async () => {
-    const request = new NextRequest(
-      'https://example.com/api/example?page=1&limit=10&role=ANALYST'
-    );
+    const request = new NextRequest('https://example.com/api/example?page=1&limit=10&role=ANALYST');
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
       query: { page: 1, limit: 10, role: 'ANALYST' },
-    } as any);
+    } as ApiMiddlewareResult);
 
     vi.mocked(generateCacheKey).mockReturnValue('cache-key-4');
     vi.mocked(getOrSetCached).mockImplementation(async (key, fetcher) => {
@@ -169,7 +160,7 @@ describe('GET /api/example', () => {
     vi.mocked(userRepository.findMany).mockResolvedValue(mockUsers);
     vi.mocked(userRepository.count).mockResolvedValue(1);
 
-    const response = await GET(request);
+    await GET(request);
 
     expect(userRepository.findMany).toHaveBeenCalledWith({ role: 'ANALYST' });
     expect(userRepository.count).toHaveBeenCalledWith({ role: 'ANALYST' });
@@ -180,7 +171,7 @@ describe('GET /api/example', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
       query: { page: 2, limit: 5 },
-    } as any);
+    } as ApiMiddlewareResult);
 
     vi.mocked(generateCacheKey).mockReturnValue('cache-key-5');
     vi.mocked(getOrSetCached).mockResolvedValue({
@@ -208,7 +199,7 @@ describe('GET /api/example', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
       query: { page: 1, limit: 10 },
-    } as any);
+    } as ApiMiddlewareResult);
 
     vi.mocked(generateCacheKey).mockReturnValue('cache-key-6');
     vi.mocked(getOrSetCached).mockResolvedValue({
@@ -227,7 +218,7 @@ describe('GET /api/example', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
       query: { page: 1, limit: 10 },
-    } as any);
+    } as ApiMiddlewareResult);
 
     vi.mocked(generateCacheKey).mockReturnValue('cache-key-7');
     vi.mocked(getOrSetCached).mockResolvedValue({
@@ -241,4 +232,3 @@ describe('GET /api/example', () => {
     expect(data.meta?.requestId).toBeUndefined();
   });
 });
-

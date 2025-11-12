@@ -14,16 +14,18 @@ interface ProfitabilityChartProps {
   versionId: string;
 }
 
-async function fetchProfitabilityData(versionId: string): Promise<Array<{
-  year: number;
-  ebitda: number;
-  netIncome: number;
-}>> {
+async function fetchProfitabilityData(versionId: string): Promise<
+  Array<{
+    year: number;
+    ebitda: number;
+    netIncome: number;
+  }>
+> {
   const response = await fetch(`/api/v1/versions/${versionId}/statements/pl`);
   if (!response.ok) {
     throw new Error('Failed to fetch profitability data');
   }
-  const data = await response.json();
+  const _data = await response.json();
   // TODO: Extract EBITDA and Net Income from P&L data
   return [];
 }
@@ -62,4 +64,3 @@ export function ProfitabilityChart({ versionId }: ProfitabilityChartProps): JSX.
     </Card>
   );
 }
-

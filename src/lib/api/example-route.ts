@@ -10,7 +10,7 @@ import { generateCacheKey } from '@/lib/cache/react-cache';
 import { userRepository } from '@/lib/db/repositories/user-repository';
 
 import { applyApiMiddleware, withErrorHandling } from './middleware';
-import { successResponse, paginatedResponse } from './response';
+import { paginatedResponse } from './response';
 import { paginationSchema, filterSchema } from './schemas';
 
 /**
@@ -18,7 +18,7 @@ import { paginationSchema, filterSchema } from './schemas';
  */
 export const GET = withErrorHandling(async (request: NextRequest) => {
   // Apply middleware: auth + query validation
-  const { session, query } = await applyApiMiddleware(request, {
+  const { session: _session, query } = await applyApiMiddleware(request, {
     requireAuth: true,
     validateQuery: paginationSchema.merge(filterSchema),
   });
@@ -65,4 +65,3 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     }
   );
 });
-

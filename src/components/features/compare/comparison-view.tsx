@@ -8,7 +8,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
@@ -22,11 +21,13 @@ import { ComparisonCharts } from './comparison-charts';
 import { ComparisonTable } from './comparison-table';
 import { NPVComparison } from './npv-comparison';
 
-async function fetchVersions(): Promise<Array<{
-  id: string;
-  name: string;
-  status: string;
-}>> {
+async function fetchVersions(): Promise<
+  Array<{
+    id: string;
+    name: string;
+    status: string;
+  }>
+> {
   const response = await fetch('/api/v1/versions');
   if (!response.ok) {
     throw new Error('Failed to fetch versions');
@@ -92,4 +93,3 @@ export function ComparisonView(): JSX.Element {
     </div>
   );
 }
-

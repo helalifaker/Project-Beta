@@ -14,17 +14,19 @@ interface CashFlowChartProps {
   versionId: string;
 }
 
-async function fetchCashFlowData(versionId: string): Promise<Array<{
-  year: number;
-  operating: number;
-  investing: number;
-  financing: number;
-}>> {
+async function fetchCashFlowData(versionId: string): Promise<
+  Array<{
+    year: number;
+    operating: number;
+    investing: number;
+    financing: number;
+  }>
+> {
   const response = await fetch(`/api/v1/versions/${versionId}/statements/cf`);
   if (!response.ok) {
     throw new Error('Failed to fetch cash flow data');
   }
-  const data = await response.json();
+  const _data = await response.json();
   // TODO: Extract cash flow categories from CF data
   return [];
 }
@@ -63,4 +65,3 @@ export function CashFlowChart({ versionId }: CashFlowChartProps): JSX.Element {
     </Card>
   );
 }
-

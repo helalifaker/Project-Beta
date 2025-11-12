@@ -8,7 +8,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -17,7 +17,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useDebouncedCallback } from '@/lib/utils/debounce';
-
 
 import { OpExSchedulePreview } from './opex-schedule-preview';
 
@@ -37,10 +36,7 @@ interface OpExFormProps {
   versionId: string;
 }
 
-async function saveOpExConfig(
-  versionId: string,
-  data: OpExFormData
-): Promise<void> {
+async function saveOpExConfig(versionId: string, data: OpExFormData): Promise<void> {
   const response = await fetch(`/api/v1/versions/${versionId}/assumptions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -61,7 +57,7 @@ export function OpExForm({ versionId }: OpExFormProps): JSX.Element {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors: _errors },
   } = useForm<OpExFormData>({
     resolver: zodResolver(opExSchema),
     defaultValues: {
@@ -81,12 +77,9 @@ export function OpExForm({ versionId }: OpExFormProps): JSX.Element {
     mutationFn: (data: OpExFormData) => saveOpExConfig(versionId, data),
   });
 
-  const debouncedSave = useDebouncedCallback(
-    (data: OpExFormData) => {
-      saveMutation.mutate(data);
-    },
-    2000
-  );
+  const debouncedSave = useDebouncedCallback((data: OpExFormData) => {
+    saveMutation.mutate(data);
+  }, 2000);
 
   const watchedValues = watch();
 
@@ -131,12 +124,7 @@ export function OpExForm({ versionId }: OpExFormProps): JSX.Element {
                       placeholder="2.5"
                     />
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => remove(index)}
-                  >
+                  <Button type="button" variant="outline" size="icon" onClick={() => remove(index)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

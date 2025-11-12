@@ -2,18 +2,14 @@
  * API middleware tests
  */
 
+import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { z } from 'zod';
 
 import { requireAuth, requireRole } from '@/lib/auth/session';
 
-import {
-  ValidationError,
-  UnauthorizedError,
-  ForbiddenError,
-} from './errors';
+import { ValidationError, UnauthorizedError, ForbiddenError } from './errors';
 import { applyApiMiddleware } from './middleware';
-
 
 vi.mock('@/lib/auth/session');
 
@@ -23,7 +19,7 @@ describe('applyApiMiddleware', () => {
   });
 
   it('should pass through if no options', async () => {
-    const request = new Request('http://localhost/api/test') as any;
+    const request = new Request('http://localhost/api/test') as unknown as NextRequest;
     const result = await applyApiMiddleware(request);
 
     expect(result).toEqual({});
@@ -32,21 +28,21 @@ describe('applyApiMiddleware', () => {
   it('should require authentication', async () => {
     vi.mocked(requireAuth).mockRejectedValue(new Error('UNAUTHORIZED'));
 
-    const request = new Request('http://localhost/api/test') as any;
+    const request = new Request('http://localhost/api/test') as unknown as NextRequest;
 
-    await expect(
-      applyApiMiddleware(request, { requireAuth: true })
-    ).rejects.toThrow(UnauthorizedError);
+    await expect(applyApiMiddleware(request, { requireAuth: true })).rejects.toThrow(
+      UnauthorizedError
+    );
   });
 
   it('should require specific role', async () => {
     vi.mocked(requireRole).mockRejectedValue(new Error('FORBIDDEN'));
 
-    const request = new Request('http://localhost/api/test') as any;
+    const request = new Request('http://localhost/api/test') as unknown as NextRequest;
 
-    await expect(
-      applyApiMiddleware(request, { requireRole: 'ADMIN' })
-    ).rejects.toThrow(ForbiddenError);
+    await expect(applyApiMiddleware(request, { requireRole: 'ADMIN' })).rejects.toThrow(
+      ForbiddenError
+    );
   });
 
   it('should validate request body', async () => {
@@ -57,11 +53,11 @@ describe('applyApiMiddleware', () => {
     const request = new Request('http://localhost/api/test', {
       method: 'POST',
       body: JSON.stringify({ name: 'ab' }), // Too short
-    }) as any;
+    }) as unknown as NextRequest;
 
-    await expect(
-      applyApiMiddleware(request, { validateBody: schema })
-    ).rejects.toThrow(ValidationError);
+    await expect(applyApiMiddleware(request, { validateBody: schema })).rejects.toThrow(
+      ValidationError
+    );
   });
 
   it('should validate query parameters', async () => {
@@ -69,11 +65,11 @@ describe('applyApiMiddleware', () => {
       page: z.coerce.number().int(),
     });
 
-    const request = new Request('http://localhost/api/test?page=invalid') as any;
+    const request = new Request('http://localhost/api/test?page=invalid') as unknown as NextRequest;
 
-    await expect(
-      applyApiMiddleware(request, { validateQuery: schema })
-    ).rejects.toThrow(ValidationError);
+    await expect(applyApiMiddleware(request, { validateQuery: schema })).rejects.toThrow(
+      ValidationError
+    );
   });
 
   it('should return validated body and session', async () => {
@@ -98,7 +94,7 @@ describe('applyApiMiddleware', () => {
     const request = new Request('http://localhost/api/test', {
       method: 'POST',
       body: JSON.stringify({ name: 'Test' }),
-    }) as any;
+    }) as unknown as NextRequest;
 
     const result = await applyApiMiddleware(request, {
       requireAuth: true,
@@ -117,11 +113,11 @@ describe('applyApiMiddleware', () => {
     const request = {
       json: vi.fn().mockRejectedValue(new Error('JSON parse error')),
       url: 'http://localhost/api/test',
-    } as any;
+    } as unknown as NextRequest;
 
-    await expect(
-      applyApiMiddleware(request, { validateBody: schema })
-    ).rejects.toThrow('JSON parse error');
+    await expect(applyApiMiddleware(request, { validateBody: schema })).rejects.toThrow(
+      'JSON parse error'
+    );
   });
 
   it('should throw non-ZodError from query validation', async () => {
@@ -131,17 +127,17 @@ describe('applyApiMiddleware', () => {
 
     const request = {
       url: 'http://localhost/api/test',
-    } as any;
+    } as unknown as NextRequest;
 
     // Mock URL constructor to throw
     const originalURL = global.URL;
     global.URL = vi.fn().mockImplementation(() => {
       throw new Error('Invalid URL');
-    }) as any;
+    }) as unknown as typeof URL;
 
-    await expect(
-      applyApiMiddleware(request, { validateQuery: schema })
-    ).rejects.toThrow('Invalid URL');
+    await expect(applyApiMiddleware(request, { validateQuery: schema })).rejects.toThrow(
+      'Invalid URL'
+    );
 
     global.URL = originalURL;
   });
@@ -150,12 +146,14 @@ describe('applyApiMiddleware', () => {
 describe('withErrorHandling', () => {
   it('should handle ValidationError', async () => {
     const { withErrorHandling } = await import('./middleware');
-    const handler = vi.fn().mockRejectedValue(
-      new ValidationError('Invalid input', { fields: { name: ['Required'] } })
-    );
+    const handler = vi
+      .fn()
+      .mockRejectedValue(new ValidationError('Invalid input', { fields: { name: ['Required'] } }));
 
     const wrapped = withErrorHandling(handler);
-    const response = await wrapped(new Request('http://localhost/api/test') as any);
+    const response = await wrapped(
+      new Request('http://localhost/api/test') as unknown as NextRequest
+    );
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -168,7 +166,9 @@ describe('withErrorHandling', () => {
     const handler = vi.fn().mockRejectedValue(new UnauthorizedError());
 
     const wrapped = withErrorHandling(handler);
-    const response = await wrapped(new Request('http://localhost/api/test') as any);
+    const response = await wrapped(
+      new Request('http://localhost/api/test') as unknown as NextRequest
+    );
     const data = await response.json();
 
     expect(response.status).toBe(401);
@@ -180,7 +180,9 @@ describe('withErrorHandling', () => {
     const handler = vi.fn().mockRejectedValue(new ForbiddenError());
 
     const wrapped = withErrorHandling(handler);
-    const response = await wrapped(new Request('http://localhost/api/test') as any);
+    const response = await wrapped(
+      new Request('http://localhost/api/test') as unknown as NextRequest
+    );
     const data = await response.json();
 
     expect(response.status).toBe(403);
@@ -193,7 +195,9 @@ describe('withErrorHandling', () => {
     const handler = vi.fn().mockRejectedValue(new Error('Unknown error'));
 
     const wrapped = withErrorHandling(handler);
-    const response = await wrapped(new Request('http://localhost/api/test') as any);
+    const response = await wrapped(
+      new Request('http://localhost/api/test') as unknown as NextRequest
+    );
     const data = await response.json();
 
     expect(response.status).toBe(500);
@@ -202,4 +206,3 @@ describe('withErrorHandling', () => {
     consoleSpy.mockRestore();
   });
 });
-

@@ -5,15 +5,13 @@
 
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface OverviewTabProps {
   versionId: string;
 }
 
-export function OverviewTab({ versionId }: OverviewTabProps): JSX.Element {
+export function OverviewTab({ versionId: _versionId }: OverviewTabProps): JSX.Element {
   // TODO: Fetch version details and display summary
   return (
     <div className="space-y-6">
@@ -30,4 +28,3 @@ export function OverviewTab({ versionId }: OverviewTabProps): JSX.Element {
     </div>
   );
 }
-

@@ -10,7 +10,7 @@ import { ComparisonTable } from './comparison-table';
 
 global.fetch = vi.fn();
 
-const createTestQueryClient = () =>
+const createTestQueryClient = (): QueryClient =>
   new QueryClient({
     defaultOptions: {
       queries: {
@@ -76,4 +76,3 @@ describe('ComparisonTable', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 });
-

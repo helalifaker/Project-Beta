@@ -3,6 +3,7 @@
  */
 
 import { render, screen } from '@testing-library/react';
+import type React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 
 import {
@@ -18,33 +19,63 @@ import {
 
 // Mock Radix UI Select to avoid portal issues in tests
 vi.mock('@radix-ui/react-select', () => ({
-  Root: ({ children, ...props }: any) => <div data-testid="select-root" {...props}>{children}</div>,
-  Trigger: ({ children, ...props }: any) => (
-    <button data-testid="select-trigger" {...props}>{children}</button>
+  Root: ({ children, ...props }: React.ComponentProps<'div'>) => (
+    <div data-testid="select-root" {...props}>
+      {children}
+    </div>
   ),
-  Value: ({ children, ...props }: any) => (
-    <span data-testid="select-value" {...props}>{children}</span>
+  Trigger: ({ children, ...props }: React.ComponentProps<'button'>) => (
+    <button data-testid="select-trigger" {...props}>
+      {children}
+    </button>
   ),
-  Content: ({ children, ...props }: any) => (
-    <div data-testid="select-content" {...props}>{children}</div>
+  Value: ({ children, ...props }: React.ComponentProps<'span'>) => (
+    <span data-testid="select-value" {...props}>
+      {children}
+    </span>
   ),
-  Item: ({ children, ...props }: any) => (
-    <div data-testid="select-item" {...props}>{children}</div>
+  Content: ({ children, ...props }: React.ComponentProps<'div'>) => (
+    <div data-testid="select-content" {...props}>
+      {children}
+    </div>
   ),
-  Label: ({ children, ...props }: any) => (
-    <div data-testid="select-label" {...props}>{children}</div>
+  Item: ({ children, ...props }: React.ComponentProps<'div'>) => (
+    <div data-testid="select-item" {...props}>
+      {children}
+    </div>
   ),
-  Group: ({ children, ...props }: any) => (
-    <div data-testid="select-group" {...props}>{children}</div>
+  Label: ({ children, ...props }: React.ComponentProps<'div'>) => (
+    <div data-testid="select-label" {...props}>
+      {children}
+    </div>
   ),
-  Separator: (props: any) => <div data-testid="select-separator" {...props} />,
-  Portal: ({ children }: any) => <>{children}</>,
-  Viewport: ({ children }: any) => <div data-testid="select-viewport">{children}</div>,
-  Icon: ({ children }: any) => <span data-testid="select-icon">{children}</span>,
-  ItemIndicator: ({ children }: any) => <span data-testid="select-item-indicator">{children}</span>,
-  ItemText: ({ children }: any) => <span data-testid="select-item-text">{children}</span>,
-  ScrollUpButton: (props: any) => <button data-testid="select-scroll-up" {...props} />,
-  ScrollDownButton: (props: any) => <button data-testid="select-scroll-down" {...props} />,
+  Group: ({ children, ...props }: React.ComponentProps<'div'>) => (
+    <div data-testid="select-group" {...props}>
+      {children}
+    </div>
+  ),
+  Separator: (props: React.ComponentProps<'div'>) => (
+    <div data-testid="select-separator" {...props} />
+  ),
+  Portal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Viewport: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="select-viewport">{children}</div>
+  ),
+  Icon: ({ children }: { children: React.ReactNode }) => (
+    <span data-testid="select-icon">{children}</span>
+  ),
+  ItemIndicator: ({ children }: { children: React.ReactNode }) => (
+    <span data-testid="select-item-indicator">{children}</span>
+  ),
+  ItemText: ({ children }: { children: React.ReactNode }) => (
+    <span data-testid="select-item-text">{children}</span>
+  ),
+  ScrollUpButton: (props: React.ComponentProps<'button'>) => (
+    <button data-testid="select-scroll-up" {...props} />
+  ),
+  ScrollDownButton: (props: React.ComponentProps<'button'>) => (
+    <button data-testid="select-scroll-down" {...props} />
+  ),
 }));
 
 describe('Select', () => {
@@ -173,4 +204,3 @@ describe('Select', () => {
     expect(content).toHaveClass('custom-content');
   });
 });
-

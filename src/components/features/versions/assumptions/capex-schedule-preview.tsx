@@ -12,9 +12,11 @@ interface CapexSchedulePreviewProps {
   versionId: string;
 }
 
-export function CapexSchedulePreview({ versionId }: CapexSchedulePreviewProps): JSX.Element {
+export function CapexSchedulePreview({
+  versionId: _versionId,
+}: CapexSchedulePreviewProps): JSX.Element {
   // TODO: Fetch capex rules and generate schedule
-  const years = Array.from(
+  const _years = Array.from(
     { length: MODEL_END_YEAR - MODEL_START_YEAR + 1 },
     (_, i) => MODEL_START_YEAR + i
   );
@@ -32,4 +34,3 @@ export function CapexSchedulePreview({ versionId }: CapexSchedulePreviewProps): 
     </Card>
   );
 }
-

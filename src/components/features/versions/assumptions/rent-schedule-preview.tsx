@@ -23,7 +23,7 @@ interface RentSchedulePreviewProps {
 }
 
 export function RentSchedulePreview({
-  versionId,
+  versionId: _versionId,
   rentModelType,
   formData,
 }: RentSchedulePreviewProps): JSX.Element {
@@ -49,7 +49,10 @@ export function RentSchedulePreview({
               baseAmount,
               escalationRate,
               indexationRate: indexationRate > 0 ? indexationRate : undefined,
-              indexationFrequency: indexationFrequency as 'ANNUAL' | 'EVERY_2_YEARS' | 'EVERY_3_YEARS',
+              indexationFrequency: indexationFrequency as
+                | 'ANNUAL'
+                | 'EVERY_2_YEARS'
+                | 'EVERY_3_YEARS',
               startYear: 2028,
             },
             MODEL_START_YEAR,
@@ -91,7 +94,11 @@ export function RentSchedulePreview({
               buaCostPerSqm,
               yield: yieldRate,
               yieldIndexationRate: (formData.yieldIndexationRate as number) || undefined,
-              yieldIndexationFrequency: (formData.yieldIndexationFrequency as string) as 'ANNUAL' | 'EVERY_2_YEARS' | 'EVERY_3_YEARS' | undefined,
+              yieldIndexationFrequency: formData.yieldIndexationFrequency as string as
+                | 'ANNUAL'
+                | 'EVERY_2_YEARS'
+                | 'EVERY_3_YEARS'
+                | undefined,
               startYear: 2028,
               currentYear: 2028,
             },

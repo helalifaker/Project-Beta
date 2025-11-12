@@ -8,8 +8,7 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'bg-[--color-background] text-[--color-foreground] border-[--color-border]',
+        default: 'bg-[--color-background] text-[--color-foreground] border-[--color-border]',
         destructive:
           'border-[--color-destructive]/50 text-[--color-destructive] [&>svg]:text-[--color-destructive]',
       },
@@ -17,7 +16,7 @@ const alertVariants = cva(
     defaultVariants: {
       variant: 'default',
     },
-  },
+  }
 );
 
 export interface AlertProps
@@ -25,26 +24,11 @@ export interface AlertProps
     VariantProps<typeof alertVariants> {}
 
 export function Alert({ className, variant, ...props }: AlertProps): JSX.Element {
-  return (
-    <div
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    />
-  );
+  return <div role="alert" className={cn(alertVariants({ variant }), className)} {...props} />;
 }
 
-export interface AlertDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {}
+export type AlertDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
 
-export function AlertDescription({
-  className,
-  ...props
-}: AlertDescriptionProps): JSX.Element {
-  return (
-    <div
-      className={cn('text-sm [&_p]:leading-relaxed', className)}
-      {...props}
-    />
-  );
+export function AlertDescription({ className, ...props }: AlertDescriptionProps): JSX.Element {
+  return <div className={cn('text-sm [&_p]:leading-relaxed', className)} {...props} />;
 }
-

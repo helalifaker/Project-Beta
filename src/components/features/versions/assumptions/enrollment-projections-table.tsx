@@ -18,14 +18,17 @@ interface EnrollmentProjectionsTableProps {
 }
 
 export function EnrollmentProjectionsTable({
-  versionId,
-  curriculumId,
+  versionId: _versionId,
+  curriculumId: _curriculumId,
   customCapacity,
 }: EnrollmentProjectionsTableProps): JSX.Element {
   // TODO: Fetch actual enrollment projections from API
   // For now, show placeholder structure
   const years = useMemo(() => {
-    return Array.from({ length: MODEL_END_YEAR - MODEL_START_YEAR + 1 }, (_, i) => MODEL_START_YEAR + i);
+    return Array.from(
+      { length: MODEL_END_YEAR - MODEL_START_YEAR + 1 },
+      (_, i) => MODEL_START_YEAR + i
+    );
   }, []);
 
   const isRampYear = (year: number): boolean => {
@@ -63,9 +66,7 @@ export function EnrollmentProjectionsTable({
                 {years.map((year) => (
                   <td
                     key={year}
-                    className={`text-right p-2 border-b ${
-                      isRampYear(year) ? 'bg-muted' : ''
-                    }`}
+                    className={`text-right p-2 border-b ${isRampYear(year) ? 'bg-muted' : ''}`}
                   >
                     -
                   </td>
@@ -76,22 +77,20 @@ export function EnrollmentProjectionsTable({
                 {years.map((year) => (
                   <td
                     key={year}
-                    className={`text-right p-2 border-b ${
-                      isRampYear(year) ? 'bg-muted' : ''
-                    }`}
+                    className={`text-right p-2 border-b ${isRampYear(year) ? 'bg-muted' : ''}`}
                   >
                     {customCapacity || '-'}
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="p-2 font-medium border-b sticky left-0 bg-background">Utilization</td>
+                <td className="p-2 font-medium border-b sticky left-0 bg-background">
+                  Utilization
+                </td>
                 {years.map((year) => (
                   <td
                     key={year}
-                    className={`text-right p-2 border-b ${
-                      isRampYear(year) ? 'bg-muted' : ''
-                    }`}
+                    className={`text-right p-2 border-b ${isRampYear(year) ? 'bg-muted' : ''}`}
                   >
                     -
                   </td>
@@ -104,4 +103,3 @@ export function EnrollmentProjectionsTable({
     </Card>
   );
 }
-

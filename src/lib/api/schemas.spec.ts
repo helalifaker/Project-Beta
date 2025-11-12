@@ -3,7 +3,6 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { z } from 'zod';
 
 import {
   paginationSchema,
@@ -140,4 +139,3 @@ describe('filterSchema', () => {
     expect(result.role).toBeUndefined();
   });
 });
-

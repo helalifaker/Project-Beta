@@ -29,7 +29,7 @@ function createRequest(path: string): NextRequest {
   return new NextRequest(`https://example.com${path}`);
 }
 
-function expectRedirectTo(response: NextResponse, pathname: string) {
+function expectRedirectTo(response: NextResponse, pathname: string): void {
   expect(response.headers.get('location')).toBe(`https://example.com${pathname}`);
 }
 
@@ -90,9 +90,7 @@ describe('authMiddleware', () => {
 
     const response = (await authMiddleware(request)) as NextResponse;
 
-    expect(response.headers.get('location')).toBe(
-      'https://example.com/login?redirect=%2Fadmin'
-    );
+    expect(response.headers.get('location')).toBe('https://example.com/login?redirect=%2Fadmin');
   });
 
   it('should allow access when role requirement passes', async () => {

@@ -56,7 +56,7 @@ function getRequiredRoles(pathname: string): UserRole[] | undefined {
 /**
  * Next.js middleware for authentication
  */
-export async function authMiddleware(request: NextRequest) {
+export async function authMiddleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
   // Allow public routes
@@ -95,7 +95,7 @@ export async function authMiddleware(request: NextRequest) {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
+        cookiesToSet.forEach(({ name, value, options: _options }) => {
           request.cookies.set(name, value);
         });
         response = NextResponse.next({
@@ -147,4 +147,3 @@ export async function authMiddleware(request: NextRequest) {
 
   return response;
 }
-

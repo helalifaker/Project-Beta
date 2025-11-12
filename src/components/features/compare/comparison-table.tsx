@@ -16,10 +16,12 @@ interface ComparisonTableProps {
   versionIds: string[];
 }
 
-async function fetchComparisonData(versionIds: string[]): Promise<Array<{
-  metric: string;
-  values: Record<string, Record<number, number>>;
-}>> {
+async function fetchComparisonData(versionIds: string[]): Promise<
+  Array<{
+    metric: string;
+    values: Record<string, Record<number, number>>;
+  }>
+> {
   const response = await fetch('/api/v1/compare', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -39,7 +41,7 @@ export function ComparisonTable({ versionIds }: ComparisonTableProps): JSX.Eleme
     enabled: versionIds.length >= 2,
   });
 
-  const years = Array.from(
+  const _years = Array.from(
     { length: MODEL_END_YEAR - MODEL_START_YEAR + 1 },
     (_, i) => MODEL_START_YEAR + i
   ).slice(0, 10); // Show first 10 years
@@ -73,9 +75,7 @@ export function ComparisonTable({ versionIds }: ComparisonTableProps): JSX.Eleme
                   </th>
                 ))}
                 {versionIds.length >= 2 && (
-                  <th className="text-right p-2 border-b min-w-[120px]">
-                    Delta
-                  </th>
+                  <th className="text-right p-2 border-b min-w-[120px]">Delta</th>
                 )}
               </tr>
             </thead>
@@ -109,4 +109,3 @@ export function ComparisonTable({ versionIds }: ComparisonTableProps): JSX.Eleme
     </Card>
   );
 }
-

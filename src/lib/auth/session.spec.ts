@@ -22,8 +22,7 @@ import { getSupabaseServerClient } from '@/lib/supabase/server';
 
 import * as sessionModule from './session';
 
-const { getServerSession, getServerUser, requireAuth, requireRole } =
-  sessionModule;
+const { getServerSession, getServerUser, requireAuth, requireRole } = sessionModule;
 
 const baseSession = {
   user: { id: 'auth-user-id' },
@@ -40,7 +39,7 @@ const baseProfile = {
   updatedAt: new Date(),
 };
 
-function mockSupabaseSession(session: any, error: any = null) {
+function mockSupabaseSession(session: unknown, error: unknown = null): void {
   const mockSupabase = {
     auth: {
       getSession: vi.fn().mockResolvedValue({
@@ -53,7 +52,7 @@ function mockSupabaseSession(session: any, error: any = null) {
   vi.mocked(getSupabaseServerClient).mockResolvedValue(mockSupabase as never);
 }
 
-function mockProfile(profile: any) {
+function mockProfile(profile: unknown): void {
   vi.mocked(prisma.profile.findUnique).mockResolvedValue(profile);
 }
 

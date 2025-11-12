@@ -21,9 +21,7 @@ export interface VersionCardProps {
   lockedAt?: Date | null;
 }
 
-function getStatusBadgeVariant(
-  status: VersionStatus
-): 'default' | 'fluent' | 'muted' {
+function getStatusBadgeVariant(status: VersionStatus): 'default' | 'fluent' | 'muted' {
   switch (status) {
     case 'READY':
       return 'fluent';
@@ -42,7 +40,7 @@ export function VersionCard({
   description,
   status,
   ownerName,
-  createdAt,
+  createdAt: _createdAt,
   updatedAt,
   lockedAt,
 }: VersionCardProps): JSX.Element {
@@ -51,35 +49,27 @@ export function VersionCard({
       <CardHeader>
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg">
-            <Link
-              href={`/versions/${id}`}
-              className="hover:underline"
-            >
+            <Link href={`/versions/${id}`} className="hover:underline">
               {name}
             </Link>
           </CardTitle>
-          <Badge variant={getStatusBadgeVariant(status)}>
-            {status}
-          </Badge>
+          <Badge variant={getStatusBadgeVariant(status)}>{status}</Badge>
         </div>
       </CardHeader>
       <CardContent>
-        {description ? <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-            {description}
-          </p> : null}
+        {description ? (
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{description}</p>
+        ) : null}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div>
-            {ownerName ? <span>Owner: {ownerName}</span> : null}
-          </div>
-          <div>
-            Updated {formatDistanceToNow(updatedAt, { addSuffix: true })}
-          </div>
+          <div>{ownerName ? <span>Owner: {ownerName}</span> : null}</div>
+          <div>Updated {formatDistanceToNow(updatedAt, { addSuffix: true })}</div>
         </div>
-        {lockedAt ? <div className="mt-2 text-xs text-muted-foreground">
+        {lockedAt ? (
+          <div className="mt-2 text-xs text-muted-foreground">
             Locked {formatDistanceToNow(lockedAt, { addSuffix: true })}
-          </div> : null}
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
-

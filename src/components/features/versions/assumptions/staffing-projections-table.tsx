@@ -19,8 +19,8 @@ interface StaffingProjectionsTableProps {
 }
 
 export function StaffingProjectionsTable({
-  versionId,
-  config,
+  versionId: _versionId,
+  config: _config,
 }: StaffingProjectionsTableProps): JSX.Element {
   // TODO: Calculate and display actual staffing projections
   const years = Array.from(
@@ -46,7 +46,9 @@ export function StaffingProjectionsTable({
             </thead>
             <tbody>
               <tr>
-                <td className="p-2 font-medium border-b sticky left-0 bg-background">Teacher Headcount</td>
+                <td className="p-2 font-medium border-b sticky left-0 bg-background">
+                  Teacher Headcount
+                </td>
                 {years.slice(0, 10).map((year) => (
                   <td key={year} className="text-right p-2 border-b">
                     -
@@ -55,7 +57,9 @@ export function StaffingProjectionsTable({
                 <td className="text-right p-2 border-b text-muted-foreground">...</td>
               </tr>
               <tr>
-                <td className="p-2 font-medium border-b sticky left-0 bg-background">Non-Teacher Headcount</td>
+                <td className="p-2 font-medium border-b sticky left-0 bg-background">
+                  Non-Teacher Headcount
+                </td>
                 {years.slice(0, 10).map((year) => (
                   <td key={year} className="text-right p-2 border-b">
                     -
@@ -64,7 +68,9 @@ export function StaffingProjectionsTable({
                 <td className="text-right p-2 border-b text-muted-foreground">...</td>
               </tr>
               <tr>
-                <td className="p-2 font-medium border-b sticky left-0 bg-background">Total Staff Cost (SAR)</td>
+                <td className="p-2 font-medium border-b sticky left-0 bg-background">
+                  Total Staff Cost (SAR)
+                </td>
                 {years.slice(0, 10).map((year) => (
                   <td key={year} className="text-right p-2 border-b">
                     -
@@ -79,4 +85,3 @@ export function StaffingProjectionsTable({
     </Card>
   );
 }
-

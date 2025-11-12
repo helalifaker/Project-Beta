@@ -14,7 +14,7 @@ interface OpExSchedulePreviewProps {
 }
 
 export function OpExSchedulePreview({
-  versionId,
+  versionId: _versionId,
   categories,
 }: OpExSchedulePreviewProps): JSX.Element {
   // TODO: Fetch revenue schedule and calculate OpEx
@@ -76,4 +76,3 @@ export function OpExSchedulePreview({
     </Card>
   );
 }
-

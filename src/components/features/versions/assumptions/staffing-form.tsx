@@ -7,7 +7,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -34,10 +34,7 @@ interface StaffingFormProps {
   versionId: string;
 }
 
-async function saveStaffingConfig(
-  versionId: string,
-  data: StaffingFormData
-): Promise<void> {
+async function saveStaffingConfig(versionId: string, data: StaffingFormData): Promise<void> {
   const response = await fetch(`/api/v1/versions/${versionId}/assumptions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -74,12 +71,9 @@ export function StaffingForm({ versionId }: StaffingFormProps): JSX.Element {
     mutationFn: (data: StaffingFormData) => saveStaffingConfig(versionId, data),
   });
 
-  const debouncedSave = useDebouncedCallback(
-    (data: StaffingFormData) => {
-      saveMutation.mutate(data);
-    },
-    2000
-  );
+  const debouncedSave = useDebouncedCallback((data: StaffingFormData) => {
+    saveMutation.mutate(data);
+  }, 2000);
 
   const watchedValues = watch();
 
@@ -112,7 +106,9 @@ export function StaffingForm({ versionId }: StaffingFormProps): JSX.Element {
                     type="number"
                     {...register('teacherRatio', { valueAsNumber: true })}
                   />
-                  {errors.teacherRatio ? <p className="text-sm text-destructive">{errors.teacherRatio.message}</p> : null}
+                  {errors.teacherRatio ? (
+                    <p className="text-sm text-destructive">{errors.teacherRatio.message}</p>
+                  ) : null}
                 </div>
 
                 <div>

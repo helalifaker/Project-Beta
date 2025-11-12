@@ -4,14 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 
-import type { UserRole } from '@/types/auth';
-
-import {
-  hasRole,
-  canPerformAction,
-  canAccessResource,
-  getAllowedActions,
-} from './rbac';
+import { hasRole, canPerformAction, canAccessResource, getAllowedActions } from './rbac';
 
 describe('hasRole', () => {
   it('should return true if user role is higher than required', () => {
@@ -107,4 +100,3 @@ describe('getAllowedActions', () => {
     expect(actions).not.toContain('versions:create');
   });
 });
-

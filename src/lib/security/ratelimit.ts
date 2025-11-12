@@ -19,7 +19,7 @@ export interface RateLimitResult {
  */
 let ratelimit: Ratelimit | null = null;
 
-function getRatelimit(): Ratelimit {
+function _getRatelimit(): Ratelimit {
   if (!ratelimit) {
     const redis = Redis.fromEnv();
     ratelimit = new Ratelimit({
@@ -43,8 +43,7 @@ export async function checkRateLimit(
     // Parse window (e.g., '1 m', '1 h')
     const [amount, unit] = window.split(' ');
     const windowSeconds =
-      parseInt(amount, 10) *
-      (unit === 's' ? 1 : unit === 'm' ? 60 : unit === 'h' ? 3600 : 60);
+      parseInt(amount, 10) * (unit === 's' ? 1 : unit === 'm' ? 60 : unit === 'h' ? 3600 : 60);
 
     const customRatelimit = new Ratelimit({
       redis: Redis.fromEnv(),
@@ -81,4 +80,3 @@ export function getRateLimitHeaders(result: RateLimitResult): HeadersInit {
     'X-RateLimit-Reset': result.reset.toString(),
   };
 }
-

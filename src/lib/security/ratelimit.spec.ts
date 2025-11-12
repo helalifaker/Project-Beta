@@ -2,7 +2,7 @@
  * Tests for rate limiting utility
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { checkRateLimit, getRateLimitHeaders } from './ratelimit';
 
@@ -19,7 +19,9 @@ vi.mock('@upstash/ratelimit', () => {
       ratelimitInstances.push(this);
     }
 
-    static slidingWindow(...args: Parameters<typeof slidingWindowMock>) {
+    static slidingWindow(
+      ...args: Parameters<typeof slidingWindowMock>
+    ): ReturnType<typeof slidingWindowMock> {
       return slidingWindowMock(...args);
     }
   }
@@ -42,7 +44,7 @@ describe('checkRateLimit', () => {
   });
 
   it('should check rate limit successfully', async () => {
-    const { Ratelimit } = await import('@upstash/ratelimit');
+    const { Ratelimit: _Ratelimit } = await import('@upstash/ratelimit');
 
     const mockLimit = vi.fn().mockResolvedValue({
       success: true,
@@ -100,7 +102,7 @@ describe('checkRateLimit', () => {
     // Reset module to ensure fresh singleton
     vi.resetModules();
     const { Redis } = await import('@upstash/redis');
-    vi.mocked(Redis.fromEnv).mockReturnValue({} as any);
+    vi.mocked(Redis.fromEnv).mockReturnValue({} as ReturnType<typeof Redis.fromEnv>);
 
     const mockLimit = vi.fn().mockResolvedValue({
       success: true,
@@ -138,5 +140,3 @@ describe('getRateLimitHeaders', () => {
     expect(headers['X-RateLimit-Reset']).toBe('1234567890');
   });
 });
-
-

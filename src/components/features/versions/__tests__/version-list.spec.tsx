@@ -14,7 +14,7 @@ vi.mock('next/link', () => ({
   ),
 }));
 
-const createTestQueryClient = () =>
+const createTestQueryClient = (): QueryClient =>
   new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -28,15 +28,15 @@ describe('VersionList', () => {
   });
 
   it('should render loading state', () => {
-    vi.mocked(global.fetch).mockImplementation(() =>
-      new Promise(() => {}), // Never resolves
+    vi.mocked(global.fetch).mockImplementation(
+      () => new Promise(() => {}) // Never resolves
     );
 
     const queryClient = createTestQueryClient();
     render(
       <QueryClientProvider client={queryClient}>
         <VersionList />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('VersionList', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <VersionList />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     await waitFor(() => {
@@ -94,14 +94,13 @@ describe('VersionList', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <VersionList />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     await waitFor(() => {
       expect(
-        screen.getByText('No versions found. Create your first version to get started.'),
+        screen.getByText('No versions found. Create your first version to get started.')
       ).toBeInTheDocument();
     });
   });
 });
-

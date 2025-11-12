@@ -4,12 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import {
-  ApiError,
-  ValidationError,
-  NotFoundError,
-  InternalServerError,
-} from './errors';
+import { ValidationError, NotFoundError } from './errors';
 import { successResponse, errorResponse, paginatedResponse } from './response';
 
 describe('successResponse', () => {
@@ -31,11 +26,11 @@ describe('successResponse', () => {
   });
 
   it('should include custom meta', async () => {
-    const response = successResponse(
-      { id: '1' },
-      200,
-      { requestId: 'req-123', resource: 'version', id: '1' },
-    );
+    const response = successResponse({ id: '1' }, 200, {
+      requestId: 'req-123',
+      resource: 'version',
+      id: '1',
+    });
     const body = await response.json();
 
     expect(body.meta.requestId).toBe('req-123');
@@ -109,21 +104,17 @@ describe('paginatedResponse', () => {
   });
 
   it('should handle empty data', async () => {
-    const response = paginatedResponse(
-      [],
-      {
-        page: 1,
-        limit: 20,
-        total: 0,
-        totalPages: 0,
-        hasNext: false,
-        hasPrev: false,
-      },
-    );
+    const response = paginatedResponse([], {
+      page: 1,
+      limit: 20,
+      total: 0,
+      totalPages: 0,
+      hasNext: false,
+      hasPrev: false,
+    });
     const body = await response.json();
 
     expect(body.data).toEqual([]);
     expect(body.pagination.total).toBe(0);
   });
 });
-

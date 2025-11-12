@@ -15,7 +15,7 @@ describe('Button', () => {
   });
 
   it('should render with default variant and size', () => {
-    const { container } = render(<Button>Default</Button>);
+    render(<Button>Default</Button>);
     const button = screen.getByRole('button');
     expect(button).toHaveClass('bg-[--color-primary]');
     expect(button).toHaveClass('h-10');
@@ -58,8 +58,8 @@ describe('Button', () => {
   });
 
   it('should render with left and right icons', () => {
-    const LeftIcon = () => <span data-testid="left-icon">←</span>;
-    const RightIcon = () => <span data-testid="right-icon">→</span>;
+    const LeftIcon = (): JSX.Element => <span data-testid="left-icon">←</span>;
+    const RightIcon = (): JSX.Element => <span data-testid="right-icon">→</span>;
 
     render(
       <Button leftIcon={<LeftIcon />} rightIcon={<RightIcon />}>
@@ -111,4 +111,3 @@ describe('Button', () => {
     expect(button).toHaveAttribute('aria-label', 'Submit form');
   });
 });
-

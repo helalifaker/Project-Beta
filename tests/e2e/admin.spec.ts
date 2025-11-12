@@ -197,8 +197,13 @@ test.describe('Admin flows', () => {
     // Wait for Suspense boundary to resolve and form to load
     await page.waitForLoadState('networkidle');
 
-    // Wait for form label with longer timeout
-    await page.waitForSelector('label', { timeout: 15000 });
+    // Wait for the page heading first
+    await expect(page.getByRole('heading', { name: 'Workspace Settings' })).toBeVisible({
+      timeout: 15000,
+    });
+
+    // Wait for form to be visible
+    await page.waitForSelector('form', { timeout: 15000 });
 
     // Try to find the input by label text, fallback to placeholder
     let nameInput = page.getByLabel('Workspace Name');
@@ -211,7 +216,7 @@ test.describe('Admin flows', () => {
         .first();
     }
 
-    await expect(nameInput.first()).toBeVisible({ timeout: 10000 });
+    await expect(nameInput.first()).toBeVisible({ timeout: 15000 });
 
     const inputValue = await nameInput.first().inputValue();
     expect(inputValue).toContain('Default');

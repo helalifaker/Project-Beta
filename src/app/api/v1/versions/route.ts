@@ -56,6 +56,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     { ttl: 60 } // Cache for 60 seconds
   );
 
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + paginatedVersions.length;
+
   return paginatedResponse(
     paginatedVersions,
     {
@@ -89,9 +92,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new Error('FORBIDDEN');
   }
 
-  const { name, description, baseVersionId } = body as z.infer<
-    typeof createVersionSchema
-  >;
+  const { name, description, baseVersionId } = body as z.infer<typeof createVersionSchema>;
 
   // If baseVersionId provided, duplicate that version
   if (baseVersionId) {
@@ -117,4 +118,3 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   return successResponse(version, 201);
 });
-

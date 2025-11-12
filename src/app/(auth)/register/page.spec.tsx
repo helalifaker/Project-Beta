@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { registerUser } from '@/lib/auth/utils';
+import { getSupabaseClient } from '@/lib/supabase/client';
 
 import RegisterPage from './page';
 
@@ -18,14 +19,56 @@ vi.mock('@/lib/auth/utils', () => ({
   registerUser: vi.fn(),
 }));
 
+vi.mock('@/lib/supabase/client', () => ({
+  getSupabaseClient: vi.fn(),
+}));
+
 const mockPush = vi.fn();
+const mockSupabaseClient = {
+  auth: {
+    getSession: vi.fn(),
+  },
+  from: vi.fn(),
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
   vi.useFakeTimers();
   vi.mocked(useRouter).mockReturnValue({
     push: mockPush,
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
   } as unknown as ReturnType<typeof useRouter>);
+
+  // Mock Supabase client to return authenticated admin session
+  vi.mocked(getSupabaseClient).mockReturnValue(
+    mockSupabaseClient as ReturnType<typeof getSupabaseClient>
+  );
+  vi.mocked(mockSupabaseClient.auth.getSession).mockResolvedValue({
+    data: {
+      session: {
+        user: { id: 'admin-user-id' },
+      },
+    },
+    error: null,
+  });
+
+  // Mock profile query to return admin role
+  const mockSelect = vi.fn().mockReturnThis();
+  const mockEq = vi.fn().mockReturnThis();
+  const mockSingle = vi.fn().mockResolvedValue({
+    data: { role: 'ADMIN' },
+    error: null,
+  });
+
+  mockSupabaseClient.from = vi.fn(() => ({
+    select: mockSelect,
+    eq: mockEq,
+    single: mockSingle,
+  })) as unknown as ReturnType<typeof mockSupabaseClient.from>;
 });
 
 afterEach(() => {
@@ -72,9 +115,7 @@ describe('RegisterPage', () => {
 
     fireEvent.submit(screen.getByRole('button', { name: 'Create user' }));
 
-    expect(
-      screen.getByText('Password must be at least 8 characters')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
     expect(registerUser).not.toHaveBeenCalled();
   });
 

@@ -15,6 +15,7 @@ vi.mock('../prisma', () => ({
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
@@ -194,17 +195,17 @@ describe('VersionRepository', () => {
     it('should throw error if version not found', async () => {
       vi.mocked(prisma.version.findUnique).mockResolvedValue(null);
 
-      await expect(
-        versionRepository.updateStatus('version-1', 'READY', 'user-1')
-      ).rejects.toThrow('Version not found');
+      await expect(versionRepository.updateStatus('version-1', 'READY', 'user-1')).rejects.toThrow(
+        'Version not found'
+      );
     });
 
     it('should throw error for invalid transition', async () => {
       vi.mocked(prisma.version.findUnique).mockResolvedValue(mockVersion);
 
-      await expect(
-        versionRepository.updateStatus('version-1', 'LOCKED', 'user-1')
-      ).rejects.toThrow('Invalid status transition from DRAFT to LOCKED');
+      await expect(versionRepository.updateStatus('version-1', 'LOCKED', 'user-1')).rejects.toThrow(
+        'Invalid status transition from DRAFT to LOCKED'
+      );
     });
 
     it('should allow DRAFT to ARCHIVED transition', async () => {
@@ -244,15 +245,13 @@ describe('VersionRepository', () => {
         ],
       };
 
-      vi.mocked(prisma.version.findUnique).mockResolvedValue(originalVersion as any);
+      vi.mocked(prisma.version.findUnique).mockResolvedValue(
+        originalVersion as Awaited<ReturnType<typeof prisma.version.findUnique>>
+      );
       const duplicatedVersion = { ...mockVersion, id: 'version-2', name: 'New Name' };
       vi.mocked(prisma.version.create).mockResolvedValue(duplicatedVersion);
 
-      const result = await versionRepository.duplicateVersion(
-        'version-1',
-        'New Name',
-        'user-2'
-      );
+      const result = await versionRepository.duplicateVersion('version-1', 'New Name', 'user-2');
 
       expect(result).toEqual(duplicatedVersion);
       expect(prisma.version.create).toHaveBeenCalledWith({
@@ -286,15 +285,13 @@ describe('VersionRepository', () => {
         curricula: [],
       };
 
-      vi.mocked(prisma.version.findUnique).mockResolvedValue(originalVersion as any);
+      vi.mocked(prisma.version.findUnique).mockResolvedValue(
+        originalVersion as Awaited<ReturnType<typeof prisma.version.findUnique>>
+      );
       const duplicatedVersion = { ...mockVersion, id: 'version-2', name: 'New Name' };
       vi.mocked(prisma.version.create).mockResolvedValue(duplicatedVersion);
 
-      const result = await versionRepository.duplicateVersion(
-        'version-1',
-        'New Name',
-        'user-2'
-      );
+      const result = await versionRepository.duplicateVersion('version-1', 'New Name', 'user-2');
 
       expect(result).toEqual(duplicatedVersion);
       expect(prisma.version.create).toHaveBeenCalledWith({
@@ -328,4 +325,3 @@ describe('VersionRepository', () => {
     });
   });
 });
-

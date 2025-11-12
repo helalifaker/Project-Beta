@@ -5,7 +5,6 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -21,14 +20,9 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
-  const router = useRouter();
-
   const [email] = useState(user.email);
   const [role] = useState(user.role);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  
+
   // Password change state
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -37,7 +31,7 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  const getRoleBadgeVariant = (userRole: User['role']) => {
+  const getRoleBadgeVariant = (userRole: User['role']): 'destructive' | 'default' | 'secondary' => {
     switch (userRole) {
       case 'ADMIN':
         return 'destructive';
@@ -50,7 +44,7 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
     }
   };
 
-  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setPasswordError(null);
     setPasswordSuccess(false);
@@ -81,11 +75,11 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
       setNewPassword('');
       setConfirmPassword('');
       setShowPasswordForm(false);
-      
+
       setTimeout(() => {
         setPasswordSuccess(false);
       }, 3000);
-    } catch (err) {
+    } catch {
       setPasswordError('An unexpected error occurred. Please try again.');
     } finally {
       setIsUpdatingPassword(false);
@@ -94,14 +88,6 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
 
   return (
     <div className="space-y-6">
-      {error ? <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert> : null}
-
-      {success ? <Alert>
-          <AlertDescription>Profile updated successfully</AlertDescription>
-        </Alert> : null}
-
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -117,7 +103,8 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
             <Badge variant={getRoleBadgeVariant(role)}>{role}</Badge>
           </div>
           <p className="text-sm text-[--color-muted-foreground]">
-            Your role determines what actions you can perform. Contact an administrator to change your role.
+            Your role determines what actions you can perform. Contact an administrator to change
+            your role.
           </p>
         </div>
 
@@ -142,24 +129,26 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
               </p>
             </div>
             {!showPasswordForm && (
-              <Button
-                variant="outline"
-                onClick={() => setShowPasswordForm(true)}
-              >
+              <Button variant="outline" onClick={() => setShowPasswordForm(true)}>
                 Change Password
               </Button>
             )}
           </div>
 
-          {passwordSuccess ? <Alert>
+          {passwordSuccess ? (
+            <Alert>
               <AlertDescription>Password updated successfully!</AlertDescription>
-            </Alert> : null}
+            </Alert>
+          ) : null}
 
-          {passwordError ? <Alert variant="destructive">
+          {passwordError ? (
+            <Alert variant="destructive">
               <AlertDescription>{passwordError}</AlertDescription>
-            </Alert> : null}
+            </Alert>
+          ) : null}
 
-          {showPasswordForm ? <form onSubmit={handlePasswordChange} className="space-y-4">
+          {showPasswordForm ? (
+            <form onSubmit={handlePasswordChange} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
                 <Input
@@ -192,10 +181,7 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
               </div>
 
               <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  disabled={isUpdatingPassword}
-                >
+                <Button type="submit" disabled={isUpdatingPassword}>
                   {isUpdatingPassword ? 'Updating...' : 'Update Password'}
                 </Button>
                 <Button
@@ -212,10 +198,10 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
                   Cancel
                 </Button>
               </div>
-            </form> : null}
+            </form>
+          ) : null}
         </div>
       </div>
     </div>
   );
 }
-

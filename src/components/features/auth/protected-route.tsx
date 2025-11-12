@@ -12,7 +12,6 @@ import type { ReactNode, JSX } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { UserRole } from '@/types/auth';
 
-
 interface ProtectedRouteProps {
   children: ReactNode;
   requiredRole?: UserRole;
@@ -26,10 +25,9 @@ export function ProtectedRoute({
 }: ProtectedRouteProps): JSX.Element {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = async (): Promise<void> => {
       const supabase = getSupabaseClient();
 
       // Check session
@@ -55,8 +53,6 @@ export function ProtectedRoute({
           router.push('/unauthorized');
           return;
         }
-
-        setUserRole(profile.role);
 
         // Check role hierarchy
         const roleHierarchy: Record<UserRole, number> = {
@@ -95,4 +91,3 @@ export function ProtectedRoute({
 
   return <>{children}</>;
 }
-

@@ -1,11 +1,11 @@
 /**
-import type { JSX } from 'react';
  * Capex form
  * Configure capex rules and schedule
  */
 
 'use client';
 
+import type { JSX } from 'react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';

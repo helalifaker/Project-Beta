@@ -86,17 +86,21 @@ export function ComparisonTable({ versionIds }: ComparisonTableProps): JSX.Eleme
                   <td className="p-2 border-b sticky left-0 bg-background z-10 font-medium">
                     {item.metric}
                   </td>
-                  {versionIds.map((versionId) => (
-                    <td key={versionId} className="text-right p-2 border-b">
-                      {formatCurrency(item.values[versionId]?.[2028] || 0)}
-                    </td>
-                  ))}
+                  {versionIds.map((versionId) => {
+                    const versionData = item.values[versionId];
+                    const value = versionData?.[2028] ?? 0;
+                    return (
+                      <td key={versionId} className="text-right p-2 border-b">
+                        {formatCurrency(value)}
+                      </td>
+                    );
+                  })}
                   {versionIds.length >= 2 && (
                     <td className="text-right p-2 border-b">
                       <Badge variant="default">
                         {formatCurrency(
-                          (item.values[versionIds[1]]?.[2028] || 0) -
-                            (item.values[versionIds[0]]?.[2028] || 0)
+                          (item.values[versionIds[1]!]?.[2028] ?? 0) -
+                            (item.values[versionIds[0]!]?.[2028] ?? 0)
                         )}
                       </Badge>
                     </td>

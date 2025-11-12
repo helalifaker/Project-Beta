@@ -438,7 +438,7 @@ export async function validateVersion(versionId: string): Promise<ValidationIssu
   const revenue: number[] = yearArray.map(() => 10_000_000); // Placeholder
   const rent: number[] = yearArray.map(() => 5_000_000); // Placeholder
   const staffCosts = yearArray.map(() => 10_000_000); // Placeholder
-  const opex = yearArray.map((_, i) => (revenue[i] ?? 0) * 0.1); // Placeholder
+  const opex: number[] = yearArray.map((_, i) => (revenue[i] ?? 0) * 0.1); // Placeholder
   const capex = yearArray.map(() => 0); // Placeholder
   const depreciation = yearArray.map(() => 0); // Placeholder
 

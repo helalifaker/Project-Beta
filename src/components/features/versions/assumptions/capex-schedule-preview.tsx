@@ -8,7 +8,6 @@
 import type { JSX } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MODEL_START_YEAR, MODEL_END_YEAR } from '@/lib/finance/constants';
 
 interface CapexSchedulePreviewProps {
   versionId: string;
@@ -18,10 +17,10 @@ export function CapexSchedulePreview({
   versionId: _versionId,
 }: CapexSchedulePreviewProps): JSX.Element {
   // TODO: Fetch capex rules and generate schedule
-  const _years = Array.from(
-    { length: MODEL_END_YEAR - MODEL_START_YEAR + 1 },
-    (_, i) => MODEL_START_YEAR + i
-  );
+  // const years = Array.from(
+  //   { length: MODEL_END_YEAR - MODEL_START_YEAR + 1 },
+  //   (_, i) => MODEL_START_YEAR + i
+  // );
 
   return (
     <Card>

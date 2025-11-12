@@ -13,7 +13,9 @@ const { capexCategoriesMock, capexRulesMock } = vi.hoisted(() => ({
 
 vi.mock('@/components/ui/tabs', () => ({
   Tabs: ({ children }: { children: ReactNode }) => <div data-testid="tabs">{children}</div>,
-  TabsList: ({ children }: { children: ReactNode }) => <div data-testid="tabs-list">{children}</div>,
+  TabsList: ({ children }: { children: ReactNode }) => (
+    <div data-testid="tabs-list">{children}</div>
+  ),
   TabsTrigger: ({ children }: { children: ReactNode }) => <button type="button">{children}</button>,
   TabsContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
@@ -48,6 +50,27 @@ vi.mock('@/components/features/admin/workspace-settings', () => ({
 
 vi.mock('@/components/features/compare/comparison-view', () => ({
   ComparisonView: () => <div data-testid="comparison-view" />,
+}));
+
+vi.mock('@/lib/auth/session', () => ({
+  requireRole: vi.fn().mockResolvedValue({
+    user: {
+      id: 'admin-id',
+      email: 'admin@example.com',
+      role: 'ADMIN' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    accessToken: 'token',
+    expiresAt: new Date(),
+  }),
+  getServerUser: vi.fn().mockResolvedValue({
+    id: 'admin-id',
+    email: 'admin@example.com',
+    role: 'ADMIN' as const,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }),
 }));
 
 import ComparePage from '../../compare/page';

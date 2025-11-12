@@ -4,14 +4,17 @@ import { describe, it, expect, vi } from 'vitest';
 
 import { AdminDashboard } from '../admin-dashboard';
 
-const MockLink = React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'>>(
-  ({ href, children, ...props }, ref) => (
-    <a ref={ref} href={href} {...props}>
-      {children}
-    </a>
-  )
-);
-MockLink.displayName = 'Link';
+const { MockLink } = vi.hoisted(() => {
+  const MockLink = React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'>>(
+    ({ href, children, ...props }, ref) => (
+      <a ref={ref} href={href} {...props}>
+        {children}
+      </a>
+    )
+  );
+  MockLink.displayName = 'Link';
+  return { MockLink };
+});
 
 vi.mock('next/link', () => ({
   default: MockLink,

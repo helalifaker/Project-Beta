@@ -66,6 +66,12 @@ describe('Admin Capex Rules API routes', () => {
           description: 'Classroom technology',
           createdAt: new Date('2024-02-01T00:00:00.000Z'),
           updatedAt: new Date('2024-02-01T00:00:00.000Z'),
+        } as {
+          id: string;
+          name: string;
+          description: string | null;
+          createdAt: Date;
+          updatedAt: Date;
         },
       },
     ] as unknown as Awaited<ReturnType<typeof capexRuleRepository.findAllWithCategories>>;

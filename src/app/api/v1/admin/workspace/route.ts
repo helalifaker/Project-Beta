@@ -39,10 +39,19 @@ export const PUT = withErrorHandling(async (request: NextRequest) => {
   });
 
   const workspace = await workspaceRepository.getOrCreateDefault();
-  const updated = await workspaceRepository.updateSettings(
-    workspace.id,
-    body as z.infer<typeof updateWorkspaceSchema>
-  );
+  const validatedBody = body as z.infer<typeof updateWorkspaceSchema>;
+  const updateData: Parameters<typeof workspaceRepository.updateSettings>[1] = {};
+
+  if (validatedBody.name !== undefined) updateData.name = validatedBody.name;
+  if (validatedBody.baseCurrency !== undefined)
+    updateData.baseCurrency = validatedBody.baseCurrency;
+  if (validatedBody.timezone !== undefined) updateData.timezone = validatedBody.timezone;
+  if (validatedBody.discountRate !== undefined)
+    updateData.discountRate = validatedBody.discountRate;
+  if (validatedBody.cpiMin !== undefined) updateData.cpiMin = validatedBody.cpiMin;
+  if (validatedBody.cpiMax !== undefined) updateData.cpiMax = validatedBody.cpiMax;
+
+  const updated = await workspaceRepository.updateSettings(workspace.id, updateData);
 
   return successResponse(updated);
 });

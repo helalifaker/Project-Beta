@@ -100,7 +100,7 @@ describe('Admin Curriculum Templates API routes', () => {
     mockedTemplateRepo.findByWorkspace.mockResolvedValue(templates);
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/curriculum-templates'),
+      new NextRequest('http://localhost/api/v1/admin/curriculum-templates')
     );
     const body = await response.json();
 
@@ -113,9 +113,11 @@ describe('Admin Curriculum Templates API routes', () => {
     expect(body.data).toEqual(
       templates.map((template) => ({
         ...template,
+        tuitionBase: template.tuitionBase.toString(),
+        cpiRate: template.cpiRate.toString(),
         createdAt: template.createdAt.toISOString(),
         updatedAt: template.updatedAt.toISOString(),
-      })),
+      }))
     );
   });
 
@@ -156,7 +158,7 @@ describe('Admin Curriculum Templates API routes', () => {
       new NextRequest('http://localhost/api/v1/admin/curriculum-templates', {
         method: 'POST',
         body: JSON.stringify(requestBody),
-      }),
+      })
     );
     const body = await response.json();
 
@@ -173,10 +175,10 @@ describe('Admin Curriculum Templates API routes', () => {
     expect(response.status).toBe(201);
     expect(body.data).toEqual({
       ...createdTemplate,
+      tuitionBase: createdTemplate.tuitionBase.toString(),
+      cpiRate: createdTemplate.cpiRate.toString(),
       createdAt: createdTemplate.createdAt.toISOString(),
       updatedAt: createdTemplate.updatedAt.toISOString(),
     });
   });
 });
-
-

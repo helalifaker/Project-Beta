@@ -49,23 +49,21 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
 
     // Validate all versions exist
+    const validatedBody = body as z.infer<typeof createComparisonSchema>;
     const versions = await Promise.all(
-      body.versionIds.map((id) => versionRepository.findUnique({ id }))
+      validatedBody.versionIds.map((id) => versionRepository.findUnique({ id }))
     );
 
     const missingVersions = versions
-      .map((v, i) => (v ? null : body.versionIds[i]))
+      .map((v, i) => (v ? null : validatedBody.versionIds[i]))
       .filter((v): v is string => v !== null);
 
     if (missingVersions.length > 0) {
-      throw new NotFoundError(
-        'Version',
-        missingVersions.join(', ')
-      );
+      throw new NotFoundError('Version', missingVersions.join(', '));
     }
 
     // Fetch statements for all versions
-    const statementsPromises = body.versionIds.map(async (versionId) => {
+    const statementsPromises = validatedBody.versionIds.map(async (versionId) => {
       const response = await fetch(
         `${request.nextUrl.origin}/api/v1/versions/${versionId}/statements`,
         {
@@ -90,10 +88,10 @@ export async function POST(request: NextRequest): Promise<Response> {
     const statementsData = await Promise.all(statementsPromises);
 
     // Calculate comparison metrics
-    const focusYear = body.focusYear || 2032; // Default to ramp completion year
+    const focusYear = validatedBody.focusYear || 2032; // Default to ramp completion year
 
     const comparison = {
-      name: body.name,
+      name: validatedBody.name,
       versions: statementsData.map((data, index) => ({
         id: data.versionId,
         name: versions[index]?.name || `Version ${index + 1}`,
@@ -111,4 +109,3 @@ export async function POST(request: NextRequest): Promise<Response> {
     return successResponse(comparison);
   })();
 }
-

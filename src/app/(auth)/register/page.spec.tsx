@@ -62,7 +62,7 @@ beforeEach(() => {
   });
 
   vi.mocked(getSupabaseClient).mockReturnValue(
-    mockSupabaseClient as ReturnType<typeof getSupabaseClient>
+    mockSupabaseClient as unknown as ReturnType<typeof getSupabaseClient>
   );
 });
 

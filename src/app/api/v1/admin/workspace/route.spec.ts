@@ -2,6 +2,9 @@
  * Workspace settings admin API route tests
  */
 
+import type { WorkspaceSetting } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
+import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { applyApiMiddleware } from '@/lib/api/middleware';
@@ -40,25 +43,21 @@ describe('Admin Workspace API routes', () => {
   const mockedApply = vi.mocked(applyApiMiddleware);
   const mockedRepo = vi.mocked(workspaceRepository);
 
-  const mockWorkspace = {
+  const mockWorkspace: WorkspaceSetting = {
     id: 'workspace-1',
     name: 'Default Workspace',
     baseCurrency: 'SAR',
     timezone: 'Asia/Riyadh',
-    discountRate: 0.08,
-    cpiMin: 0.02,
-    cpiMax: 0.05,
+    discountRate: new Decimal(0.08),
+    cpiMin: new Decimal(0.02),
+    cpiMax: new Decimal(0.05),
     createdAt: new Date('2024-01-01T00:00:00.000Z'),
     updatedAt: new Date('2024-01-01T00:00:00.000Z'),
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockedRepo.getOrCreateDefault.mockResolvedValue({
-      ...mockWorkspace,
-      createdAt: new Date(mockWorkspace.createdAt),
-      updatedAt: new Date(mockWorkspace.updatedAt),
-    });
+    mockedRepo.getOrCreateDefault.mockResolvedValue(mockWorkspace);
   });
 
   it('should return workspace settings for admins', async () => {
@@ -66,7 +65,7 @@ describe('Admin Workspace API routes', () => {
       session: mockSession,
     });
 
-    const response = await GET(new Request('http://localhost/api/v1/admin/workspace'));
+    const response = await GET(new NextRequest('http://localhost/api/v1/admin/workspace'));
     const body = await response.json();
 
     expect(mockedApply).toHaveBeenCalledWith(expect.any(Request), {
@@ -77,6 +76,9 @@ describe('Admin Workspace API routes', () => {
     expect(response.status).toBe(200);
     expect(body.data).toEqual({
       ...mockWorkspace,
+      discountRate: mockWorkspace.discountRate.toString(),
+      cpiMin: mockWorkspace.cpiMin.toString(),
+      cpiMax: mockWorkspace.cpiMax.toString(),
       createdAt: mockWorkspace.createdAt.toISOString(),
       updatedAt: mockWorkspace.updatedAt.toISOString(),
     });
@@ -94,15 +96,16 @@ describe('Admin Workspace API routes', () => {
       body: updatePayload,
     });
 
-    const updatedWorkspace = {
+    const updatedWorkspace: WorkspaceSetting = {
       ...mockWorkspace,
-      ...updatePayload,
+      name: updatePayload.name,
+      discountRate: new Decimal(updatePayload.discountRate),
     };
 
     mockedRepo.updateSettings.mockResolvedValue(updatedWorkspace);
 
     const response = await PUT(
-      new Request('http://localhost/api/v1/admin/workspace', {
+      new NextRequest('http://localhost/api/v1/admin/workspace', {
         method: 'PUT',
         body: JSON.stringify(updatePayload),
       })
@@ -118,6 +121,9 @@ describe('Admin Workspace API routes', () => {
     expect(response.status).toBe(200);
     expect(body.data).toEqual({
       ...updatedWorkspace,
+      discountRate: updatedWorkspace.discountRate.toString(),
+      cpiMin: updatedWorkspace.cpiMin.toString(),
+      cpiMax: updatedWorkspace.cpiMax.toString(),
       createdAt: updatedWorkspace.createdAt.toISOString(),
       updatedAt: updatedWorkspace.updatedAt.toISOString(),
     });

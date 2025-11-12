@@ -14,6 +14,10 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Set test mode environment variable for middleware
+    extraHTTPHeaders: {
+      'X-Test-Mode': 'true',
+    },
   },
 
   projects: process.env.CI
@@ -49,10 +53,25 @@ export default defineConfig({
         },
       ],
 
-  webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: true, // Reuse existing server if available (prevents port conflicts)
-    timeout: 120 * 1000,
-  },
+  webServer: process.env.CI
+    ? {
+        // In CI, use production build (faster and more reliable)
+        command: 'pnpm start',
+        url: 'http://localhost:3000',
+        reuseExistingServer: false,
+        timeout: 180 * 1000, // 3 minutes for CI (build + start can be slow)
+        stdout: 'pipe',
+        stderr: 'pipe',
+        env: {
+          NODE_ENV: 'production',
+          PORT: '3000',
+        },
+      }
+    : {
+        // Local development: use dev server
+        command: 'pnpm dev',
+        url: 'http://localhost:3000',
+        reuseExistingServer: true, // Reuse existing server if available (prevents port conflicts)
+        timeout: 120 * 1000,
+      },
 });

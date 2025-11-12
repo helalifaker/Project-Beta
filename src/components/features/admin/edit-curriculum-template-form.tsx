@@ -8,6 +8,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import type { JSX } from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -91,15 +92,22 @@ export function EditCurriculumTemplateForm({
     formState: { errors },
   } = useForm<UpdateTemplateFormData>({
     resolver: zodResolver(updateTemplateSchema),
-    values: template
+    ...(template
       ? {
-          name: template.name,
-          capacity: typeof template.capacity === 'number' ? template.capacity : Number(template.capacity),
-          tuitionBase: typeof template.tuitionBase === 'number' ? template.tuitionBase : Number(template.tuitionBase),
-          cpiRate: typeof template.cpiRate === 'number' ? template.cpiRate : Number(template.cpiRate),
-          cpiFrequency: template.cpiFrequency,
+          values: {
+            name: template.name,
+            capacity:
+              typeof template.capacity === 'number' ? template.capacity : Number(template.capacity),
+            tuitionBase:
+              typeof template.tuitionBase === 'number'
+                ? template.tuitionBase
+                : Number(template.tuitionBase),
+            cpiRate:
+              typeof template.cpiRate === 'number' ? template.cpiRate : Number(template.cpiRate),
+            cpiFrequency: template.cpiFrequency,
+          },
         }
-      : undefined,
+      : {}),
   });
 
   const cpiFrequency = watch('cpiFrequency');
@@ -143,7 +151,9 @@ export function EditCurriculumTemplateForm({
           {...register('name')}
           className={errors.name ? 'border-destructive' : ''}
         />
-        {errors.name ? <p className="text-sm text-destructive mt-1">{errors.name.message}</p> : null}
+        {errors.name ? (
+          <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+        ) : null}
       </div>
 
       <div>
@@ -154,7 +164,9 @@ export function EditCurriculumTemplateForm({
           {...register('capacity', { valueAsNumber: true })}
           className={errors.capacity ? 'border-destructive' : ''}
         />
-        {errors.capacity ? <p className="text-sm text-destructive mt-1">{errors.capacity.message}</p> : null}
+        {errors.capacity ? (
+          <p className="text-sm text-destructive mt-1">{errors.capacity.message}</p>
+        ) : null}
       </div>
 
       <div>
@@ -166,7 +178,9 @@ export function EditCurriculumTemplateForm({
           {...register('tuitionBase', { valueAsNumber: true })}
           className={errors.tuitionBase ? 'border-destructive' : ''}
         />
-        {errors.tuitionBase ? <p className="text-sm text-destructive mt-1">{errors.tuitionBase.message}</p> : null}
+        {errors.tuitionBase ? (
+          <p className="text-sm text-destructive mt-1">{errors.tuitionBase.message}</p>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -180,14 +194,18 @@ export function EditCurriculumTemplateForm({
             placeholder="e.g., 0.025 (2.5%)"
             className={errors.cpiRate ? 'border-destructive' : ''}
           />
-          {errors.cpiRate ? <p className="text-sm text-destructive mt-1">{errors.cpiRate.message}</p> : null}
+          {errors.cpiRate ? (
+            <p className="text-sm text-destructive mt-1">{errors.cpiRate.message}</p>
+          ) : null}
         </div>
 
         <div>
           <Label htmlFor="cpiFrequency">CPI Frequency</Label>
           <Select
-            value={cpiFrequency}
-            onValueChange={(value) => setValue('cpiFrequency', value as UpdateTemplateFormData['cpiFrequency'])}
+            {...(cpiFrequency ? { value: cpiFrequency } : {})}
+            onValueChange={(value) =>
+              setValue('cpiFrequency', value as UpdateTemplateFormData['cpiFrequency'])
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Select frequency" />
@@ -198,7 +216,9 @@ export function EditCurriculumTemplateForm({
               <SelectItem value="EVERY_3_YEARS">Every 3 Years</SelectItem>
             </SelectContent>
           </Select>
-          {errors.cpiFrequency ? <p className="text-sm text-destructive mt-1">{errors.cpiFrequency.message}</p> : null}
+          {errors.cpiFrequency ? (
+            <p className="text-sm text-destructive mt-1">{errors.cpiFrequency.message}</p>
+          ) : null}
         </div>
       </div>
 
@@ -217,4 +237,3 @@ export function EditCurriculumTemplateForm({
     </form>
   );
 }
-

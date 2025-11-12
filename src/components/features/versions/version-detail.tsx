@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Version detail component
  * Displays version information with tabs
  */

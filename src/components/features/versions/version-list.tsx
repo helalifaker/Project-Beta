@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Version list component
  * Displays versions with filtering and sorting
  */
@@ -24,20 +25,18 @@ import { useDebounce } from '@/lib/hooks/use-debounce';
 
 import { VersionCard } from './version-card';
 
-
-async function fetchVersions(params: {
-  status?: string;
-  search?: string;
-}): Promise<Array<{
-  id: string;
-  name: string;
-  description?: string | null;
-  status: VersionStatus;
-  ownerName?: string;
-  createdAt: string;
-  updatedAt: string;
-  lockedAt?: string | null;
-}>> {
+async function fetchVersions(params: { status?: string; search?: string }): Promise<
+  Array<{
+    id: string;
+    name: string;
+    description?: string | null;
+    status: VersionStatus;
+    ownerName?: string;
+    createdAt: string;
+    updatedAt: string;
+    lockedAt?: string | null;
+  }>
+> {
   const queryParams = new URLSearchParams();
   if (params.status) queryParams.set('status', params.status);
   if (params.search) queryParams.set('search', params.search);
@@ -54,12 +53,18 @@ async function fetchVersions(params: {
 export function VersionList(): JSX.Element {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
+
   // Debounce search query to reduce API calls
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const { data: versions = [], isLoading } = useQuery({
-    queryKey: ['versions', { status: statusFilter !== 'all' ? statusFilter : undefined, search: debouncedSearchQuery || undefined }],
+    queryKey: [
+      'versions',
+      {
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        search: debouncedSearchQuery || undefined,
+      },
+    ],
     queryFn: () =>
       fetchVersions({
         status: statusFilter !== 'all' ? statusFilter : undefined,
@@ -120,4 +125,3 @@ export function VersionList(): JSX.Element {
     </div>
   );
 }
-

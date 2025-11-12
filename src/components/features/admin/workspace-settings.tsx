@@ -7,6 +7,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { JSX } from 'react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';

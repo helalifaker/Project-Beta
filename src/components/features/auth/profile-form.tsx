@@ -5,6 +5,7 @@
 
 'use client';
 
+import type { JSX } from 'react';
 import { useState } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -31,14 +32,16 @@ export function ProfileForm({ user }: ProfileFormProps): JSX.Element {
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  const getRoleBadgeVariant = (userRole: User['role']): 'destructive' | 'default' | 'secondary' => {
+  const getRoleBadgeVariant = (
+    userRole: User['role']
+  ): 'destructive' | 'default' | 'outline' | 'muted' | 'fluent' | null | undefined => {
     switch (userRole) {
       case 'ADMIN':
         return 'destructive';
       case 'ANALYST':
         return 'default';
       case 'VIEWER':
-        return 'secondary';
+        return 'outline';
       default:
         return 'default';
     }

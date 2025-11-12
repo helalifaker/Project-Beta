@@ -7,6 +7,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
+import type { JSX } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

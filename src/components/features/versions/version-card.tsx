@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Version card component
  * Displays version summary in list view
  */

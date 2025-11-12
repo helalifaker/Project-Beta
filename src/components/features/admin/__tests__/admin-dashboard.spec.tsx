@@ -4,17 +4,17 @@ import { describe, it, expect, vi } from 'vitest';
 
 import { AdminDashboard } from '../admin-dashboard';
 
+const MockLink = React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'>>(
+  ({ href, children, ...props }, ref) => (
+    <a ref={ref} href={href} {...props}>
+      {children}
+    </a>
+  )
+);
+MockLink.displayName = 'Link';
+
 vi.mock('next/link', () => ({
-  default: Object.assign(
-    React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'>>(
-      ({ href, children, ...props }, ref) => (
-        <a ref={ref} href={href} {...props}>
-          {children}
-        </a>
-      ),
-    ),
-    { displayName: 'Link' }
-  ),
+  default: MockLink,
 }));
 
 describe('AdminDashboard component', () => {
@@ -46,5 +46,3 @@ describe('AdminDashboard component', () => {
     ]);
   });
 });
-
-

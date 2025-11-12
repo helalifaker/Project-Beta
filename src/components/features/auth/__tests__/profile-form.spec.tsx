@@ -28,7 +28,12 @@ describe('ProfileForm', () => {
   beforeEach(() => {
     vi.mocked(useRouter).mockReturnValue({
       push: mockPush,
-    } as any);
+      replace: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+      prefetch: vi.fn(),
+    } as ReturnType<typeof useRouter>);
   });
 
   it('should render user email', () => {
@@ -43,13 +48,11 @@ describe('ProfileForm', () => {
 
   it('should render account created date', () => {
     render(<ProfileForm user={mockUser} />);
-    expect(
-      screen.getByText(new Date('2024-01-01').toLocaleDateString()),
-    ).toBeInTheDocument();
+    expect(screen.getByText(new Date('2024-01-01').toLocaleDateString())).toBeInTheDocument();
   });
 
   it('should display error message when error is set', () => {
-    const { rerender } = render(<ProfileForm user={mockUser} />);
+    render(<ProfileForm user={mockUser} />);
     // Note: ProfileForm doesn't expose error state directly in current implementation
     // This test verifies the component renders correctly
     expect(screen.getByText(/Email cannot be changed/)).toBeInTheDocument();
@@ -86,4 +89,3 @@ describe('ProfileForm', () => {
     expect(emailInput).toBeDisabled();
   });
 });
-

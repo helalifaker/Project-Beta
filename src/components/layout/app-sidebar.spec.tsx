@@ -12,7 +12,7 @@ describe('AppSidebar', () => {
     render(<AppSidebar />);
 
     expect(screen.getByText('School Relocation Planner')).toBeInTheDocument();
-    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Versions')).toBeInTheDocument();
   });
 
@@ -20,9 +20,7 @@ describe('AppSidebar', () => {
     const customSections = [
       {
         title: 'Custom Section',
-        items: [
-          { label: 'Custom Item', href: '/custom' },
-        ],
+        items: [{ label: 'Custom Item', href: '/custom' }],
       },
     ];
 
@@ -56,4 +54,3 @@ describe('AppSidebar', () => {
     expect(activeLink).toHaveAttribute('aria-current', 'page');
   });
 });
-

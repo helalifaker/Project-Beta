@@ -7,19 +7,19 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-
-async function fetchRentTemplates(): Promise<Array<{
-  id: string;
-  name: string;
-  type: string;
-  params: Record<string, unknown>;
-}>> {
+async function fetchRentTemplates(): Promise<
+  Array<{
+    id: string;
+    name: string;
+    type: string;
+    params: Record<string, unknown>;
+  }>
+> {
   const response = await fetch('/api/v1/admin/rent-templates');
   if (!response.ok) {
     throw new Error('Failed to fetch rent templates');
@@ -130,4 +130,3 @@ export function RentTemplatesList(): JSX.Element {
     </div>
   );
 }
-

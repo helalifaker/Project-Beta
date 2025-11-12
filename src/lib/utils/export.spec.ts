@@ -7,26 +7,36 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { exportToCsv, exportToExcel } from './export';
 
 describe('exportToCsv', () => {
-  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    consoleLogSpy.mockRestore();
+    consoleWarnSpy.mockRestore();
   });
 
   it('should log export data', () => {
     const data = [{ name: 'Test', value: 100 }];
     exportToCsv(data, 'test.csv');
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('Exporting to CSV:', 'test.csv', data);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Export to CSV not yet implemented:',
+      'test.csv',
+      data.length,
+      'items'
+    );
   });
 
   it('should handle empty array', () => {
     exportToCsv([], 'empty.csv');
-    expect(consoleLogSpy).toHaveBeenCalledWith('Exporting to CSV:', 'empty.csv', []);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Export to CSV not yet implemented:',
+      'empty.csv',
+      0,
+      'items'
+    );
   });
 
   it('should handle complex data structures', () => {
@@ -35,31 +45,46 @@ describe('exportToCsv', () => {
       { id: 2, nested: { value: 'test2' } },
     ];
     exportToCsv(data, 'complex.csv');
-    expect(consoleLogSpy).toHaveBeenCalledWith('Exporting to CSV:', 'complex.csv', data);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Export to CSV not yet implemented:',
+      'complex.csv',
+      data.length,
+      'items'
+    );
   });
 });
 
 describe('exportToExcel', () => {
-  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    consoleLogSpy.mockRestore();
+    consoleWarnSpy.mockRestore();
   });
 
   it('should log export data', () => {
     const data = [{ name: 'Test', value: 100 }];
     exportToExcel(data, 'test.xlsx');
 
-    expect(consoleLogSpy).toHaveBeenCalledWith('Exporting to Excel:', 'test.xlsx', data);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Export to Excel not yet implemented:',
+      'test.xlsx',
+      data.length,
+      'items'
+    );
   });
 
   it('should handle empty array', () => {
     exportToExcel([], 'empty.xlsx');
-    expect(consoleLogSpy).toHaveBeenCalledWith('Exporting to Excel:', 'empty.xlsx', []);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Export to Excel not yet implemented:',
+      'empty.xlsx',
+      0,
+      'items'
+    );
   });
 
   it('should handle complex data structures', () => {
@@ -68,7 +93,11 @@ describe('exportToExcel', () => {
       { id: 2, nested: { value: 'test2' } },
     ];
     exportToExcel(data, 'complex.xlsx');
-    expect(consoleLogSpy).toHaveBeenCalledWith('Exporting to Excel:', 'complex.xlsx', data);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Export to Excel not yet implemented:',
+      'complex.xlsx',
+      data.length,
+      'items'
+    );
   });
 });
-

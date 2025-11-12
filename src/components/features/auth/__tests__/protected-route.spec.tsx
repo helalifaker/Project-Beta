@@ -31,8 +31,15 @@ describe('ProtectedRoute', () => {
     vi.clearAllMocks();
     vi.mocked(useRouter).mockReturnValue({
       push: mockPush,
-    } as any);
-    vi.mocked(getSupabaseClient).mockReturnValue(mockSupabaseClient as any);
+      replace: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+      prefetch: vi.fn(),
+    } as ReturnType<typeof useRouter>);
+    vi.mocked(getSupabaseClient).mockReturnValue(
+      mockSupabaseClient as ReturnType<typeof getSupabaseClient>
+    );
   });
 
   it('should render loading state initially', () => {
@@ -44,7 +51,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute>
         <div>Protected Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -59,7 +66,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute fallback={<div>Custom Loading</div>}>
         <div>Protected Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     expect(screen.getByText('Custom Loading')).toBeInTheDocument();
@@ -74,7 +81,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute>
         <div>Protected Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     await waitFor(() => {
@@ -91,7 +98,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute>
         <div>Protected Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     await waitFor(() => {
@@ -112,7 +119,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute>
         <div>Protected Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     await waitFor(() => {
@@ -132,7 +139,7 @@ describe('ProtectedRoute', () => {
       select: mockSelect,
       eq: mockEq,
       single: mockSingle,
-    })) as any;
+    })) as unknown as ReturnType<typeof mockSupabaseClient.from>;
 
     vi.mocked(mockSupabaseClient.auth.getSession).mockResolvedValue({
       data: {
@@ -146,7 +153,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute requiredRole="ADMIN">
         <div>Admin Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     await waitFor(() => {
@@ -168,7 +175,7 @@ describe('ProtectedRoute', () => {
       select: mockSelect,
       eq: mockEq,
       single: mockSingle,
-    })) as any;
+    })) as unknown as ReturnType<typeof mockSupabaseClient.from>;
 
     vi.mocked(mockSupabaseClient.auth.getSession).mockResolvedValue({
       data: {
@@ -182,7 +189,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute requiredRole="ADMIN">
         <div>Admin Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     await waitFor(() => {
@@ -202,7 +209,7 @@ describe('ProtectedRoute', () => {
       select: mockSelect,
       eq: mockEq,
       single: mockSingle,
-    })) as any;
+    })) as unknown as ReturnType<typeof mockSupabaseClient.from>;
 
     vi.mocked(mockSupabaseClient.auth.getSession).mockResolvedValue({
       data: {
@@ -216,7 +223,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute requiredRole="ADMIN">
         <div>Admin Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     await waitFor(() => {
@@ -236,7 +243,7 @@ describe('ProtectedRoute', () => {
       select: mockSelect,
       eq: mockEq,
       single: mockSingle,
-    })) as any;
+    })) as unknown as ReturnType<typeof mockSupabaseClient.from>;
 
     vi.mocked(mockSupabaseClient.auth.getSession).mockResolvedValue({
       data: {
@@ -250,7 +257,7 @@ describe('ProtectedRoute', () => {
     render(
       <ProtectedRoute requiredRole="VIEWER">
         <div>Viewer Content</div>
-      </ProtectedRoute>,
+      </ProtectedRoute>
     );
 
     await waitFor(() => {
@@ -258,4 +265,3 @@ describe('ProtectedRoute', () => {
     });
   });
 });
-

@@ -5,22 +5,23 @@
 
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-
-async function fetchCurriculumTemplates(): Promise<Array<{
-  id: string;
-  name: string;
-  slug: string;
-  capacity: number;
-  tuitionBase: number;
-  cpiRate: number;
-}>> {
+async function fetchCurriculumTemplates(): Promise<
+  Array<{
+    id: string;
+    name: string;
+    slug: string;
+    capacity: number;
+    tuitionBase: number;
+    cpiRate: number;
+  }>
+> {
   const response = await fetch('/api/v1/admin/curriculum-templates');
   if (!response.ok) {
     throw new Error('Failed to fetch curriculum templates');
@@ -30,8 +31,6 @@ async function fetchCurriculumTemplates(): Promise<Array<{
 }
 
 export function CurriculumTemplatesList(): JSX.Element {
-  const queryClient = useQueryClient();
-
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ['curriculum-templates'],
     queryFn: fetchCurriculumTemplates,
@@ -87,7 +86,9 @@ export function CurriculumTemplatesList(): JSX.Element {
                   </div>
                   <div>
                     <span className="text-muted-foreground">CPI Rate: </span>
-                    <span className="font-medium">{(Number(template.cpiRate) * 100).toFixed(2)}%</span>
+                    <span className="font-medium">
+                      {(Number(template.cpiRate) * 100).toFixed(2)}%
+                    </span>
                   </div>
                 </div>
                 <Button asChild variant="outline" className="mt-4 w-full">
@@ -101,4 +102,3 @@ export function CurriculumTemplatesList(): JSX.Element {
     </div>
   );
 }
-

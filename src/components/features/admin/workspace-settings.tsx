@@ -7,7 +7,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -98,12 +98,9 @@ export function WorkspaceSettings(): JSX.Element {
     }
   }, [settings, reset]);
 
-  const debouncedSave = useDebouncedCallback(
-    (data: Partial<WorkspaceSettingsFormData>) => {
-      updateMutation.mutate(data);
-    },
-    2000
-  );
+  const debouncedSave = useDebouncedCallback((data: Partial<WorkspaceSettingsFormData>) => {
+    updateMutation.mutate(data);
+  }, 2000);
 
   const watchedValues = watch();
 
@@ -137,13 +134,17 @@ export function WorkspaceSettings(): JSX.Element {
           <div>
             <Label htmlFor="baseCurrency">Base Currency</Label>
             <Input id="baseCurrency" {...register('baseCurrency')} />
-            {errors.baseCurrency ? <p className="text-sm text-destructive">{errors.baseCurrency.message}</p> : null}
+            {errors.baseCurrency ? (
+              <p className="text-sm text-destructive">{errors.baseCurrency.message}</p>
+            ) : null}
           </div>
 
           <div>
             <Label htmlFor="timezone">Timezone</Label>
             <Input id="timezone" {...register('timezone')} />
-            {errors.timezone ? <p className="text-sm text-destructive">{errors.timezone.message}</p> : null}
+            {errors.timezone ? (
+              <p className="text-sm text-destructive">{errors.timezone.message}</p>
+            ) : null}
           </div>
 
           <div>
@@ -154,7 +155,9 @@ export function WorkspaceSettings(): JSX.Element {
               step="0.001"
               {...register('discountRate', { valueAsNumber: true })}
             />
-            {errors.discountRate ? <p className="text-sm text-destructive">{errors.discountRate.message}</p> : null}
+            {errors.discountRate ? (
+              <p className="text-sm text-destructive">{errors.discountRate.message}</p>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -166,7 +169,9 @@ export function WorkspaceSettings(): JSX.Element {
                 step="0.001"
                 {...register('cpiMin', { valueAsNumber: true })}
               />
-              {errors.cpiMin ? <p className="text-sm text-destructive">{errors.cpiMin.message}</p> : null}
+              {errors.cpiMin ? (
+                <p className="text-sm text-destructive">{errors.cpiMin.message}</p>
+              ) : null}
             </div>
 
             <div>
@@ -177,19 +182,22 @@ export function WorkspaceSettings(): JSX.Element {
                 step="0.001"
                 {...register('cpiMax', { valueAsNumber: true })}
               />
-              {errors.cpiMax ? <p className="text-sm text-destructive">{errors.cpiMax.message}</p> : null}
+              {errors.cpiMax ? (
+                <p className="text-sm text-destructive">{errors.cpiMax.message}</p>
+              ) : null}
             </div>
           </div>
 
           <Button type="submit" disabled={updateMutation.isPending}>
             {updateMutation.isPending ? 'Saving...' : 'Save Settings'}
           </Button>
-          {updateMutation.isSuccess ? <div role="status" aria-live="polite" className="text-sm text-green-600">
+          {updateMutation.isSuccess ? (
+            <div role="status" aria-live="polite" className="text-sm text-green-600">
               Settings saved successfully
-            </div> : null}
+            </div>
+          ) : null}
         </form>
       </CardContent>
     </Card>
   );
 }
-

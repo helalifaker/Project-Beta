@@ -229,7 +229,7 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.warnings.length).toBeGreaterThan(0);
-      expect(result.warnings[0].code).toBe('OVER_CAPACITY');
+      expect(result.warnings[0]?.code).toBe('OVER_CAPACITY');
     });
 
     it('should flag capex override without detailed reason', () => {
@@ -247,7 +247,7 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.warnings.length).toBeGreaterThan(0);
-      expect(result.warnings[0].code).toBe('CAPEX_OVERRIDE_WITHOUT_DETAILED_REASON');
+      expect(result.warnings[0]?.code).toBe('CAPEX_OVERRIDE_WITHOUT_DETAILED_REASON');
     });
 
     it('should flag CPI rate out of bounds', () => {
@@ -265,7 +265,7 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.warnings.length).toBeGreaterThan(0);
-      expect(result.warnings[0].code).toBe('CPI_RATE_OUT_OF_BOUNDS');
+      expect(result.warnings[0]?.code).toBe('CPI_RATE_OUT_OF_BOUNDS');
     });
 
     it('should not flag CPI rate when within bounds', () => {

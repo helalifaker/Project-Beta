@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 
 import { AdminDashboard } from '../admin-dashboard';
 
 const { MockLink } = vi.hoisted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react');
   const MockLink = React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'>>(
     ({ href, children, ...props }, ref) => (
       <a ref={ref} href={href} {...props}>

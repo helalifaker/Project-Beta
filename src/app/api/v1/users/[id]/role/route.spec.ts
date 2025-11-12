@@ -73,7 +73,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
         method: 'PUT',
         body: JSON.stringify({ role: 'ANALYST' }),
       }),
-      { params: { id: 'user-1' } },
+      { params: Promise.resolve({ id: 'user-1' }) }
     );
 
     expect(response.status).toBe(401);
@@ -89,7 +89,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
         method: 'PUT',
         body: JSON.stringify({ role: 'INVALID_ROLE' }),
       }),
-      { params: { id: 'user-1' } },
+      { params: Promise.resolve({ id: 'user-1' }) }
     );
 
     expect(response.status).toBe(400);
@@ -101,6 +101,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
     vi.mocked(requireRole).mockResolvedValue(adminSession);
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       id: 'admin-id',
+      externalId: 'admin-external-id',
       email: 'admin@example.com',
       role: 'ADMIN',
       createdAt: new Date('2024-01-01T00:00:00.000Z'),
@@ -112,7 +113,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
         method: 'PUT',
         body: JSON.stringify({ role: 'ANALYST' }),
       }),
-      { params: { id: 'admin-id' } },
+      { params: Promise.resolve({ id: 'admin-id' }) }
     );
 
     expect(response.status).toBe(400);
@@ -125,6 +126,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
     vi.mocked(prisma.profile.findUnique)
       .mockResolvedValueOnce({
         id: 'user-2',
+        externalId: 'user-2-external-id',
         email: 'viewer@example.com',
         role: 'VIEWER',
         createdAt: new Date('2024-02-01T00:00:00.000Z'),
@@ -132,6 +134,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
       })
       .mockResolvedValueOnce({
         id: 'user-2',
+        externalId: 'user-2-external-id',
         email: 'viewer@example.com',
         role: 'ANALYST',
         createdAt: new Date('2024-02-01T00:00:00.000Z'),
@@ -144,7 +147,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
         method: 'PUT',
         body: JSON.stringify({ role: 'ANALYST' }),
       }),
-      { params: { id: 'user-2' } },
+      { params: Promise.resolve({ id: 'user-2' }) }
     );
 
     expect(updateUserRole).toHaveBeenCalledWith('user-2', 'ANALYST');
@@ -157,6 +160,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
     vi.mocked(requireRole).mockResolvedValue(adminSession);
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       id: 'user-3',
+      externalId: 'user-3-external',
       email: 'viewer@example.com',
       role: 'VIEWER',
       createdAt: new Date('2024-03-01T00:00:00.000Z'),
@@ -171,7 +175,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
         method: 'PUT',
         body: JSON.stringify({ role: 'ADMIN' }),
       }),
-      { params: { id: 'user-3' } },
+      { params: Promise.resolve({ id: 'user-3' }) }
     );
 
     expect(response.status).toBe(400);
@@ -187,7 +191,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
         method: 'PUT',
         body: JSON.stringify({ role: 'ANALYST' }),
       }),
-      { params: { id: 'user-1' } },
+      { params: Promise.resolve({ id: 'user-1' }) }
     );
 
     expect(response.status).toBe(403);
@@ -203,7 +207,7 @@ describe('PUT /api/v1/users/[id]/role', () => {
         method: 'PUT',
         body: JSON.stringify({ role: 'ANALYST' }),
       }),
-      { params: { id: 'user-1' } },
+      { params: Promise.resolve({ id: 'user-1' }) }
     );
 
     expect(response.status).toBe(500);
@@ -211,5 +215,3 @@ describe('PUT /api/v1/users/[id]/role', () => {
     expect(body.error).toBe('INTERNAL_ERROR');
   });
 });
-
-

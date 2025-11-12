@@ -86,15 +86,17 @@ describe('Admin dashboard pages', () => {
     vi.clearAllMocks();
   });
 
-  it('should render admin dashboard heading', () => {
-    render(<AdminPage />);
+  it('should render admin dashboard heading', async () => {
+    const AdminPageComponent = await AdminPage();
+    render(AdminPageComponent);
 
     expect(screen.getByRole('heading', { name: 'Admin Dashboard' })).toBeInTheDocument();
     expect(screen.getByTestId('admin-dashboard')).toBeInTheDocument();
   });
 
-  it('should render audit log page', () => {
-    render(<AuditLogPage />);
+  it('should render audit log page', async () => {
+    const AuditLogPageComponent = await AuditLogPage();
+    render(AuditLogPageComponent);
 
     expect(screen.getByRole('heading', { name: 'Audit Log' })).toBeInTheDocument();
     expect(screen.getByTestId('audit-log-viewer')).toBeInTheDocument();
@@ -124,8 +126,9 @@ describe('Admin dashboard pages', () => {
     expect(screen.getByTestId('rent-templates')).toBeInTheDocument();
   });
 
-  it('should render workspace settings page', () => {
-    render(<WorkspaceSettingsPage />);
+  it('should render workspace settings page', async () => {
+    const WorkspaceSettingsPageComponent = await WorkspaceSettingsPage();
+    render(WorkspaceSettingsPageComponent);
 
     expect(screen.getByRole('heading', { name: 'Workspace Settings' })).toBeInTheDocument();
     expect(screen.getByTestId('workspace-settings')).toBeInTheDocument();

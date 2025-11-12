@@ -87,25 +87,28 @@ describe('Admin Capex Rules API routes', () => {
     expect(mockedRepo.findAllWithCategories).toHaveBeenCalled();
     expect(response.status).toBe(200);
     expect(body.data).toEqual(
-      rules.map((rule) => ({
-        ...rule,
-        createdAt: rule.createdAt.toISOString(),
-        updatedAt: rule.updatedAt.toISOString(),
-        category:
-          rule.category && 'createdAt' in rule.category
+      rules.map((rule) => {
+        const category = rule.category as {
+          id: string;
+          name: string;
+          description: string | null;
+          createdAt: Date;
+          updatedAt: Date;
+        } | null;
+
+        return {
+          ...rule,
+          createdAt: rule.createdAt.toISOString(),
+          updatedAt: rule.updatedAt.toISOString(),
+          category: category
             ? {
-                ...rule.category,
-                createdAt:
-                  rule.category.createdAt instanceof Date
-                    ? rule.category.createdAt.toISOString()
-                    : rule.category.createdAt,
-                updatedAt:
-                  rule.category.updatedAt instanceof Date
-                    ? rule.category.updatedAt.toISOString()
-                    : rule.category.updatedAt,
+                ...category,
+                createdAt: category.createdAt.toISOString(),
+                updatedAt: category.updatedAt.toISOString(),
               }
-            : rule.category,
-      }))
+            : category,
+        };
+      })
     );
     expect(body.data.length).toBeGreaterThan(0);
   });

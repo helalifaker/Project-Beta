@@ -69,10 +69,9 @@ describe('User detail API routes', () => {
     it('should return 401 when user is not authenticated', async () => {
       vi.mocked(requireRole).mockRejectedValue(new Error('UNAUTHORIZED'));
 
-      const response = await GET(
-        new Request('http://localhost/api/v1/users/user-1'),
-        { params: { id: 'user-1' } },
-      );
+      const response = await GET(new Request('http://localhost/api/v1/users/user-1'), {
+        params: Promise.resolve({ id: 'user-1' }),
+      });
 
       expect(response.status).toBe(401);
       const body = await response.json();
@@ -83,10 +82,9 @@ describe('User detail API routes', () => {
       vi.mocked(requireRole).mockResolvedValue(adminSession);
       vi.mocked(prisma.profile.findUnique).mockResolvedValue(null);
 
-      const response = await GET(
-        new Request('http://localhost/api/v1/users/missing-id'),
-        { params: { id: 'missing-id' } },
-      );
+      const response = await GET(new Request('http://localhost/api/v1/users/missing-id'), {
+        params: Promise.resolve({ id: 'missing-id' }),
+      });
 
       expect(response.status).toBe(404);
       const body = await response.json();
@@ -97,6 +95,7 @@ describe('User detail API routes', () => {
       vi.mocked(requireRole).mockResolvedValue(adminSession);
       const user = {
         id: 'user-123',
+        externalId: 'user-123-external',
         email: 'user@example.com',
         role: 'ANALYST' as const,
         createdAt: new Date('2024-02-01T00:00:00.000Z'),
@@ -104,10 +103,9 @@ describe('User detail API routes', () => {
       };
       vi.mocked(prisma.profile.findUnique).mockResolvedValue(user);
 
-      const response = await GET(
-        new Request('http://localhost/api/v1/users/user-123'),
-        { params: { id: 'user-123' } },
-      );
+      const response = await GET(new Request('http://localhost/api/v1/users/user-123'), {
+        params: Promise.resolve({ id: 'user-123' }),
+      });
 
       expect(response.status).toBe(200);
       const body = await response.json();
@@ -128,7 +126,7 @@ describe('User detail API routes', () => {
           method: 'PUT',
           body: JSON.stringify({ role: 'INVALID' }),
         }),
-        { params: { id: 'user-123' } },
+        { params: Promise.resolve({ id: 'user-123' }) }
       );
 
       expect(response.status).toBe(400);
@@ -145,7 +143,7 @@ describe('User detail API routes', () => {
           method: 'PUT',
           body: JSON.stringify({ role: 'ANALYST' }),
         }),
-        { params: { id: 'missing-id' } },
+        { params: Promise.resolve({ id: 'missing-id' }) }
       );
 
       expect(response.status).toBe(404);
@@ -157,6 +155,7 @@ describe('User detail API routes', () => {
       vi.mocked(requireRole).mockResolvedValue(adminSession);
       const currentUser = {
         id: 'user-456',
+        externalId: 'user-456-external',
         email: 'analyst@example.com',
         role: 'VIEWER' as const,
         createdAt: new Date('2024-03-01T00:00:00.000Z'),
@@ -166,6 +165,7 @@ describe('User detail API routes', () => {
         .mockResolvedValueOnce(currentUser)
         .mockResolvedValueOnce({
           ...currentUser,
+          externalId: 'user-456-external',
           role: 'ANALYST' as const,
           updatedAt: new Date('2024-03-02T00:00:00.000Z'),
         });
@@ -176,7 +176,7 @@ describe('User detail API routes', () => {
           method: 'PUT',
           body: JSON.stringify({ role: 'ANALYST' }),
         }),
-        { params: { id: 'user-456' } },
+        { params: Promise.resolve({ id: 'user-456' }) }
       );
 
       expect(updateUserRole).toHaveBeenCalledWith('user-456', 'ANALYST');
@@ -189,6 +189,7 @@ describe('User detail API routes', () => {
       vi.mocked(requireRole).mockResolvedValue(adminSession);
       const currentUser = {
         id: 'user-789',
+        externalId: 'user-789-external',
         email: 'viewer@example.com',
         role: 'VIEWER' as const,
         createdAt: new Date('2024-04-01T00:00:00.000Z'),
@@ -204,7 +205,7 @@ describe('User detail API routes', () => {
           method: 'PUT',
           body: JSON.stringify({ role: 'ADMIN' }),
         }),
-        { params: { id: 'user-789' } },
+        { params: Promise.resolve({ id: 'user-789' }) }
       );
 
       expect(response.status).toBe(400);
@@ -216,6 +217,7 @@ describe('User detail API routes', () => {
       vi.mocked(requireRole).mockResolvedValue(adminSession);
       const currentUser = {
         id: 'user-111',
+        externalId: 'user-111-external',
         email: 'test@example.com',
         role: 'ANALYST' as const,
         createdAt: new Date('2024-06-01T00:00:00.000Z'),
@@ -228,7 +230,7 @@ describe('User detail API routes', () => {
           method: 'PUT',
           body: JSON.stringify({ email: 'newemail@example.com' }),
         }),
-        { params: { id: 'user-111' } },
+        { params: Promise.resolve({ id: 'user-111' }) }
       );
 
       expect(updateUserRole).not.toHaveBeenCalled();
@@ -243,7 +245,7 @@ describe('User detail API routes', () => {
           method: 'PUT',
           body: JSON.stringify({ role: 'ADMIN' }),
         }),
-        { params: { id: 'user-123' } },
+        { params: Promise.resolve({ id: 'user-123' }) }
       );
 
       expect(response.status).toBe(403);
@@ -259,7 +261,7 @@ describe('User detail API routes', () => {
           method: 'PUT',
           body: JSON.stringify({ role: 'ADMIN' }),
         }),
-        { params: { id: 'user-123' } },
+        { params: Promise.resolve({ id: 'user-123' }) }
       );
 
       expect(response.status).toBe(500);
@@ -273,6 +275,7 @@ describe('User detail API routes', () => {
       vi.mocked(requireRole).mockResolvedValue(adminSession);
       vi.mocked(prisma.profile.findUnique).mockResolvedValue({
         id: 'admin-id',
+        externalId: 'admin-external-id',
         email: 'admin@example.com',
         role: 'ADMIN' as const,
         createdAt: new Date('2024-01-01T00:00:00.000Z'),
@@ -283,7 +286,7 @@ describe('User detail API routes', () => {
         new Request('http://localhost/api/v1/users/admin-id', {
           method: 'DELETE',
         }),
-        { params: { id: 'admin-id' } },
+        { params: Promise.resolve({ id: 'admin-id' }) }
       );
 
       expect(response.status).toBe(400);
@@ -296,6 +299,7 @@ describe('User detail API routes', () => {
       vi.mocked(requireRole).mockResolvedValue(adminSession);
       vi.mocked(prisma.profile.findUnique).mockResolvedValue({
         id: 'user-999',
+        externalId: 'user-999-external',
         email: 'remove@example.com',
         role: 'VIEWER' as const,
         createdAt: new Date('2024-05-01T00:00:00.000Z'),
@@ -303,6 +307,7 @@ describe('User detail API routes', () => {
       });
       vi.mocked(prisma.profile.delete).mockResolvedValue({
         id: 'user-999',
+        externalId: 'user-999-external',
         email: 'remove@example.com',
         role: 'VIEWER',
         createdAt: new Date('2024-05-01T00:00:00.000Z'),
@@ -313,7 +318,7 @@ describe('User detail API routes', () => {
         new Request('http://localhost/api/v1/users/user-999', {
           method: 'DELETE',
         }),
-        { params: { id: 'user-999' } },
+        { params: Promise.resolve({ id: 'user-999' }) }
       );
 
       expect(prisma.profile.delete).toHaveBeenCalledWith({
@@ -332,7 +337,7 @@ describe('User detail API routes', () => {
         new Request('http://localhost/api/v1/users/missing-id', {
           method: 'DELETE',
         }),
-        { params: { id: 'missing-id' } },
+        { params: Promise.resolve({ id: 'missing-id' }) }
       );
 
       expect(response.status).toBe(404);
@@ -348,7 +353,7 @@ describe('User detail API routes', () => {
         new Request('http://localhost/api/v1/users/user-123', {
           method: 'DELETE',
         }),
-        { params: { id: 'user-123' } },
+        { params: Promise.resolve({ id: 'user-123' }) }
       );
 
       expect(response.status).toBe(403);
@@ -363,7 +368,7 @@ describe('User detail API routes', () => {
         new Request('http://localhost/api/v1/users/user-123', {
           method: 'DELETE',
         }),
-        { params: { id: 'user-123' } },
+        { params: Promise.resolve({ id: 'user-123' }) }
       );
 
       expect(response.status).toBe(500);
@@ -372,5 +377,3 @@ describe('User detail API routes', () => {
     });
   });
 });
-
-

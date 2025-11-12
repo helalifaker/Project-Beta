@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Capex schedule preview component
  * Shows capex schedule by category and year
  */

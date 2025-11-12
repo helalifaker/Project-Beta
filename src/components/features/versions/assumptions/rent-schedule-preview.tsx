@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Rent schedule preview component
  * Shows 30-year rent schedule preview
  */

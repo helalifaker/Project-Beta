@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Balance Sheet table component
  * Displays Balance Sheet in years-as-columns format (2023-2052)
  */
@@ -11,7 +12,12 @@ import { Download, CheckCircle2, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MODEL_START_YEAR, MODEL_END_YEAR, RAMP_YEARS, HISTORY_YEARS } from '@/lib/finance/constants';
+import {
+  MODEL_START_YEAR,
+  MODEL_END_YEAR,
+  RAMP_YEARS,
+  HISTORY_YEARS,
+} from '@/lib/finance/constants';
 import { exportToCsv, exportToExcel } from '@/lib/utils/export';
 import { formatCurrency } from '@/lib/utils/format';
 
@@ -157,7 +163,9 @@ export function BalanceSheetTable({ versionId }: BalanceSheetTableProps): JSX.El
               {lineItems.map((item, index) => (
                 <tr
                   key={index}
-                  className={item.isTotal ? 'font-bold border-t-2' : item.isSubtotal ? 'font-semibold' : ''}
+                  className={
+                    item.isTotal ? 'font-bold border-t-2' : item.isSubtotal ? 'font-semibold' : ''
+                  }
                 >
                   <td
                     className={`p-2 border-b sticky left-0 bg-background z-10 ${
@@ -169,9 +177,7 @@ export function BalanceSheetTable({ versionId }: BalanceSheetTableProps): JSX.El
                   {years.map((year) => (
                     <td
                       key={year}
-                      className={`text-right p-2 border-b ${
-                        isRampYear(year) ? 'bg-muted' : ''
-                      }`}
+                      className={`text-right p-2 border-b ${isRampYear(year) ? 'bg-muted' : ''}`}
                     >
                       {formatCurrency(item.values[year] || 0)}
                     </td>

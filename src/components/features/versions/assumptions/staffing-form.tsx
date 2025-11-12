@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Staffing form
  * Configure staffing ratios and costs
  */

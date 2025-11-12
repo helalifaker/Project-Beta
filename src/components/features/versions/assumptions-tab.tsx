@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Assumptions tab
  * Displays assumptions configuration UI
  */
@@ -50,4 +51,3 @@ export function AssumptionsTab({ versionId }: AssumptionsTabProps): JSX.Element 
     </Tabs>
   );
 }
-

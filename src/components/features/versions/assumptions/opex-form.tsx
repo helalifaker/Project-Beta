@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * OpEx form
  * Configure operating expenses (revenue-based percentages)
  */

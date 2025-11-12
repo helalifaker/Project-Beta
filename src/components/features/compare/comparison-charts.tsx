@@ -7,6 +7,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { LineChart } from '@tremor/react';
+import type { JSX } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -14,10 +15,12 @@ interface ComparisonChartsProps {
   versionIds: string[];
 }
 
-async function fetchComparisonChartData(versionIds: string[]): Promise<Array<{
-  year: number;
-  [key: string]: number;
-}>> {
+async function fetchComparisonChartData(versionIds: string[]): Promise<
+  Array<{
+    year: number;
+    [key: string]: number;
+  }>
+> {
   const response = await fetch('/api/v1/compare/charts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -67,4 +70,3 @@ export function ComparisonCharts({ versionIds }: ComparisonChartsProps): JSX.Ele
     </Card>
   );
 }
-

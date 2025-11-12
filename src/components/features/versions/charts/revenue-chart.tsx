@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Revenue chart component
  * Tremor LineChart showing revenue trends
  */

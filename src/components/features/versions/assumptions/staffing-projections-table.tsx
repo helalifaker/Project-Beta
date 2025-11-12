@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Staffing projections table
  * Shows headcount and costs by year
  */

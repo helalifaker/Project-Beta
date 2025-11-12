@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Comparison view component
  * Side-by-side comparison of multiple versions
  */

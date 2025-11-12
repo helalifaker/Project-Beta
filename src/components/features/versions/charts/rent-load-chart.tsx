@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Rent load chart component
  * Tremor LineChart showing rent as % of revenue
  */
@@ -14,10 +15,12 @@ interface RentLoadChartProps {
   versionId: string;
 }
 
-async function fetchRentLoadData(versionId: string): Promise<Array<{
-  year: number;
-  rentLoad: number;
-}>> {
+async function fetchRentLoadData(versionId: string): Promise<
+  Array<{
+    year: number;
+    rentLoad: number;
+  }>
+> {
   const response = await fetch(`/api/v1/versions/${versionId}/metrics/rent-load`);
   if (!response.ok) {
     throw new Error('Failed to fetch rent load data');
@@ -60,4 +63,3 @@ export function RentLoadChart({ versionId }: RentLoadChartProps): JSX.Element {
     </Card>
   );
 }
-

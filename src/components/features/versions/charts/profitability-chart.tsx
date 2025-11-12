@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Profitability chart component
  * Tremor AreaChart showing EBITDA and Net Income
  */

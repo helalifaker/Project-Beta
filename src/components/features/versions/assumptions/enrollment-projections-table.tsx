@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Enrollment projections table
  * Years-as-columns table showing enrollment by curriculum
  */

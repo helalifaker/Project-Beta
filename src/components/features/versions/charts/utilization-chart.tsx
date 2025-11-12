@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Utilization chart component
  * Tremor AreaChart showing capacity utilization
  */
@@ -14,10 +15,12 @@ interface UtilizationChartProps {
   versionId: string;
 }
 
-async function fetchUtilizationData(versionId: string): Promise<Array<{
-  year: number;
-  utilization: number;
-}>> {
+async function fetchUtilizationData(versionId: string): Promise<
+  Array<{
+    year: number;
+    utilization: number;
+  }>
+> {
   const response = await fetch(`/api/v1/versions/${versionId}/metrics/utilization`);
   if (!response.ok) {
     throw new Error('Failed to fetch utilization data');
@@ -60,4 +63,3 @@ export function UtilizationChart({ versionId }: UtilizationChartProps): JSX.Elem
     </Card>
   );
 }
-

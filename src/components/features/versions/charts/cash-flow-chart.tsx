@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Cash flow chart component
  * Tremor BarChart showing operating, investing, financing cash flows
  */

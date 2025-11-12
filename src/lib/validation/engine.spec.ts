@@ -495,16 +495,24 @@ describe('validateFinancialStatements', () => {
           retainedEarnings: 50_000,
           totalEquity: 50_000,
           totalLiabilitiesAndEquity: 50_000,
+          isBalanced: true,
+          balanceDifference: 0,
         },
       ];
 
       const cf: CashFlowStatement[] = [
         {
           year: 2027,
+          netIncome: 50_000,
+          depreciation: 0,
+          workingCapitalChange: 0,
           operatingCashFlow: 50_000,
+          capex: 0,
           investingCashFlow: 0,
           financingCashFlow: 0,
-          netCashFlow: 50_000,
+          netCashChange: 50_000,
+          beginningCash: 0,
+          endingCash: 50_000,
         },
       ];
 

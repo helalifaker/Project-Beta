@@ -14,6 +14,7 @@ import type {
   ProfitLossStatement,
   BalanceSheet,
   CashFlowStatement,
+  StatementInputs,
 } from '@/lib/finance/statements';
 
 export type ValidationSeverity = 'CRITICAL' | 'WARNING' | 'INFO';
@@ -397,9 +398,6 @@ export async function validateVersion(versionId: string): Promise<ValidationIssu
   const financeStatementsModule = await import('@/lib/finance/statements');
   const { MODEL_START_YEAR, MODEL_END_YEAR } = await import('@/lib/finance/constants');
 
-  // Use StatementInputs from the module
-
-  type StatementInputs = financeStatementsModule.StatementInputs;
   const { generateFinancialStatements } = financeStatementsModule;
 
   // Fetch version

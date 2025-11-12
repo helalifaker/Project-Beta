@@ -1,11 +1,11 @@
 /**
-import type { JSX } from 'react';
  * Enrollment projections table
  * Years-as-columns table showing enrollment by curriculum
  */
 
 'use client';
 
+import type { JSX } from 'react';
 import { useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';

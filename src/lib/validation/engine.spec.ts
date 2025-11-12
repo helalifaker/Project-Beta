@@ -100,8 +100,8 @@ describe('validateFinancialStatements', () => {
       if (pl[0]) {
         pl[0].year = 2028;
         pl[0].revenue = 10_000_000;
+        pl[0].ebitda = 1_000_000; // 10% margin
       }
-      pl[0].ebitda = 1_000_000; // 10% margin
 
       const result = validateFinancialStatements({
         pl,
@@ -112,14 +112,16 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.critical.length).toBeGreaterThan(0);
-      expect(result.critical[0].code).toBe('EBITDA_MARGIN_BELOW_THRESHOLD');
+      expect(result.critical[0]?.code).toBe('EBITDA_MARGIN_BELOW_THRESHOLD');
     });
 
     it('should not flag EBITDA margin < 12% before 2028', () => {
       const { pl, bs, cf, revenue, rent } = createMockStatements();
-      pl[0].year = 2027;
-      pl[0].revenue = 10_000_000;
-      pl[0].ebitda = 1_000_000; // 10% margin (OK before 2028)
+      if (pl[0]) {
+        pl[0].year = 2027;
+        pl[0].revenue = 10_000_000;
+        pl[0].ebitda = 1_000_000; // 10% margin (OK before 2028)
+      }
 
       const result = validateFinancialStatements({
         pl,
@@ -137,9 +139,11 @@ describe('validateFinancialStatements', () => {
 
     it('should flag CFO margin < 3% after 2027', () => {
       const { pl, bs, cf, revenue, rent } = createMockStatements();
-      cf[0].year = 2028;
-      cf[0].operatingCashFlow = 200_000; // 2% margin
-      revenue[0] = 10_000_000;
+      if (cf[0] && revenue[0] !== undefined) {
+        cf[0].year = 2028;
+        cf[0].operatingCashFlow = 200_000; // 2% margin
+        revenue[0] = 10_000_000;
+      }
 
       const result = validateFinancialStatements({
         pl,
@@ -155,8 +159,10 @@ describe('validateFinancialStatements', () => {
 
     it('should flag unbalanced Balance Sheet', () => {
       const { pl, bs, cf, revenue, rent } = createMockStatements();
-      bs[0].isBalanced = false;
-      bs[0].balanceDifference = 1_000;
+      if (bs[0]) {
+        bs[0].isBalanced = false;
+        bs[0].balanceDifference = 1_000;
+      }
 
       const result = validateFinancialStatements({
         pl,
@@ -551,10 +557,12 @@ describe('validateFinancialStatements', () => {
 
     it('should skip CFO margin validation for years <= 2027', () => {
       const { pl, bs, cf, revenue, rent } = createMockStatements();
-      pl[0].year = 2027;
-      bs[0].year = 2027;
-      cf[0].year = 2027;
-      cf[0].operatingCashFlow = -100_000; // Negative CFO
+      if (pl[0] && bs[0] && cf[0]) {
+        pl[0].year = 2027;
+        bs[0].year = 2027;
+        cf[0].year = 2027;
+        cf[0].operatingCashFlow = -100_000; // Negative CFO
+      }
 
       const result = validateFinancialStatements({
         pl,

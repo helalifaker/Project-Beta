@@ -1,10 +1,11 @@
 /**
-import type { JSX } from 'react';
  * OpEx schedule preview component
  * Shows OpEx by category and year
  */
 
 'use client';
+
+import type { JSX } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MODEL_START_YEAR, MODEL_END_YEAR } from '@/lib/finance/constants';

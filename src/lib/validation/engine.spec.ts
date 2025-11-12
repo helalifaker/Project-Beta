@@ -154,7 +154,7 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.critical.length).toBeGreaterThan(0);
-      expect(result.critical[0].code).toBe('CFO_MARGIN_BELOW_THRESHOLD');
+      expect(result.critical[0]?.code).toBe('CFO_MARGIN_BELOW_THRESHOLD');
     });
 
     it('should flag unbalanced Balance Sheet', () => {
@@ -173,7 +173,7 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.critical.length).toBeGreaterThan(0);
-      expect(result.critical[0].code).toBe('BALANCE_SHEET_UNBALANCED');
+      expect(result.critical[0]?.code).toBe('BALANCE_SHEET_UNBALANCED');
     });
 
     it('should flag frozen year modified without reason', () => {
@@ -212,7 +212,7 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.warnings.length).toBeGreaterThan(0);
-      expect(result.warnings[0].code).toBe('LOW_UTILIZATION');
+      expect(result.warnings[0]?.code).toBe('LOW_UTILIZATION');
     });
 
     it('should flag over capacity', () => {
@@ -321,7 +321,7 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.info.length).toBeGreaterThan(0);
-      expect(result.info[0].code).toBe('VERSION_STALE');
+      expect(result.info[0]?.code).toBe('VERSION_STALE');
     });
 
     it('should flag missing description', () => {
@@ -337,7 +337,7 @@ describe('validateFinancialStatements', () => {
       });
 
       expect(result.info.length).toBeGreaterThan(0);
-      expect(result.info[0].code).toBe('NO_DESCRIPTION');
+      expect(result.info[0]?.code).toBe('NO_DESCRIPTION');
     });
 
     it('should flag description with only whitespace', () => {
@@ -449,8 +449,10 @@ describe('validateFinancialStatements', () => {
   describe('Edge Cases', () => {
     it('should skip rent load validation when revenue is zero', () => {
       const { pl, bs, cf, revenue, rent } = createMockStatements();
-      revenue[0] = 0; // Zero revenue
-      rent[0] = 10_000_000; // High rent
+      if (revenue[0] !== undefined && rent[0] !== undefined) {
+        revenue[0] = 0; // Zero revenue
+        rent[0] = 10_000_000; // High rent
+      }
 
       const result = validateFinancialStatements({
         pl,

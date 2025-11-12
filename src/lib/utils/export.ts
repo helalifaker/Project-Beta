@@ -8,7 +8,8 @@
  */
 export function exportToCsv(data: unknown[], filename: string): void {
   // TODO: Implement CSV export using a library like papaparse
-  console.log('Exporting to CSV:', filename, data);
+
+  console.warn('Export to CSV not yet implemented:', filename, data.length, 'items');
 }
 
 /**
@@ -16,6 +17,6 @@ export function exportToCsv(data: unknown[], filename: string): void {
  */
 export function exportToExcel(data: unknown[], filename: string): void {
   // TODO: Implement Excel export using a library like xlsx
-  console.log('Exporting to Excel:', filename, data);
-}
 
+  console.warn('Export to Excel not yet implemented:', filename, data.length, 'items');
+}

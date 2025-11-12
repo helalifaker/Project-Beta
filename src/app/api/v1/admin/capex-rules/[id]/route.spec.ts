@@ -12,19 +12,18 @@ import type { Session } from '@/types/auth';
 
 import { GET, PUT, DELETE } from './route';
 
-
 vi.mock('@/lib/api/middleware', () => ({
   applyApiMiddleware: vi.fn(),
   withErrorHandling: (fn: () => Promise<Response>) => {
     return async () => {
       try {
         return await fn();
-      } catch (error: any) {
-        if (error instanceof NotFoundError || error.name === 'NotFoundError') {
-          return Response.json(
-            { error: 'NOT_FOUND', message: error.message },
-            { status: 404 },
-          );
+      } catch (error: unknown) {
+        if (
+          error instanceof NotFoundError ||
+          (error instanceof Error && error.name === 'NotFoundError')
+        ) {
+          return Response.json({ error: 'NOT_FOUND', message: error.message }, { status: 404 });
         }
         throw error;
       }
@@ -81,11 +80,15 @@ describe('GET /api/v1/admin/capex-rules/[id]', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
     });
-    vi.mocked(capexRuleRepository.findUnique).mockResolvedValue(mockRule as unknown as Awaited<ReturnType<typeof capexRuleRepository.findUnique>>);
+    vi.mocked(capexRuleRepository.findUnique).mockResolvedValue(
+      mockRule as unknown as Awaited<ReturnType<typeof capexRuleRepository.findUnique>>
+    );
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002'),
-      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
+      new NextRequest(
+        'http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002'
+      ),
+      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) }
     );
 
     expect(response.status).toBe(200);
@@ -104,8 +107,10 @@ describe('GET /api/v1/admin/capex-rules/[id]', () => {
     vi.mocked(capexRuleRepository.findUnique).mockResolvedValue(null);
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440003'),
-      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440003' }) },
+      new NextRequest(
+        'http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440003'
+      ),
+      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440003' }) }
     );
 
     expect(response.status).toBe(404);
@@ -116,9 +121,11 @@ describe('GET /api/v1/admin/capex-rules/[id]', () => {
 
     await expect(
       GET(
-        new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002'),
-        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
-      ),
+        new NextRequest(
+          'http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002'
+        ),
+        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) }
+      )
     ).rejects.toThrow('Unauthorized');
   });
 });
@@ -136,11 +143,14 @@ describe('PUT /api/v1/admin/capex-rules/[id]', () => {
     } as unknown as Awaited<ReturnType<typeof capexRuleRepository.update>>);
 
     const response = await PUT(
-      new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
-        method: 'PUT',
-        body: JSON.stringify(updateData),
-      }),
-      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
+      new NextRequest(
+        'http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002',
+        {
+          method: 'PUT',
+          body: JSON.stringify(updateData),
+        }
+      ),
+      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) }
     );
 
     expect(response.status).toBe(200);
@@ -153,12 +163,15 @@ describe('PUT /api/v1/admin/capex-rules/[id]', () => {
 
     await expect(
       PUT(
-        new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
-          method: 'PUT',
-          body: JSON.stringify({ name: 'Updated' }),
-        }),
-        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
-      ),
+        new NextRequest(
+          'http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002',
+          {
+            method: 'PUT',
+            body: JSON.stringify({ name: 'Updated' }),
+          }
+        ),
+        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) }
+      )
     ).rejects.toThrow('Forbidden');
   });
 });
@@ -168,13 +181,18 @@ describe('DELETE /api/v1/admin/capex-rules/[id]', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
     });
-    vi.mocked(capexRuleRepository.delete).mockResolvedValue(mockRule as unknown as Awaited<ReturnType<typeof capexRuleRepository.delete>>);
+    vi.mocked(capexRuleRepository.delete).mockResolvedValue(
+      mockRule as unknown as Awaited<ReturnType<typeof capexRuleRepository.delete>>
+    );
 
     const response = await DELETE(
-      new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
-        method: 'DELETE',
-      }),
-      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
+      new NextRequest(
+        'http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002',
+        {
+          method: 'DELETE',
+        }
+      ),
+      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) }
     );
 
     expect(response.status).toBe(200);
@@ -187,12 +205,14 @@ describe('DELETE /api/v1/admin/capex-rules/[id]', () => {
 
     await expect(
       DELETE(
-        new NextRequest('http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002', {
-          method: 'DELETE',
-        }),
-        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) },
-      ),
+        new NextRequest(
+          'http://localhost/api/v1/admin/capex-rules/550e8400-e29b-41d4-a716-446655440002',
+          {
+            method: 'DELETE',
+          }
+        ),
+        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440002' }) }
+      )
     ).rejects.toThrow('Forbidden');
   });
 });
-

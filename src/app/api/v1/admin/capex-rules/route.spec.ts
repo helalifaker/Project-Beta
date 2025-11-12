@@ -85,12 +85,21 @@ describe('Admin Capex Rules API routes', () => {
         ...rule,
         createdAt: rule.createdAt.toISOString(),
         updatedAt: rule.updatedAt.toISOString(),
-        category: {
-          ...rule.category,
-          createdAt: rule.category.createdAt.toISOString(),
-          updatedAt: rule.category.updatedAt.toISOString(),
-        },
-      })),
+        category:
+          rule.category && 'createdAt' in rule.category
+            ? {
+                ...rule.category,
+                createdAt:
+                  rule.category.createdAt instanceof Date
+                    ? rule.category.createdAt.toISOString()
+                    : rule.category.createdAt,
+                updatedAt:
+                  rule.category.updatedAt instanceof Date
+                    ? rule.category.updatedAt.toISOString()
+                    : rule.category.updatedAt,
+              }
+            : rule.category,
+      }))
     );
     expect(body.data.length).toBeGreaterThan(0);
   });
@@ -130,7 +139,7 @@ describe('Admin Capex Rules API routes', () => {
       new NextRequest('http://localhost/api/v1/admin/capex-rules', {
         method: 'POST',
         body: JSON.stringify(requestBody),
-      }),
+      })
     );
     const body = await response.json();
 
@@ -148,5 +157,3 @@ describe('Admin Capex Rules API routes', () => {
     expect(body.data.name).toBe('Facilities Upgrade');
   });
 });
-
-

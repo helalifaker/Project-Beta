@@ -74,11 +74,13 @@ describe('GET /api/v1/admin/audit-log', () => {
       session: mockSession,
       query: { page: 1, limit: 20 },
     });
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(mockAuditLogEntries as any);
+    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
+      mockAuditLogEntries as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
+    );
     vi.mocked(prisma.auditLog.count).mockResolvedValue(2);
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/audit-log?page=1&limit=20'),
+      new NextRequest('http://localhost/api/v1/admin/audit-log?page=1&limit=20')
     );
 
     expect(response.status).toBe(200);
@@ -94,11 +96,13 @@ describe('GET /api/v1/admin/audit-log', () => {
       session: mockSession,
       query: { page: 1, limit: 20, entityType: 'version' },
     });
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue([mockAuditLogEntries[0]] as any);
+    vi.mocked(prisma.auditLog.findMany).mockResolvedValue([
+      mockAuditLogEntries[0]!,
+    ] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>);
     vi.mocked(prisma.auditLog.count).mockResolvedValue(1);
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/audit-log?entityType=version'),
+      new NextRequest('http://localhost/api/v1/admin/audit-log?entityType=version')
     );
 
     expect(response.status).toBe(200);
@@ -107,7 +111,7 @@ describe('GET /api/v1/admin/audit-log', () => {
     expect(prisma.auditLog.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { entityType: 'version' },
-      }),
+      })
     );
   });
 
@@ -116,27 +120,29 @@ describe('GET /api/v1/admin/audit-log', () => {
       session: mockSession,
       query: { page: 1, limit: 20, action: 'CREATE' },
     });
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue([mockAuditLogEntries[0]] as any);
+    vi.mocked(prisma.auditLog.findMany).mockResolvedValue([
+      mockAuditLogEntries[0]!,
+    ] as unknown as Awaited<ReturnType<typeof prisma.auditLog.findMany>>);
     vi.mocked(prisma.auditLog.count).mockResolvedValue(1);
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/audit-log?action=CREATE'),
+      new NextRequest('http://localhost/api/v1/admin/audit-log?action=CREATE')
     );
 
     expect(response.status).toBe(200);
     expect(prisma.auditLog.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { action: 'CREATE' },
-      }),
+      })
     );
   });
 
   it('should require ADMIN role', async () => {
     vi.mocked(applyApiMiddleware).mockRejectedValue(new Error('Forbidden'));
 
-    await expect(
-      GET(new NextRequest('http://localhost/api/v1/admin/audit-log')),
-    ).rejects.toThrow('Forbidden');
+    await expect(GET(new NextRequest('http://localhost/api/v1/admin/audit-log'))).rejects.toThrow(
+      'Forbidden'
+    );
   });
 
   it('should handle pagination correctly', async () => {
@@ -144,11 +150,13 @@ describe('GET /api/v1/admin/audit-log', () => {
       session: mockSession,
       query: { page: 2, limit: 10 },
     });
-    vi.mocked(prisma.auditLog.findMany).mockResolvedValue([] as any);
+    vi.mocked(prisma.auditLog.findMany).mockResolvedValue(
+      [] as Awaited<ReturnType<typeof prisma.auditLog.findMany>>
+    );
     vi.mocked(prisma.auditLog.count).mockResolvedValue(25);
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/audit-log?page=2&limit=10'),
+      new NextRequest('http://localhost/api/v1/admin/audit-log?page=2&limit=10')
     );
 
     expect(response.status).toBe(200);
@@ -161,8 +169,7 @@ describe('GET /api/v1/admin/audit-log', () => {
       expect.objectContaining({
         skip: 10,
         take: 10,
-      }),
+      })
     );
   });
 });
-

@@ -60,6 +60,7 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm prisma:generate
+        continue-on-error: false
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/test' }}
           DIRECT_URL: ${{ secrets.DIRECT_URL || 'postgresql://postgres:postgres@localhost:5432/test' }}
@@ -68,14 +69,17 @@ jobs:
         run: pnpm test:run
         env:
           NODE_ENV: test
+        continue-on-error: false
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
-        if: always()
+        if: always() && (success() || failure())
+        continue-on-error: true
         with:
           files: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
+          fail_ci_if_error: false
 
   build:
     name: Build
@@ -100,12 +104,15 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm prisma:generate
+        continue-on-error: false
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/test' }}
           DIRECT_URL: ${{ secrets.DIRECT_URL || 'postgresql://postgres:postgres@localhost:5432/test' }}
 
       - name: Build application
         run: pnpm build
+        continue-on-error: false
+        timeout-minutes: 10
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
@@ -138,12 +145,15 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm prisma:generate
+        continue-on-error: false
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/test' }}
           DIRECT_URL: ${{ secrets.DIRECT_URL || 'postgresql://postgres:postgres@localhost:5432/test' }}
 
       - name: Build application
         run: pnpm build
+        continue-on-error: false
+        timeout-minutes: 10
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
@@ -152,14 +162,14 @@ jobs:
 
       - name: Run E2E tests
         run: pnpm test:e2e
+        continue-on-error: false
+        timeout-minutes: 15
         env:
           CI: true
           PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
-          # Allow console errors in CI (tests check for them)
           NODE_ENV: test
-        continue-on-error: false
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

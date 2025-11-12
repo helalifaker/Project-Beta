@@ -18,12 +18,12 @@ vi.mock('@/lib/api/middleware', () => ({
     return async () => {
       try {
         return await fn();
-      } catch (error: any) {
-        if (error instanceof NotFoundError || error.name === 'NotFoundError') {
-          return Response.json(
-            { error: 'NOT_FOUND', message: error.message },
-            { status: 404 },
-          );
+      } catch (error: unknown) {
+        if (
+          error instanceof NotFoundError ||
+          (error instanceof Error && error.name === 'NotFoundError')
+        ) {
+          return Response.json({ error: 'NOT_FOUND', message: error.message }, { status: 404 });
         }
         throw error;
       }
@@ -67,8 +67,10 @@ describe('GET /api/v1/admin/capex-categories/[id]', () => {
     vi.mocked(capexCategoryRepository.findUnique).mockResolvedValue(mockCategory);
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000'),
-      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) },
+      new NextRequest(
+        'http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000'
+      ),
+      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) }
     );
 
     expect(response.status).toBe(200);
@@ -87,8 +89,10 @@ describe('GET /api/v1/admin/capex-categories/[id]', () => {
     vi.mocked(capexCategoryRepository.findUnique).mockResolvedValue(null);
 
     const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440001'),
-      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440001' }) },
+      new NextRequest(
+        'http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440001'
+      ),
+      { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440001' }) }
     );
 
     expect(response.status).toBe(404);
@@ -101,9 +105,11 @@ describe('GET /api/v1/admin/capex-categories/[id]', () => {
 
     await expect(
       GET(
-        new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000'),
-        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) },
-      ),
+        new NextRequest(
+          'http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000'
+        ),
+        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) }
+      )
     ).rejects.toThrow('Unauthorized');
   });
 });
@@ -126,16 +132,13 @@ describe('PUT /api/v1/admin/capex-categories/[id]', () => {
         method: 'PUT',
         body: JSON.stringify(updateData),
       }),
-      { params: Promise.resolve({ id: categoryId }) },
+      { params: Promise.resolve({ id: categoryId }) }
     );
 
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.data.name).toBe('Updated Technology');
-    expect(capexCategoryRepository.update).toHaveBeenCalledWith(
-      { id: categoryId },
-      updateData,
-    );
+    expect(capexCategoryRepository.update).toHaveBeenCalledWith({ id: categoryId }, updateData);
   });
 
   it('should require ADMIN role', async () => {
@@ -143,12 +146,15 @@ describe('PUT /api/v1/admin/capex-categories/[id]', () => {
 
     await expect(
       PUT(
-        new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000', {
-          method: 'PUT',
-          body: JSON.stringify({ name: 'Updated' }),
-        }),
-        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) },
-      ),
+        new NextRequest(
+          'http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000',
+          {
+            method: 'PUT',
+            body: JSON.stringify({ name: 'Updated' }),
+          }
+        ),
+        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) }
+      )
     ).rejects.toThrow('Forbidden');
   });
 
@@ -161,8 +167,8 @@ describe('PUT /api/v1/admin/capex-categories/[id]', () => {
           method: 'PUT',
           body: JSON.stringify({ name: '' }),
         }),
-        { params: Promise.resolve({ id: 'cat-1' }) },
-      ),
+        { params: Promise.resolve({ id: 'cat-1' }) }
+      )
     ).rejects.toThrow('Validation failed');
   });
 });
@@ -179,7 +185,7 @@ describe('DELETE /api/v1/admin/capex-categories/[id]', () => {
       new NextRequest(`http://localhost/api/v1/admin/capex-categories/${categoryId}`, {
         method: 'DELETE',
       }),
-      { params: Promise.resolve({ id: categoryId }) },
+      { params: Promise.resolve({ id: categoryId }) }
     );
 
     expect(response.status).toBe(200);
@@ -193,12 +199,14 @@ describe('DELETE /api/v1/admin/capex-categories/[id]', () => {
 
     await expect(
       DELETE(
-        new NextRequest('http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000', {
-          method: 'DELETE',
-        }),
-        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) },
-      ),
+        new NextRequest(
+          'http://localhost/api/v1/admin/capex-categories/550e8400-e29b-41d4-a716-446655440000',
+          {
+            method: 'DELETE',
+          }
+        ),
+        { params: Promise.resolve({ id: '550e8400-e29b-41d4-a716-446655440000' }) }
+      )
     ).rejects.toThrow('Forbidden');
   });
 });
-

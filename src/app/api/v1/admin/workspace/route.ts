@@ -21,7 +21,7 @@ const updateWorkspaceSchema = z.object({
 });
 
 export const GET = withErrorHandling(async (request: NextRequest) => {
-  const { session } = await applyApiMiddleware(request, {
+  await applyApiMiddleware(request, {
     requireAuth: true,
     requireRole: 'ADMIN',
   });
@@ -32,14 +32,17 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 });
 
 export const PUT = withErrorHandling(async (request: NextRequest) => {
-  const { session, body } = await applyApiMiddleware(request, {
+  const { body } = await applyApiMiddleware(request, {
     requireAuth: true,
     requireRole: 'ADMIN',
     validateBody: updateWorkspaceSchema,
   });
 
   const workspace = await workspaceRepository.getOrCreateDefault();
-  const updated = await workspaceRepository.updateSettings(workspace.id, body as z.infer<typeof updateWorkspaceSchema>);
+  const updated = await workspaceRepository.updateSettings(
+    workspace.id,
+    body as z.infer<typeof updateWorkspaceSchema>
+  );
 
   return successResponse(updated);
 });

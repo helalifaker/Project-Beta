@@ -3,7 +3,6 @@
  * Logs user actions for audit trail
  */
 
-import { prisma } from '@/lib/db/prisma';
 import type { UserRole } from '@/types/auth';
 
 export type AuditAction =
@@ -40,7 +39,8 @@ export async function createAuditLog(entry: AuditLogEntry): Promise<void> {
   try {
     // TODO: Implement when AuditLog model is added to Prisma schema
     // For now, log to console
-    console.log('[AUDIT]', {
+
+    console.warn('[AUDIT]', {
       ...entry,
       timestamp: new Date().toISOString(),
     });
@@ -68,10 +68,10 @@ export async function createAuditLog(entry: AuditLogEntry): Promise<void> {
  * Get audit logs for a user
  */
 export async function getAuditLogs(
-  userId?: string,
-  entityType?: string,
-  entityId?: string,
-  limit: number = 100
+  _userId?: string,
+  _entityType?: string,
+  _entityId?: string,
+  _limit: number = 100
 ): Promise<unknown[]> {
   try {
     // TODO: Implement when AuditLog model is added to Prisma schema
@@ -81,4 +81,3 @@ export async function getAuditLogs(
     return [];
   }
 }
-

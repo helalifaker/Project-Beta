@@ -11,13 +11,7 @@ import type { JSX } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,7 +23,7 @@ export default function NewVersionPage(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
@@ -52,7 +46,7 @@ export default function NewVersionPage(): JSX.Element {
       }
 
       const data = await response.json();
-      
+
       // Redirect to the new version detail page
       router.push(`/versions/${data.data.id}`);
       router.refresh();
@@ -79,9 +73,11 @@ export default function NewVersionPage(): JSX.Element {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error ? <Alert variant="destructive" className="mb-4">
+          {error ? (
+            <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
-            </Alert> : null}
+            </Alert>
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -137,4 +133,3 @@ export default function NewVersionPage(): JSX.Element {
     </div>
   );
 }
-

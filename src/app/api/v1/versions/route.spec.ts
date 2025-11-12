@@ -59,7 +59,9 @@ describe('GET /api/v1/versions', () => {
       session: mockSession,
       query: { page: 1, limit: 20 },
     });
-    vi.mocked(versionRepository.findWithFilters).mockResolvedValue(mockVersions as any);
+    vi.mocked(versionRepository.findWithFilters).mockResolvedValue(
+      mockVersions as Awaited<ReturnType<typeof versionRepository.findWithFilters>>
+    );
 
     const response = await GET(new Request('http://localhost/api/v1/versions?page=1&limit=20'));
 
@@ -75,7 +77,9 @@ describe('GET /api/v1/versions', () => {
       session: mockSession,
       query: { page: 1, limit: 20, status: 'DRAFT' },
     });
-    vi.mocked(versionRepository.findWithFilters).mockResolvedValue([mockVersions[0]] as any);
+    vi.mocked(versionRepository.findWithFilters).mockResolvedValue([mockVersions[0]!] as Awaited<
+      ReturnType<typeof versionRepository.findWithFilters>
+    >);
 
     const response = await GET(new Request('http://localhost/api/v1/versions?status=DRAFT'));
 
@@ -90,11 +94,11 @@ describe('GET /api/v1/versions', () => {
       session: mockSession,
       query: { page: 1, limit: 20, search: 'Version 1' },
     });
-    vi.mocked(versionRepository.findWithFilters).mockResolvedValue([mockVersions[0]] as any);
+    vi.mocked(versionRepository.findWithFilters).mockResolvedValue([mockVersions[0]!] as Awaited<
+      ReturnType<typeof versionRepository.findWithFilters>
+    >);
 
-    const response = await GET(
-      new Request('http://localhost/api/v1/versions?search=Version%201'),
-    );
+    const response = await GET(new Request('http://localhost/api/v1/versions?search=Version%201'));
 
     expect(response.status).toBe(200);
     expect(versionRepository.findWithFilters).toHaveBeenCalledWith({
@@ -106,7 +110,7 @@ describe('GET /api/v1/versions', () => {
     vi.mocked(applyApiMiddleware).mockRejectedValue(new Error('Unauthorized'));
 
     await expect(GET(new Request('http://localhost/api/v1/versions'))).rejects.toThrow(
-      'Unauthorized',
+      'Unauthorized'
     );
   });
 });
@@ -135,7 +139,9 @@ describe('POST /api/v1/versions', () => {
         description: 'New test version',
       },
     });
-    vi.mocked(versionRepository.create).mockResolvedValue(newVersion as any);
+    vi.mocked(versionRepository.create).mockResolvedValue(
+      newVersion as Awaited<ReturnType<typeof versionRepository.create>>
+    );
 
     const response = await POST(
       new Request('http://localhost/api/v1/versions', {
@@ -144,7 +150,7 @@ describe('POST /api/v1/versions', () => {
           name: 'New Version',
           description: 'New test version',
         }),
-      }),
+      })
     );
 
     expect(response.status).toBe(201);
@@ -176,7 +182,9 @@ describe('POST /api/v1/versions', () => {
         baseVersionId: 'v-1',
       },
     });
-    vi.mocked(versionRepository.duplicateVersion).mockResolvedValue(duplicatedVersion as any);
+    vi.mocked(versionRepository.duplicateVersion).mockResolvedValue(
+      duplicatedVersion as Awaited<ReturnType<typeof versionRepository.duplicateVersion>>
+    );
 
     const response = await POST(
       new Request('http://localhost/api/v1/versions', {
@@ -185,11 +193,15 @@ describe('POST /api/v1/versions', () => {
           name: 'Duplicated Version',
           baseVersionId: 'v-1',
         }),
-      }),
+      })
     );
 
     expect(response.status).toBe(201);
-    expect(versionRepository.duplicateVersion).toHaveBeenCalledWith('v-1', 'Duplicated Version', 'user-1');
+    expect(versionRepository.duplicateVersion).toHaveBeenCalledWith(
+      'v-1',
+      'Duplicated Version',
+      'user-1'
+    );
   });
 
   it('should require ADMIN or ANALYST role', async () => {
@@ -200,9 +212,8 @@ describe('POST /api/v1/versions', () => {
         new Request('http://localhost/api/v1/versions', {
           method: 'POST',
           body: JSON.stringify({ name: 'Test Version' }),
-        }),
-      ),
+        })
+      )
     ).rejects.toThrow('Forbidden');
   });
 });
-

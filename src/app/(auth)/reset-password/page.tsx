@@ -11,17 +11,10 @@ import type { JSX } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { sendPasswordReset } from '@/lib/auth/utils';
-
 
 export default function ResetPasswordPage(): JSX.Element {
   const [email, setEmail] = useState('');
@@ -45,7 +38,7 @@ export default function ResetPasswordPage(): JSX.Element {
       }
 
       setSuccess(true);
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
@@ -58,7 +51,8 @@ export default function ResetPasswordPage(): JSX.Element {
           <CardHeader>
             <CardTitle>Check your email</CardTitle>
             <CardDescription>
-              We've sent a password reset link to {email}. Click the link in the email to reset your password.
+              We&apos;ve sent a password reset link to {email}. Click the link in the email to reset
+              your password.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -79,13 +73,15 @@ export default function ResetPasswordPage(): JSX.Element {
         <CardHeader>
           <CardTitle>Reset password</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error ? <Alert variant="destructive" className="mb-4">
+          {error ? (
+            <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
-            </Alert> : null}
+            </Alert>
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -114,4 +110,3 @@ export default function ResetPasswordPage(): JSX.Element {
     </div>
   );
 }
-

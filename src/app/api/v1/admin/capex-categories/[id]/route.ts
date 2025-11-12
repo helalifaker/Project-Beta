@@ -22,7 +22,7 @@ const updateCapexCategorySchema = z.object({
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
     await applyApiMiddleware(request, {
       requireAuth: true,
@@ -46,7 +46,7 @@ export async function GET(
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
     const { body } = await applyApiMiddleware(request, {
       requireAuth: true,
@@ -67,10 +67,7 @@ export async function PUT(
       updateInput.description = updateData.description;
     }
 
-    const category = await capexCategoryRepository.update(
-      { id: validated.id },
-      updateInput
-    );
+    const category = await capexCategoryRepository.update({ id: validated.id }, updateInput);
 
     return successResponse(category);
   })();
@@ -79,7 +76,7 @@ export async function PUT(
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<Response> {
   return withErrorHandling(async () => {
     await applyApiMiddleware(request, {
       requireAuth: true,
@@ -94,4 +91,3 @@ export async function DELETE(
     return successResponse({ success: true });
   })();
 }
-

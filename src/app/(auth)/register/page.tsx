@@ -11,18 +11,11 @@ import type { JSX } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { UserRole } from '@/types/auth';
-
 
 export default function RegisterPage(): JSX.Element {
   const router = useRouter();
@@ -39,11 +32,14 @@ export default function RegisterPage(): JSX.Element {
 
   // Check authentication on mount
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = async (): Promise<void> => {
       try {
         const supabase = getSupabaseClient();
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
         if (sessionError || !session) {
           router.push('/login?redirect=/register');
           return;
@@ -62,14 +58,15 @@ export default function RegisterPage(): JSX.Element {
           return;
         }
 
-        if (profile.role !== 'ADMIN') {
+        const profileRole = (profile as { role: string | null })?.role;
+        if (profileRole !== 'ADMIN') {
           setError('Only administrators can create user accounts.');
           setIsCheckingAuth(false);
           return;
         }
 
         setIsAuthenticated(true);
-      } catch (err) {
+      } catch {
         setError('Failed to verify authentication. Please try again.');
       } finally {
         setIsCheckingAuth(false);
@@ -99,8 +96,10 @@ export default function RegisterPage(): JSX.Element {
     try {
       // Get session token for API request
       const supabase = getSupabaseClient();
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
+
       if (!currentSession) {
         setError('You must be logged in to create users. Please refresh the page.');
         setIsLoading(false);
@@ -134,7 +133,9 @@ export default function RegisterPage(): JSX.Element {
         router.push('/admin/users');
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.');
+      setError(
+        err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.'
+      );
       setIsLoading(false);
     }
   };
@@ -159,9 +160,7 @@ export default function RegisterPage(): JSX.Element {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>User created successfully</CardTitle>
-            <CardDescription>
-              Redirecting to user management...
-            </CardDescription>
+            <CardDescription>Redirecting to user management...</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -193,14 +192,14 @@ export default function RegisterPage(): JSX.Element {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create new user</CardTitle>
-          <CardDescription>
-            Register a new user account (Admin only)
-          </CardDescription>
+          <CardDescription>Register a new user account (Admin only)</CardDescription>
         </CardHeader>
         <CardContent>
-          {error ? <Alert variant="destructive" className="mb-4">
+          {error ? (
+            <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
-            </Alert> : null}
+            </Alert>
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -268,4 +267,3 @@ export default function RegisterPage(): JSX.Element {
     </div>
   );
 }
-

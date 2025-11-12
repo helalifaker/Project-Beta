@@ -16,11 +16,14 @@ vi.mock('@/lib/api/middleware', () => ({
     return async () => {
       try {
         return await fn();
-      } catch (error: any) {
-        if (error instanceof NotFoundError || error.name === 'NotFoundError') {
+      } catch (error: unknown) {
+        if (
+          error instanceof NotFoundError ||
+          (error instanceof Error && error.name === 'NotFoundError')
+        ) {
           return Response.json(
-            { error: 'NOT_FOUND', message: error.message },
-            { status: 404 },
+            { error: 'NOT_FOUND', message: error instanceof Error ? error.message : 'Not found' },
+            { status: 404 }
           );
         }
         throw error;
@@ -68,25 +71,26 @@ describe('PUT /api/v1/versions/[id]/lock', () => {
       session: mockSession,
       body: { action: 'lock' },
     });
-    vi.mocked(versionRepository.findUnique).mockResolvedValue(mockVersion as any);
-    vi.mocked(versionRepository.lockVersion).mockResolvedValue(lockedVersion as any);
+    vi.mocked(versionRepository.findUnique).mockResolvedValue(
+      mockVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
+    );
+    vi.mocked(versionRepository.lockVersion).mockResolvedValue(
+      lockedVersion as Awaited<ReturnType<typeof versionRepository.lockVersion>>
+    );
 
     const response = await PUT(
       new Request(`http://localhost/api/v1/versions/${mockVersion.id}/lock`, {
         method: 'PUT',
         body: JSON.stringify({ action: 'lock' }),
       }),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+      { params: Promise.resolve({ id: mockVersion.id }) }
     );
 
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.data.status).toBe('LOCKED');
     expect(body.data.lockedAt).toBeDefined();
-    expect(versionRepository.lockVersion).toHaveBeenCalledWith(
-      mockVersion.id,
-      mockSession.user.id,
-    );
+    expect(versionRepository.lockVersion).toHaveBeenCalledWith(mockVersion.id, mockSession.user.id);
   });
 
   it('should unlock version successfully', async () => {
@@ -106,15 +110,19 @@ describe('PUT /api/v1/versions/[id]/lock', () => {
       session: mockSession,
       body: { action: 'unlock' },
     });
-    vi.mocked(versionRepository.findUnique).mockResolvedValue(lockedVersion as any);
-    vi.mocked(versionRepository.unlockVersion).mockResolvedValue(unlockedVersion as any);
+    vi.mocked(versionRepository.findUnique).mockResolvedValue(
+      lockedVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
+    );
+    vi.mocked(versionRepository.unlockVersion).mockResolvedValue(
+      unlockedVersion as Awaited<ReturnType<typeof versionRepository.unlockVersion>>
+    );
 
     const response = await PUT(
       new Request(`http://localhost/api/v1/versions/${mockVersion.id}/lock`, {
         method: 'PUT',
         body: JSON.stringify({ action: 'unlock' }),
       }),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+      { params: Promise.resolve({ id: mockVersion.id }) }
     );
 
     expect(response.status).toBe(200);
@@ -137,7 +145,7 @@ describe('PUT /api/v1/versions/[id]/lock', () => {
         method: 'PUT',
         body: JSON.stringify({ action: 'lock' }),
       }),
-      { params: Promise.resolve({ id: versionId }) },
+      { params: Promise.resolve({ id: versionId }) }
     );
 
     expect(response.status).toBe(404);
@@ -152,8 +160,8 @@ describe('PUT /api/v1/versions/[id]/lock', () => {
           method: 'PUT',
           body: JSON.stringify({ action: 'lock' }),
         }),
-        { params: Promise.resolve({ id: mockVersion.id }) },
-      ),
+        { params: Promise.resolve({ id: mockVersion.id }) }
+      )
     ).rejects.toThrow('Forbidden');
   });
 
@@ -166,9 +174,8 @@ describe('PUT /api/v1/versions/[id]/lock', () => {
           method: 'PUT',
           body: JSON.stringify({ action: 'invalid' }),
         }),
-        { params: Promise.resolve({ id: mockVersion.id }) },
-      ),
+        { params: Promise.resolve({ id: mockVersion.id }) }
+      )
     ).rejects.toThrow('Validation failed');
   });
 });
-

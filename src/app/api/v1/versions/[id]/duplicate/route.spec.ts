@@ -16,11 +16,14 @@ vi.mock('@/lib/api/middleware', () => ({
     return async () => {
       try {
         return await fn();
-      } catch (error: any) {
-        if (error instanceof NotFoundError || error.name === 'NotFoundError') {
+      } catch (error: unknown) {
+        if (
+          error instanceof NotFoundError ||
+          (error instanceof Error && error.name === 'NotFoundError')
+        ) {
           return Response.json(
-            { error: 'NOT_FOUND', message: error.message },
-            { status: 404 },
+            { error: 'NOT_FOUND', message: error instanceof Error ? error.message : 'Not found' },
+            { status: 404 }
           );
         }
         throw error;
@@ -72,9 +75,11 @@ describe('POST /api/v1/versions/[id]/duplicate', () => {
       session: mockSession,
       body: { name: 'Duplicated Version' },
     });
-    vi.mocked(versionRepository.findUnique).mockResolvedValue(mockSourceVersion as any);
+    vi.mocked(versionRepository.findUnique).mockResolvedValue(
+      mockSourceVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
+    );
     vi.mocked(versionRepository.duplicateVersion).mockResolvedValue(
-      mockDuplicatedVersion as any,
+      mockDuplicatedVersion as Awaited<ReturnType<typeof versionRepository.duplicateVersion>>
     );
 
     const response = await POST(
@@ -82,7 +87,7 @@ describe('POST /api/v1/versions/[id]/duplicate', () => {
         method: 'POST',
         body: JSON.stringify({ name: 'Duplicated Version' }),
       }),
-      { params: Promise.resolve({ id: mockSourceVersion.id }) },
+      { params: Promise.resolve({ id: mockSourceVersion.id }) }
     );
 
     expect(response.status).toBe(201);
@@ -91,7 +96,7 @@ describe('POST /api/v1/versions/[id]/duplicate', () => {
     expect(versionRepository.duplicateVersion).toHaveBeenCalledWith(
       mockSourceVersion.id,
       'Duplicated Version',
-      mockSession.user.id,
+      mockSession.user.id
     );
   });
 
@@ -108,7 +113,7 @@ describe('POST /api/v1/versions/[id]/duplicate', () => {
         method: 'POST',
         body: JSON.stringify({ name: 'Duplicated Version' }),
       }),
-      { params: Promise.resolve({ id: versionId }) },
+      { params: Promise.resolve({ id: versionId }) }
     );
 
     expect(response.status).toBe(404);
@@ -123,8 +128,8 @@ describe('POST /api/v1/versions/[id]/duplicate', () => {
           method: 'POST',
           body: JSON.stringify({ name: 'Duplicated' }),
         }),
-        { params: Promise.resolve({ id: mockSourceVersion.id }) },
-      ),
+        { params: Promise.resolve({ id: mockSourceVersion.id }) }
+      )
     ).rejects.toThrow('Unauthorized');
   });
 
@@ -137,9 +142,8 @@ describe('POST /api/v1/versions/[id]/duplicate', () => {
           method: 'POST',
           body: JSON.stringify({ name: '' }),
         }),
-        { params: Promise.resolve({ id: mockSourceVersion.id }) },
-      ),
+        { params: Promise.resolve({ id: mockSourceVersion.id }) }
+      )
     ).rejects.toThrow('Validation failed');
   });
 });
-

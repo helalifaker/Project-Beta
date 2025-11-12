@@ -10,7 +10,6 @@ import { getServerUser } from '@/lib/auth/session';
 
 import ProfilePage from './page';
 
-
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
 }));
@@ -20,7 +19,7 @@ vi.mock('@/lib/auth/session', () => ({
 }));
 
 vi.mock('@/components/features/auth/profile-form', () => ({
-  ProfileForm: ({ user }: { user: any }) => (
+  ProfileForm: ({ user }: { user: { email: string } }) => (
     <div data-testid="profile-form">Profile Form for {user.email}</div>
   ),
 }));
@@ -57,4 +56,3 @@ describe('ProfilePage', () => {
     expect(screen.getByText(/Profile Form for test@example.com/)).toBeInTheDocument();
   });
 });
-

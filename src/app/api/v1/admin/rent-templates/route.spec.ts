@@ -55,11 +55,11 @@ describe('GET /api/v1/admin/rent-templates', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: mockSession,
     });
-    vi.mocked(rentTemplateRepository.findMany).mockResolvedValue(mockTemplates as unknown as Awaited<ReturnType<typeof rentTemplateRepository.findMany>>);
-
-    const response = await GET(
-      new NextRequest('http://localhost/api/v1/admin/rent-templates'),
+    vi.mocked(rentTemplateRepository.findMany).mockResolvedValue(
+      mockTemplates as unknown as Awaited<ReturnType<typeof rentTemplateRepository.findMany>>
     );
+
+    const response = await GET(new NextRequest('http://localhost/api/v1/admin/rent-templates'));
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -68,7 +68,7 @@ describe('GET /api/v1/admin/rent-templates', () => {
         ...t,
         createdAt: t.createdAt.toISOString(),
         updatedAt: t.updatedAt.toISOString(),
-      })),
+      }))
     );
   });
 
@@ -76,7 +76,7 @@ describe('GET /api/v1/admin/rent-templates', () => {
     vi.mocked(applyApiMiddleware).mockRejectedValue(new Error('Unauthorized'));
 
     await expect(
-      GET(new NextRequest('http://localhost/api/v1/admin/rent-templates')),
+      GET(new NextRequest('http://localhost/api/v1/admin/rent-templates'))
     ).rejects.toThrow();
   });
 });
@@ -104,7 +104,9 @@ describe('POST /api/v1/admin/rent-templates', () => {
         params: { revenuePercentage: 0.15, floor: 1000000 },
       },
     });
-    vi.mocked(rentTemplateRepository.create).mockResolvedValue(newTemplate as any);
+    vi.mocked(rentTemplateRepository.create).mockResolvedValue(
+      newTemplate as Awaited<ReturnType<typeof rentTemplateRepository.create>>
+    );
 
     const response = await POST(
       new NextRequest('http://localhost/api/v1/admin/rent-templates', {
@@ -114,7 +116,7 @@ describe('POST /api/v1/admin/rent-templates', () => {
           type: 'REV_SHARE',
           params: { revenuePercentage: 0.15, floor: 1000000 },
         }),
-      }),
+      })
     );
 
     expect(response.status).toBe(201);
@@ -135,8 +137,8 @@ describe('POST /api/v1/admin/rent-templates', () => {
             type: 'FIXED_ESC',
             params: {},
           }),
-        }),
-      ),
+        })
+      )
     ).rejects.toThrow();
   });
 
@@ -148,9 +150,8 @@ describe('POST /api/v1/admin/rent-templates', () => {
         new NextRequest('http://localhost/api/v1/admin/rent-templates', {
           method: 'POST',
           body: JSON.stringify({ name: '' }),
-        }),
-      ),
+        })
+      )
     ).rejects.toThrow();
   });
 });
-

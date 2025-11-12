@@ -16,17 +16,23 @@ vi.mock('@/lib/api/middleware', () => ({
     return async () => {
       try {
         return await fn();
-      } catch (error: any) {
-        if (error instanceof NotFoundError || error.name === 'NotFoundError') {
+      } catch (error: unknown) {
+        if (
+          error instanceof NotFoundError ||
+          (error instanceof Error && error.name === 'NotFoundError')
+        ) {
           return Response.json(
-            { error: 'NOT_FOUND', message: error.message },
-            { status: 404 },
+            { error: 'NOT_FOUND', message: error instanceof Error ? error.message : 'Not found' },
+            { status: 404 }
           );
         }
-        if (error instanceof ForbiddenError || error.name === 'ForbiddenError') {
+        if (
+          error instanceof ForbiddenError ||
+          (error instanceof Error && error.name === 'ForbiddenError')
+        ) {
           return Response.json(
-            { error: 'FORBIDDEN', message: error.message },
-            { status: 403 },
+            { error: 'FORBIDDEN', message: error instanceof Error ? error.message : 'Forbidden' },
+            { status: 403 }
           );
         }
         throw error;
@@ -68,12 +74,13 @@ describe('GET /api/v1/versions/[id]', () => {
     vi.mocked(applyApiMiddleware).mockResolvedValue({
       session: adminSession,
     });
-    vi.mocked(versionRepository.findUnique).mockResolvedValue(mockVersion as any);
-
-    const response = await GET(
-      new Request(`http://localhost/api/v1/versions/${mockVersion.id}`),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+    vi.mocked(versionRepository.findUnique).mockResolvedValue(
+      mockVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
     );
+
+    const response = await GET(new Request(`http://localhost/api/v1/versions/${mockVersion.id}`), {
+      params: Promise.resolve({ id: mockVersion.id }),
+    });
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -91,10 +98,9 @@ describe('GET /api/v1/versions/[id]', () => {
     vi.mocked(versionRepository.findUnique).mockResolvedValue(null);
 
     const versionId = '550e8400-e29b-41d4-a716-446655440021';
-    const response = await GET(
-      new Request(`http://localhost/api/v1/versions/${versionId}`),
-      { params: Promise.resolve({ id: versionId }) },
-    );
+    const response = await GET(new Request(`http://localhost/api/v1/versions/${versionId}`), {
+      params: Promise.resolve({ id: versionId }),
+    });
 
     expect(response.status).toBe(404);
   });
@@ -108,19 +114,23 @@ describe('PUT /api/v1/versions/[id]', () => {
       body: updateData,
     });
     vi.mocked(versionRepository.findUnique)
-      .mockResolvedValueOnce(mockVersion as any)
-      .mockResolvedValueOnce({ ...mockVersion, ...updateData } as any);
+      .mockResolvedValueOnce(
+        mockVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
+      )
+      .mockResolvedValueOnce({ ...mockVersion, ...updateData } as Awaited<
+        ReturnType<typeof versionRepository.findUnique>
+      >);
     vi.mocked(versionRepository.update).mockResolvedValue({
       ...mockVersion,
       ...updateData,
-    } as any);
+    } as Awaited<ReturnType<typeof versionRepository.update>>);
 
     const response = await PUT(
       new Request(`http://localhost/api/v1/versions/${mockVersion.id}`, {
         method: 'PUT',
         body: JSON.stringify(updateData),
       }),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+      { params: Promise.resolve({ id: mockVersion.id }) }
     );
 
     expect(response.status).toBe(200);
@@ -133,25 +143,27 @@ describe('PUT /api/v1/versions/[id]', () => {
       session: adminSession,
       body: { status: 'READY' },
     });
-    vi.mocked(versionRepository.findUnique).mockResolvedValue(mockVersion as any);
+    vi.mocked(versionRepository.findUnique).mockResolvedValue(
+      mockVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
+    );
     vi.mocked(versionRepository.updateStatus).mockResolvedValue({
       ...mockVersion,
-      status: 'READY',
-    } as any);
+      status: 'READY' as const,
+    } as Awaited<ReturnType<typeof versionRepository.updateStatus>>);
 
     const response = await PUT(
       new Request(`http://localhost/api/v1/versions/${mockVersion.id}`, {
         method: 'PUT',
         body: JSON.stringify({ status: 'READY' }),
       }),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+      { params: Promise.resolve({ id: mockVersion.id }) }
     );
 
     expect(response.status).toBe(200);
     expect(versionRepository.updateStatus).toHaveBeenCalledWith(
       mockVersion.id,
       'READY',
-      adminSession.user.id,
+      adminSession.user.id
     );
   });
 
@@ -161,14 +173,16 @@ describe('PUT /api/v1/versions/[id]', () => {
       session: analystSession,
       body: { name: 'Updated' },
     });
-    vi.mocked(versionRepository.findUnique).mockResolvedValue(lockedVersion as any);
+    vi.mocked(versionRepository.findUnique).mockResolvedValue(
+      lockedVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
+    );
 
     const response = await PUT(
       new Request(`http://localhost/api/v1/versions/${mockVersion.id}`, {
         method: 'PUT',
         body: JSON.stringify({ name: 'Updated' }),
       }),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+      { params: Promise.resolve({ id: mockVersion.id }) }
     );
 
     expect(response.status).toBe(403);
@@ -182,14 +196,16 @@ describe('PUT /api/v1/versions/[id]', () => {
       session: otherUserSession,
       body: { name: 'Updated' },
     });
-    vi.mocked(versionRepository.findUnique).mockResolvedValue(mockVersion as any);
+    vi.mocked(versionRepository.findUnique).mockResolvedValue(
+      mockVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
+    );
 
     const response = await PUT(
       new Request(`http://localhost/api/v1/versions/${mockVersion.id}`, {
         method: 'PUT',
         body: JSON.stringify({ name: 'Updated' }),
       }),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+      { params: Promise.resolve({ id: mockVersion.id }) }
     );
 
     expect(response.status).toBe(403);
@@ -201,19 +217,23 @@ describe('PUT /api/v1/versions/[id]', () => {
       body: { name: 'Updated by Admin' },
     });
     vi.mocked(versionRepository.findUnique)
-      .mockResolvedValueOnce(mockVersion as any)
-      .mockResolvedValueOnce({ ...mockVersion, name: 'Updated by Admin' } as any);
+      .mockResolvedValueOnce(
+        mockVersion as Awaited<ReturnType<typeof versionRepository.findUnique>>
+      )
+      .mockResolvedValueOnce({ ...mockVersion, name: 'Updated by Admin' } as Awaited<
+        ReturnType<typeof versionRepository.findUnique>
+      >);
     vi.mocked(versionRepository.update).mockResolvedValue({
       ...mockVersion,
       name: 'Updated by Admin',
-    } as any);
+    } as Awaited<ReturnType<typeof versionRepository.update>>);
 
     const response = await PUT(
       new Request(`http://localhost/api/v1/versions/${mockVersion.id}`, {
         method: 'PUT',
         body: JSON.stringify({ name: 'Updated by Admin' }),
       }),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+      { params: Promise.resolve({ id: mockVersion.id }) }
     );
 
     expect(response.status).toBe(200);
@@ -228,13 +248,13 @@ describe('DELETE /api/v1/versions/[id]', () => {
     vi.mocked(versionRepository.softDelete).mockResolvedValue({
       ...mockVersion,
       deletedAt: new Date(),
-    } as any);
+    } as Awaited<ReturnType<typeof versionRepository.softDelete>>);
 
     const response = await DELETE(
       new Request(`http://localhost/api/v1/versions/${mockVersion.id}`, {
         method: 'DELETE',
       }),
-      { params: Promise.resolve({ id: mockVersion.id }) },
+      { params: Promise.resolve({ id: mockVersion.id }) }
     );
 
     expect(response.status).toBe(200);
@@ -249,9 +269,8 @@ describe('DELETE /api/v1/versions/[id]', () => {
         new Request(`http://localhost/api/v1/versions/${mockVersion.id}`, {
           method: 'DELETE',
         }),
-        { params: Promise.resolve({ id: mockVersion.id }) },
-      ),
+        { params: Promise.resolve({ id: mockVersion.id }) }
+      )
     ).rejects.toThrow('Forbidden');
   });
 });
-

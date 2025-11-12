@@ -10,7 +10,6 @@ import type { JSX } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MODEL_START_YEAR, MODEL_END_YEAR } from '@/lib/finance/constants';
 import { formatCurrency } from '@/lib/utils/format';
 
 interface ComparisonTableProps {
@@ -42,10 +41,11 @@ export function ComparisonTable({ versionIds }: ComparisonTableProps): JSX.Eleme
     enabled: versionIds.length >= 2,
   });
 
-  const _years = Array.from(
-    { length: MODEL_END_YEAR - MODEL_START_YEAR + 1 },
-    (_, i) => MODEL_START_YEAR + i
-  ).slice(0, 10); // Show first 10 years
+  // Years array for table display (first 10 years)
+  // const years = Array.from(
+  //   { length: MODEL_END_YEAR - MODEL_START_YEAR + 1 },
+  //   (_, i) => MODEL_START_YEAR + i
+  // ).slice(0, 10);
 
   if (isLoading) {
     return (

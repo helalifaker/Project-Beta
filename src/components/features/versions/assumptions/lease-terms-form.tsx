@@ -1,5 +1,4 @@
 /**
-import type { JSX } from 'react';
  * Lease terms form
  * Configure rent model (Fixed+Esc, Revenue Share, Partner)
  */
@@ -8,6 +7,7 @@ import type { JSX } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import type { JSX } from 'react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';

@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Capex form
  * Configure capex rules and schedule
  */
@@ -37,7 +38,10 @@ export function CapexForm({ versionId }: CapexFormProps): JSX.Element {
         <CardContent className="space-y-6">
           <div>
             <Label htmlFor="ruleType">Capex Rule Type</Label>
-            <Select value={ruleType} onValueChange={(value) => setRuleType(value as typeof ruleType)}>
+            <Select
+              value={ruleType}
+              onValueChange={(value) => setRuleType(value as typeof ruleType)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

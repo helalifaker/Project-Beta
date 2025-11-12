@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Curriculum form
  * Configure curriculum capacity, ramp, and enrollment
  */
@@ -26,17 +27,19 @@ interface CurriculumFormProps {
   versionId: string;
 }
 
-async function fetchCurriculumTemplates(): Promise<Array<{
-  id: string;
-  name: string;
-  capacity: number;
-  launchYear: number;
-}>> {
+async function fetchCurriculumTemplates(): Promise<
+  Array<{
+    id: string;
+    name: string;
+    capacity: number;
+    launchYear: number;
+  }>
+> {
   try {
     const response = await fetch('/api/v1/admin/curriculum-templates', {
       credentials: 'include', // Include cookies for authentication
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('Failed to fetch curriculum templates:', {
@@ -44,26 +47,34 @@ async function fetchCurriculumTemplates(): Promise<Array<{
         statusText: response.statusText,
         error: errorData,
       });
-      throw new Error(`Failed to fetch curriculum templates: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch curriculum templates: ${response.status} ${response.statusText}`
+      );
     }
-    
+
     const result = await response.json();
-    
+
     // Handle both { data: [...] } and direct array responses
     const templates = result.data || result || [];
-    
+
     // Transform Prisma Decimal fields to numbers if needed
-    return templates.map((template: {
-      id: string;
-      name: string;
-      capacity: number | string;
-      launchYear: number | string;
-    }) => ({
-      id: template.id,
-      name: template.name,
-      capacity: typeof template.capacity === 'number' ? template.capacity : Number(template.capacity),
-      launchYear: typeof template.launchYear === 'number' ? template.launchYear : Number(template.launchYear),
-    }));
+    return templates.map(
+      (template: {
+        id: string;
+        name: string;
+        capacity: number | string;
+        launchYear: number | string;
+      }) => ({
+        id: template.id,
+        name: template.name,
+        capacity:
+          typeof template.capacity === 'number' ? template.capacity : Number(template.capacity),
+        launchYear:
+          typeof template.launchYear === 'number'
+            ? template.launchYear
+            : Number(template.launchYear),
+      })
+    );
   } catch (error) {
     console.error('Error fetching curriculum templates:', error);
     throw error;
@@ -97,7 +108,11 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
   const [selectedCurriculum, setSelectedCurriculum] = useState<string>('');
   const [customCapacity, setCustomCapacity] = useState<number | undefined>();
 
-  const { data: templates = [], isLoading, error } = useQuery({
+  const {
+    data: templates = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['curriculum-templates'],
     queryFn: fetchCurriculumTemplates,
     retry: 2,
@@ -109,14 +124,11 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
       saveCurriculumConfig(versionId, selectedCurriculum, config),
   });
 
-  const debouncedSave = useDebouncedCallback(
-    (config: { customCapacity?: number }) => {
-      if (selectedCurriculum) {
-        saveMutation.mutate(config);
-      }
-    },
-    2000
-  );
+  const debouncedSave = useDebouncedCallback((config: { customCapacity?: number }) => {
+    if (selectedCurriculum) {
+      saveMutation.mutate(config);
+    }
+  }, 2000);
 
   useEffect(() => {
     if (customCapacity !== undefined && selectedCurriculum) {
@@ -142,7 +154,8 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
               </div>
             ) : templates.length === 0 ? (
               <div className="text-sm text-muted-foreground">
-                No curriculum templates available. Please create templates in Admin → Curriculum Templates.
+                No curriculum templates available. Please create templates in Admin → Curriculum
+                Templates.
               </div>
             ) : (
               <Select value={selectedCurriculum} onValueChange={setSelectedCurriculum}>
@@ -161,7 +174,8 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
           </div>
 
           {/* Custom Capacity Override */}
-          {selectedCurriculum ? <>
+          {selectedCurriculum ? (
+            <>
               <div>
                 <Label htmlFor="customCapacity">Custom Capacity (optional override)</Label>
                 <Input
@@ -181,7 +195,8 @@ export function CurriculumForm({ versionId }: CurriculumFormProps): JSX.Element 
                 curriculumId={selectedCurriculum}
                 customCapacity={customCapacity}
               />
-            </> : null}
+            </>
+          ) : null}
         </CardContent>
       </Card>
     </div>

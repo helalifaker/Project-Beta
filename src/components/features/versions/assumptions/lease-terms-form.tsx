@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Lease terms form
  * Configure rent model (Fixed+Esc, Revenue Share, Partner)
  */
@@ -50,10 +51,7 @@ interface LeaseTermsFormProps {
   versionId: string;
 }
 
-async function saveLeaseTerms(
-  versionId: string,
-  data: LeaseTermsFormData
-): Promise<void> {
+async function saveLeaseTerms(versionId: string, data: LeaseTermsFormData): Promise<void> {
   const response = await fetch(`/api/v1/versions/${versionId}/assumptions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -69,7 +67,9 @@ async function saveLeaseTerms(
 }
 
 export function LeaseTermsForm({ versionId }: LeaseTermsFormProps): JSX.Element {
-  const [rentModelType, setRentModelType] = useState<'FIXED_ESC' | 'REV_SHARE' | 'PARTNER'>('FIXED_ESC');
+  const [rentModelType, setRentModelType] = useState<'FIXED_ESC' | 'REV_SHARE' | 'PARTNER'>(
+    'FIXED_ESC'
+  );
 
   const {
     register,
@@ -143,7 +143,9 @@ export function LeaseTermsForm({ versionId }: LeaseTermsFormProps): JSX.Element 
                     type="number"
                     {...register('baseAmount', { valueAsNumber: true })}
                   />
-                  {errors.baseAmount ? <p className="text-sm text-destructive">{errors.baseAmount.message}</p> : null}
+                  {errors.baseAmount ? (
+                    <p className="text-sm text-destructive">{errors.baseAmount.message}</p>
+                  ) : null}
                 </div>
 
                 <div>
@@ -197,20 +199,12 @@ export function LeaseTermsForm({ versionId }: LeaseTermsFormProps): JSX.Element 
 
                 <div>
                   <Label htmlFor="floor">Floor (SAR)</Label>
-                  <Input
-                    id="floor"
-                    type="number"
-                    {...register('floor', { valueAsNumber: true })}
-                  />
+                  <Input id="floor" type="number" {...register('floor', { valueAsNumber: true })} />
                 </div>
 
                 <div>
                   <Label htmlFor="cap">Cap (SAR)</Label>
-                  <Input
-                    id="cap"
-                    type="number"
-                    {...register('cap', { valueAsNumber: true })}
-                  />
+                  <Input id="cap" type="number" {...register('cap', { valueAsNumber: true })} />
                 </div>
               </>
             )}
@@ -293,13 +287,19 @@ export function LeaseTermsForm({ versionId }: LeaseTermsFormProps): JSX.Element 
             <Button type="submit" disabled={saveMutation.isPending}>
               {saveMutation.isPending ? 'Saving...' : 'Save Lease Terms'}
             </Button>
-            {saveMutation.isSuccess ? <p className="text-sm text-green-600">Saved successfully</p> : null}
+            {saveMutation.isSuccess ? (
+              <p className="text-sm text-green-600">Saved successfully</p>
+            ) : null}
           </form>
         </CardContent>
       </Card>
 
       {/* Rent Schedule Preview */}
-      <RentSchedulePreview versionId={versionId} rentModelType={rentModelType} formData={watchedValues} />
+      <RentSchedulePreview
+        versionId={versionId}
+        rentModelType={rentModelType}
+        formData={watchedValues}
+      />
     </div>
   );
 }

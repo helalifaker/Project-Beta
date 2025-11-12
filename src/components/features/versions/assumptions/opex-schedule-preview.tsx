@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * OpEx schedule preview component
  * Shows OpEx by category and year
  */

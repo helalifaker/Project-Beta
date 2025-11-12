@@ -1,4 +1,5 @@
 /**
+import type { JSX } from 'react';
  * Statements tab
  * Displays financial statements (P&L, Balance Sheet, Cash Flow)
  */
@@ -38,4 +39,3 @@ export function StatementsTab({ versionId }: StatementsTabProps): JSX.Element {
     </Tabs>
   );
 }
-

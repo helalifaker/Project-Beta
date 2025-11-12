@@ -1,10 +1,11 @@
 /**
-import type { JSX } from 'react';
  * Assumptions tab
  * Displays assumptions configuration UI
  */
 
 'use client';
+
+import type { JSX } from 'react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 

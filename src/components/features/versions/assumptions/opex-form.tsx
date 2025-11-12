@@ -1,5 +1,4 @@
 /**
-import type { JSX } from 'react';
  * OpEx form
  * Configure operating expenses (revenue-based percentages)
  */
@@ -9,6 +8,7 @@ import type { JSX } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
+import type { JSX } from 'react';
 import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';

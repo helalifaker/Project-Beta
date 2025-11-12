@@ -1,5 +1,4 @@
 /**
-import type { JSX } from 'react';
  * Curriculum form
  * Configure curriculum capacity, ramp, and enrollment
  */
@@ -7,6 +6,7 @@ import type { JSX } from 'react';
 'use client';
 
 import { useQuery, useMutation } from '@tanstack/react-query';
+import type { JSX } from 'react';
 import { useState, useEffect } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

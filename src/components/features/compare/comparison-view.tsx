@@ -1,5 +1,4 @@
 /**
-import type { JSX } from 'react';
  * Comparison view component
  * Side-by-side comparison of multiple versions
  */
@@ -7,6 +6,7 @@ import type { JSX } from 'react';
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import type { JSX } from 'react';
 import { useState } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -12,7 +12,7 @@ export function useDebouncedCallback<T extends unknown[]>(
   callback: (...args: T) => void,
   wait: number
 ): (...args: T) => void {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   return useCallback(
     (...args: T) => {
@@ -27,4 +27,3 @@ export function useDebouncedCallback<T extends unknown[]>(
     [callback, wait]
   );
 }
-
